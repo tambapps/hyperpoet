@@ -6,7 +6,9 @@ import java.io.IOException;
 
 public class ErrorResponseException extends IOException {
 
+  private final Response response;
+
   public ErrorResponseException(Response response) {
-    // TODO
+    this.response = response;
   }
 }
