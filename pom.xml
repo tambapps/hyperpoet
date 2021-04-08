@@ -37,9 +37,25 @@
       <artifactId>groovy-xml</artifactId>
       <version>${groovy.version}</version>
     </dependency>
+
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>5.1.0</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- to test good integration with Groovy -->
+    <dependency>
+      <groupId>org.codehaus.groovy</groupId>
+      <artifactId>groovy-all</artifactId>
+      <version>${groovy.version}</version>
+      <scope>test</scope>
+      <!-- <type>pom</type>  required JUST since Groovy 2.5.0 -->
+    </dependency>
   </dependencies>
 
   <properties>
-    <groovy.version>2.4.21</groovy.version>
+    <groovy.version>2.4.20</groovy.version>
   </properties>
 </project>
