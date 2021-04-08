@@ -55,9 +55,16 @@ public class GetpackClient {
   }
 
   private <T> T getOrDefault(Map<?, ?> additionalParameters, String key, T defaultValue) {
-    T object = (T) additionalParameters.get(key);
-    return object != null ? object : defaultValue;
+    Object object = additionalParameters.get(key);
+    if (object == null) {
+      return defaultValue;
+    }
+    if (!defaultValue.getClass().isAssignableFrom(object.getClass())) {
+      throw new IllegalArgumentException(String.format("Unexpected type for parameter '%s'", key));
+    }
+    return (T) object;
   }
+
   /**
    * Get the following url/endpoint and use the closure as a response handler
    * @param urlOrEndpoint the url or endpoint
