@@ -15,9 +15,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +26,7 @@ public class GetpackClient {
   private final OkHttpClient client = new OkHttpClient();
   private final String baseUrl;
   private final Closure<?> contentResolver = new MethodClosure(this, "defaultContentResolve");
+  private final Map<String, String> defaultHeaders = new HashMap<>();
 
   public GetpackClient() {
     this("");
@@ -80,6 +81,18 @@ public class GetpackClient {
 
   }
 
+  public Map<String, String> getDefaultHeaders() {
+    return defaultHeaders;
+  }
+
+  public void putDefaultHeader(String key, String value) {
+    defaultHeaders.put(key, value);
+  }
+
+  public boolean removeDefaultHeader(String key) {
+    return defaultHeaders.remove(key) != null;
+  }
+
   private Request.Builder request(String urlOrEndpoint, Map<?, ?> additionalParameters) {
     // url stuff
     String url = getUrl(urlOrEndpoint);
@@ -91,10 +104,12 @@ public class GetpackClient {
     if (!params.isEmpty()) {
       url = url + "?" + String.join("&", params);
     }
-    // headers stuff
-    // TODO handle default headers
-    Map<?, ?> headers = getOrDefault(additionalParameters, "headers", Map.class, Collections.emptyMap());
     Request.Builder builder = new Request.Builder().url(url);
+    // headers stuff
+    for (Map.Entry<String, String> entry : defaultHeaders.entrySet()) {
+      builder.header(entry.getKey(), entry.getValue());
+    }
+    Map<?, ?> headers = getOrDefault(additionalParameters, "headers", Map.class, Collections.emptyMap());
     for (Map.Entry<?, ?> entry : headers.entrySet()) {
       builder.header(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
     }
@@ -120,6 +135,7 @@ public class GetpackClient {
     }
   }
 
+  // used by method closure
   protected Object defaultContentResolve(Response response) throws IOException {
     ResponseBody body = response.body();
     if (body == null) {
