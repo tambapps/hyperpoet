@@ -34,10 +34,15 @@ import java.util.Map;
 
 public class GetpackClient {
 
+  @Getter
   private final OkHttpClient client = new OkHttpClient();
+  @Getter
   private final String baseUrl;
-  private final Closure<?> contentResolver = new MethodClosure(this, "defaultContentResolve");
+  @Getter
   private final Map<String, String> defaultHeaders = new HashMap<>();
+  @Getter
+  @Setter
+  private Closure<?> contentResolver = new MethodClosure(this, "defaultContentResolve");
   @Getter
   @Setter
   private ContentType contentType;
@@ -177,6 +182,14 @@ public class GetpackClient {
     return responseHandler.call(response);
   }
 
+  public void putDefaultHeader(String key, String value) {
+    defaultHeaders.put(key, value);
+  }
+
+  public boolean removeDefaultHeader(String key) {
+    return defaultHeaders.remove(key) != null;
+  }
+
   private Object handleResponse(Response response, Map<?, ?> additionalParameters) throws IOException {
     ResponseBody body = response.body();
     if (body == null) {
@@ -198,18 +211,6 @@ public class GetpackClient {
       throw new IllegalArgumentException(String.format("Unexpected type for parameter '%s'", key));
     }
     return (T) object;
-  }
-
-  public Map<String, String> getDefaultHeaders() {
-    return defaultHeaders;
-  }
-
-  public void putDefaultHeader(String key, String value) {
-    defaultHeaders.put(key, value);
-  }
-
-  public boolean removeDefaultHeader(String key) {
-    return defaultHeaders.remove(key) != null;
   }
 
   private RequestBody requestBody(Map<?, ?> additionalParameters) throws IOException {
