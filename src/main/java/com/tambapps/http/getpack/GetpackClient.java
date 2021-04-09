@@ -119,6 +119,28 @@ public class GetpackClient {
     return responseHandler.call(response);
   }
 
+  public Object delete(String urlOrEndpoint) throws IOException {
+    return delete(Collections.emptyMap(), urlOrEndpoint);
+  }
+
+  public Object delete(Map<?, ?> additionalParameters, String urlOrEndpoint) throws IOException {
+    Request request = request(urlOrEndpoint, additionalParameters).delete().build();
+
+    Response response = client.newCall(request).execute();
+    return handleResponse(response, additionalParameters);
+  }
+
+  public Object delete(String urlOrEndpoint, Closure<Void> responseHandler) throws IOException {
+    return delete(Collections.emptyMap(), urlOrEndpoint, responseHandler);
+  }
+
+  public Object delete(Map<?, ?> additionalParameters, String urlOrEndpoint, Closure<Void> responseHandler)
+      throws IOException {
+    Request request = request(urlOrEndpoint, additionalParameters).delete().build();
+    Response response = client.newCall(request).execute();
+    return responseHandler.call(response);
+  }
+
   public Object get(String urlOrEndpoint) throws IOException {
     return get(Collections.emptyMap(), urlOrEndpoint);
   }
