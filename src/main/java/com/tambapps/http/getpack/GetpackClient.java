@@ -41,6 +41,9 @@ public class GetpackClient {
   private Closure<?> contentResolver = new MethodClosure(this, "defaultContentResolve");
   @Getter
   @Setter
+  private Closure<?> errorResponseHandler = new MethodClosure(this, "errorResponseHandler");
+  @Getter
+  @Setter
   private ContentType defaultContentType;
   @Getter
   @Setter
@@ -190,12 +193,12 @@ public class GetpackClient {
   }
 
   private Object handleResponse(Response response, Map<?, ?> additionalParameters) throws IOException {
+    if (!response.isSuccessful()) {
+      return errorResponseHandler.call(response);
+    }
     ResponseBody body = response.body();
     if (body == null) {
       return null;
-    }
-    if (!response.isSuccessful()) {
-      throw new ErrorResponseException(response);
     }
     Closure<?> contentResolver = getOrDefault(additionalParameters, "contentResolver", Closure.class, this.contentResolver);
     return contentResolver.call(response);
@@ -311,5 +314,9 @@ public class GetpackClient {
     } else {
       return body.string();
     }
+  }
+
+  protected Object errorResponseHandle(Response response) throws IOException {
+    throw new ErrorResponseException(response);
   }
 }
