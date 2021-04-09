@@ -76,6 +76,29 @@ public class GetpackClient {
     this.baseUrl = baseUrl != null ? baseUrl : "";
   }
 
+  public Object method(String urlOrEndpoint, String method) throws IOException {
+    return method(Collections.emptyMap(), urlOrEndpoint, method);
+  }
+
+  public Object method(Map<?, ?> additionalParameters, String urlOrEndpoint, String method) throws IOException {
+    RequestBody requestBody = requestBody(additionalParameters);
+    Request request = request(urlOrEndpoint, additionalParameters).method(method, requestBody).build();
+    Response response = client.newCall(request).execute();
+    return handleResponse(response, additionalParameters);
+  }
+
+  public Object method(String urlOrEndpoint, String method, Closure<Void> responseHandler) throws IOException {
+    return method(Collections.emptyMap(), urlOrEndpoint, method, responseHandler);
+  }
+
+  public Object method(Map<?, ?> additionalParameters, String urlOrEndpoint, String method, Closure<Void> responseHandler)
+      throws IOException {
+    RequestBody requestBody = requestBody(additionalParameters);
+    Request request = request(urlOrEndpoint, additionalParameters).method(method, requestBody).build();
+    Response response = client.newCall(request).execute();
+    return responseHandler.call(response);
+  }
+
   public Object put(String urlOrEndpoint) throws IOException {
     return put(Collections.emptyMap(), urlOrEndpoint);
   }
@@ -238,6 +261,9 @@ public class GetpackClient {
     Object body = getOrDefault(additionalParameters, "body", Object.class, null);
     ContentType contentType = getOrDefault(additionalParameters, "contentType", ContentType.class,
         this.contentType);
+    if (body == null) {
+      return RequestBody.create(null, new byte[]{});
+    }
     Closure<?> bodyEncoder = getOrDefault(additionalParameters, "bodyEncoder", Closure.class, this.bodyEncoder);
     return (RequestBody) bodyEncoder.call(body, contentType);
   }
@@ -299,9 +325,6 @@ public class GetpackClient {
 
   // used by method closure
   protected RequestBody encodeBody(Object body, ContentType contentType) throws IOException {
-    if (body == null) {
-      return RequestBody.create(null, new byte[]{});
-    }
     // this also handles MultipartBody
     if (body instanceof RequestBody) {
       return (RequestBody) body;
