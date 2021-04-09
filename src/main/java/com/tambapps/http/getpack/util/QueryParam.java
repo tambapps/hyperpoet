@@ -5,6 +5,9 @@ import lombok.Value;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+/**
+ * Represents a single query parameter
+ */
 @Value
 public class QueryParam {
 
@@ -16,6 +19,10 @@ public class QueryParam {
     return key + "=" + value;
   }
 
+  /**
+   * Returns this query parameter URL encoded
+   * @return this query parameter URL encoded
+   */
   public String encoded() {
     return urlEncode(key) + "=" + urlEncode(value);
   }

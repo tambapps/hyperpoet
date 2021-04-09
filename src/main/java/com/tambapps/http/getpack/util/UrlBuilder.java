@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * Util class to build URLs. It takes care of the URL encoding with the encoded() method
+ */
 @Getter
 public class UrlBuilder {
 
@@ -24,6 +27,11 @@ public class UrlBuilder {
     this.url = url != null ? extractQueryParams(url) : "";
   }
 
+  /**
+   * Appends the given relative path or url to this builder
+   * @param urlOrEndpoint a relative path or url
+   * @return this
+   */
   public UrlBuilder append(String urlOrEndpoint) {
     urlOrEndpoint = extractQueryParams(urlOrEndpoint);
     if (url.isEmpty()) {
@@ -38,6 +46,11 @@ public class UrlBuilder {
     return this;
   }
 
+  /**
+   * Add query params to this URL builder
+   * @param queryParams maps containing query params
+   * @return this
+   */
   public UrlBuilder addParams(Map<?, ?> queryParams) {
     for (Map.Entry<?, ?> entry : queryParams.entrySet()) {
       addParam(entry.getKey(), entry.getValue());
@@ -45,11 +58,21 @@ public class UrlBuilder {
     return this;
   }
 
+  /**
+   * Add a query param
+   * @param key the name of the parameter
+   * @param value its value
+   * @return
+   */
   public UrlBuilder addParam(Object key, Object value) {
     queryParams.add(new QueryParam(String.valueOf(key), String.valueOf(value)));
     return this;
   }
 
+  /**
+   * Returns the full URL represented by this builder, with encoded query parameters if any
+   * @return the full URL represented by this builder, with encoded query parameters if any
+   */
   public String encoded() {
     if (queryParams.isEmpty()) {
       return url;
@@ -58,6 +81,10 @@ public class UrlBuilder {
 
   }
 
+  /**
+   * Returns the full URL represented by this builder, with NOT encoded query parameters if any
+   * @return the full URL represented by this builder, with NOT encoded query parameters if any
+   */
   @Override
   public String toString() {
     if (queryParams.isEmpty()) {

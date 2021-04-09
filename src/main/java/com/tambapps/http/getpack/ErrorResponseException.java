@@ -5,6 +5,9 @@ import okhttp3.Response;
 
 import java.io.IOException;
 
+/**
+ * Exception thrown when an error response is received
+ */
 public class ErrorResponseException extends IOException {
 
   @Getter

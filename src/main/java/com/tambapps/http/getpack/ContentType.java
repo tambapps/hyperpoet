@@ -3,6 +3,9 @@ package com.tambapps.http.getpack;
 import lombok.Getter;
 import okhttp3.MediaType;
 
+/**
+ * Enum representing many media content types
+ */
 public enum ContentType {
   TEXT("text/plain"),
   JSON("application/json"),
