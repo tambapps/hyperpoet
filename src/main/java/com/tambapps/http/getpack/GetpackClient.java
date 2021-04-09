@@ -2,6 +2,7 @@ package com.tambapps.http.getpack;
 
 import com.tambapps.http.getpack.auth.Auth;
 import com.tambapps.http.getpack.exception.ErrorResponseException;
+import com.tambapps.http.getpack.util.UrlBuilder;
 import groovy.json.JsonOutput;
 import groovy.json.JsonSlurper;
 import groovy.lang.Closure;
@@ -10,7 +11,6 @@ import groovy.util.XmlSlurper;
 import groovy.xml.XmlUtil;
 import lombok.Getter;
 import lombok.Setter;
-import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -274,16 +274,9 @@ public class GetpackClient {
 
   private Request.Builder request(String urlOrEndpoint, Map<?, ?> additionalParameters) {
     // url stuff
-    String url = getUrl(urlOrEndpoint);
-    Map<?, ?> queryParams = getOrDefault(additionalParameters, "query", Map.class, Collections.emptyMap());
-    List<String> params = new ArrayList<>();
-    for (Map.Entry<?, ?> entry : queryParams.entrySet()) {
-      params.add(String.format("%s=%s", urlEncode(entry.getKey()), urlEncode(entry.getValue())));
-    }
-    if (!params.isEmpty()) {
-      // TODO handle case when provided url already contains some query params
-      url = url + "?" + String.join("&", params);
-    }
+    String url = new UrlBuilder(baseUrl).append(urlOrEndpoint)
+        .addParams(getOrDefault(additionalParameters, "params", Map.class, Collections.emptyMap()))
+        .encoded();
     Request.Builder builder = new Request.Builder().url(url);
     // headers stuff
     for (Map.Entry<String, String> entry : defaultHeaders.entrySet()) {
@@ -297,25 +290,6 @@ public class GetpackClient {
       auth.apply(builder);
     }
     return builder;
-  }
-
-  private String urlEncode(Object o) {
-    try {
-      return URLEncoder.encode(String.valueOf(o), "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException("Couldn't URL encode", e);
-    }
-  }
-
-  private String getUrl(String urlOrEndpoint) {
-    if (baseUrl.isEmpty()) {
-      return urlOrEndpoint;
-    }
-    if (baseUrl.endsWith("/")) {
-      return baseUrl + (urlOrEndpoint.startsWith("/") ? urlOrEndpoint.substring(1) : urlOrEndpoint);
-    } else {
-      return baseUrl + (urlOrEndpoint.startsWith("/") ? urlOrEndpoint :  "/" + urlOrEndpoint);
-    }
   }
 
   // used by method closure
