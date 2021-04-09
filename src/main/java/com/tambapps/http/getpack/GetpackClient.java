@@ -37,10 +37,10 @@ public class GetpackClient {
   private final Map<String, String> defaultHeaders = new HashMap<>();
   @Getter
   @Setter
-  private Closure<?> contentResolver = new MethodClosure(this, "defaultContentResolve");
+  private Closure<?> defaultContentResolver = new MethodClosure(this, "defaultContentResolve");
   @Getter
   @Setter
-  private Closure<?> errorResponseHandler = new MethodClosure(this, "errorResponseHandle");
+  private Closure<?> defaultErrorResponseHandler = new MethodClosure(this, "errorResponseHandle");
   @Getter
   @Setter
   private Closure<?> defaultBodyEncoder = new MethodClosure(this, "bodyEncode");
@@ -52,7 +52,7 @@ public class GetpackClient {
   private ContentType defaultAcceptContentType;
   @Getter
   @Setter
-  private Auth auth;
+  private Auth defaultAuth;
 
   public GetpackClient() {
     this("");
@@ -64,12 +64,12 @@ public class GetpackClient {
     for (Map.Entry<?, ?> entry : headers.entrySet()) {
       putDefaultHeader(entry.getKey(), entry.getValue());
     }
-    this.contentResolver = getOrDefault(properties, "contentResolver", Closure.class, this.contentResolver);
-    this.errorResponseHandler = getOrDefault(properties, "errorResponseHandler", Closure.class, this.errorResponseHandler);
+    this.defaultContentResolver = getOrDefault(properties, "contentResolver", Closure.class, this.defaultContentResolver);
+    this.defaultErrorResponseHandler = getOrDefault(properties, "errorResponseHandler", Closure.class, this.defaultErrorResponseHandler);
     this.defaultBodyEncoder = getOrDefault(properties, "bodyEncoder", Closure.class, this.defaultBodyEncoder);
     this.defaultContentType = getOrDefault(properties, "contentType", ContentType.class, defaultContentType);
     this.defaultAcceptContentType = getOrDefault(properties, "acceptContentType", ContentType.class, this.defaultAcceptContentType);
-    this.auth = getOrDefault(properties, "auth", Auth.class, null);
+    this.defaultAuth = getOrDefault(properties, "auth", Auth.class, null);
   }
 
   public GetpackClient(String baseUrl) {
@@ -213,13 +213,13 @@ public class GetpackClient {
 
   private Object handleResponse(Response response, Map<?, ?> additionalParameters) {
     if (!response.isSuccessful()) {
-      return errorResponseHandler.call(response);
+      return defaultErrorResponseHandler.call(response);
     }
     ResponseBody body = response.body();
     if (body == null) {
       return null;
     }
-    Closure<?> contentResolver = getOrDefault(additionalParameters, "contentResolver", Closure.class, this.contentResolver);
+    Closure<?> contentResolver = getOrDefault(additionalParameters, "contentResolver", Closure.class, this.defaultContentResolver);
     return contentResolver.call(response);
   }
 
@@ -255,7 +255,7 @@ public class GetpackClient {
     for (Map.Entry<?, ?> entry : headers.entrySet()) {
       builder.header(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
     }
-    Auth auth = getOrDefault(additionalParameters, "auth", Auth.class, this.auth);
+    Auth auth = getOrDefault(additionalParameters, "auth", Auth.class, this.defaultAuth);
     if (auth != null) {
       auth.apply(builder);
     }
