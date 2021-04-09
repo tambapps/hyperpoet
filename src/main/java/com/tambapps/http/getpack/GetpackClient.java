@@ -43,6 +43,9 @@ public class GetpackClient {
   private Closure<?> errorResponseHandler = new MethodClosure(this, "errorResponseHandle");
   @Getter
   @Setter
+  private Closure<?> defaultBodyEncoder = new MethodClosure(this, "bodyEncode");
+  @Getter
+  @Setter
   private ContentType defaultContentType;
   @Getter
   @Setter
@@ -63,6 +66,7 @@ public class GetpackClient {
     }
     this.contentResolver = getOrDefault(properties, "contentResolver", Closure.class, this.contentResolver);
     this.errorResponseHandler = getOrDefault(properties, "errorResponseHandler", Closure.class, this.errorResponseHandler);
+    this.defaultBodyEncoder = getOrDefault(properties, "bodyEncoder", Closure.class, this.defaultBodyEncoder);
     this.defaultContentType = getOrDefault(properties, "contentType", ContentType.class, defaultContentType);
     this.defaultAcceptContentType = getOrDefault(properties, "acceptContentType", ContentType.class, this.defaultAcceptContentType);
     this.auth = getOrDefault(properties, "auth", Auth.class, null);
@@ -207,7 +211,7 @@ public class GetpackClient {
     return defaultHeaders.remove(key) != null;
   }
 
-  private Object handleResponse(Response response, Map<?, ?> additionalParameters) throws IOException {
+  private Object handleResponse(Response response, Map<?, ?> additionalParameters) {
     if (!response.isSuccessful()) {
       return errorResponseHandler.call(response);
     }
@@ -230,60 +234,11 @@ public class GetpackClient {
     return (T) object;
   }
 
-  private RequestBody requestBody(Map<?, ?> additionalParameters) throws IOException {
+  private RequestBody requestBody(Map<?, ?> additionalParameters) {
     Object body = getOrDefault(additionalParameters, "body", Object.class, null);
-    if (body == null) {
-      return RequestBody.create(null, new byte[]{});
-    }
-    // this also handles MultipartBody
-    if (body instanceof RequestBody) {
-      return (RequestBody) body;
-    }
     ContentType contentType = getOrDefault(additionalParameters, "contentType", ContentType.class, defaultContentType);
-    if (contentType == null) {
-      return RequestBody.create(String.valueOf(body).getBytes(StandardCharsets.UTF_8));
-    }
-    switch (contentType) {
-      case JSON:
-        String jsonBody;
-        if (body instanceof CharSequence) {
-          jsonBody = body.toString();
-        } else {
-          jsonBody = JsonOutput.toJson(body);
-        }
-        return RequestBody.create(jsonBody.getBytes(StandardCharsets.UTF_8), contentType.getMediaType());
-      case XML:
-        String xmlData;
-        if (body instanceof CharSequence) {
-          xmlData = body.toString();
-        } else if (body instanceof Node) {
-          xmlData = XmlUtil.serialize((Node) body);
-        } else {
-          throw new IllegalArgumentException("body must be a String or a groovy.util.Node to be serialized to XML");
-        }
-        return RequestBody.create(xmlData.getBytes(StandardCharsets.UTF_8), contentType.getMediaType());
-      case TEXT:
-      case HTML:
-        return RequestBody.create(String.valueOf(body).getBytes(StandardCharsets.UTF_8), contentType.getMediaType());
-      case BINARY:
-        byte[] bytes;
-        if (body instanceof byte[]) {
-          bytes = (byte[]) body;
-        } else if (body instanceof Byte[]) {
-          Byte[] bytes1 = (Byte[]) body;
-          bytes = new byte[bytes1.length];
-          for (int i = 0; i < bytes.length; i++) {
-            bytes[i] = bytes1[i];
-          }
-        } else if (body instanceof InputStream) {
-          bytes = IOGroovyMethods.getBytes((InputStream) body);
-        } else {
-          throw new IllegalArgumentException("body must be a byte array or an InputStream to be serialized to XML");
-        }
-        return RequestBody.create(bytes, contentType.getMediaType());
-      default:
-        throw new UnsupportedOperationException(contentType + " type is not handled");
-    }
+    Closure<?> bodyEncoder = getOrDefault(additionalParameters, "bodyEncoder", Closure.class, this.defaultBodyEncoder);
+    return (RequestBody) bodyEncoder.call(body, contentType);
   }
 
   private Request.Builder request(String urlOrEndpoint, Map<?, ?> additionalParameters) {
@@ -336,7 +291,63 @@ public class GetpackClient {
     }
   }
 
+  // used by method closure
   protected Object errorResponseHandle(Response response) throws IOException {
     throw new ErrorResponseException(response);
+  }
+
+  // used by method closure
+  protected RequestBody bodyEncode(Object body, ContentType contentType) throws IOException {
+    if (body == null) {
+      return RequestBody.create(null, new byte[]{});
+    }
+    // this also handles MultipartBody
+    if (body instanceof RequestBody) {
+      return (RequestBody) body;
+    }
+    if (contentType == null) {
+      return RequestBody.create(String.valueOf(body).getBytes(StandardCharsets.UTF_8));
+    }
+    switch (contentType) {
+      case JSON:
+        String jsonBody;
+        if (body instanceof CharSequence) {
+          jsonBody = body.toString();
+        } else {
+          jsonBody = JsonOutput.toJson(body);
+        }
+        return RequestBody.create(jsonBody.getBytes(StandardCharsets.UTF_8), contentType.getMediaType());
+      case XML:
+        String xmlData;
+        if (body instanceof CharSequence) {
+          xmlData = body.toString();
+        } else if (body instanceof Node) {
+          xmlData = XmlUtil.serialize((Node) body);
+        } else {
+          throw new IllegalArgumentException("body must be a String or a groovy.util.Node to be serialized to XML");
+        }
+        return RequestBody.create(xmlData.getBytes(StandardCharsets.UTF_8), contentType.getMediaType());
+      case TEXT:
+      case HTML:
+        return RequestBody.create(String.valueOf(body).getBytes(StandardCharsets.UTF_8), contentType.getMediaType());
+      case BINARY:
+        byte[] bytes;
+        if (body instanceof byte[]) {
+          bytes = (byte[]) body;
+        } else if (body instanceof Byte[]) {
+          Byte[] bytes1 = (Byte[]) body;
+          bytes = new byte[bytes1.length];
+          for (int i = 0; i < bytes.length; i++) {
+            bytes[i] = bytes1[i];
+          }
+        } else if (body instanceof InputStream) {
+          bytes = IOGroovyMethods.getBytes((InputStream) body);
+        } else {
+          throw new IllegalArgumentException("body must be a byte array or an InputStream to be serialized to XML");
+        }
+        return RequestBody.create(bytes, contentType.getMediaType());
+      default:
+        throw new UnsupportedOperationException(contentType + " type is not handled");
+    }
   }
 }
