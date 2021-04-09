@@ -53,6 +53,21 @@ public class GetpackClient {
     this("");
   }
 
+  public GetpackClient(Map<?, ?> properties) {
+    this.baseUrl = getOrDefault(properties, "url", String.class, "");
+    Map<?, ?> headers = getOrDefault(properties, "headers", Map.class, Collections.emptyMap());
+    for (Map.Entry<?, ?> entry : headers.entrySet()) {
+      putDefaultHeader(entry.getKey(), entry.getValue());
+    }
+    this.contentResolver = getOrDefault(properties, "contentResolver", Closure.class, this.contentResolver);
+    this.errorResponseHandler = getOrDefault(properties, "errorResponseHandler", Closure.class, this.errorResponseHandler);
+    String contentTypeString = getOrDefault(properties, "contentType", String.class, null);
+    if (contentTypeString != null) {
+      defaultContentType = ContentType.valueOf(contentTypeString);
+    }
+    this.auth = getOrDefault(properties, "auth", Auth.class, null);
+  }
+
   public GetpackClient(String baseUrl) {
     this.baseUrl = baseUrl != null ? baseUrl : "";
   }
@@ -184,8 +199,8 @@ public class GetpackClient {
     return responseHandler.call(response);
   }
 
-  public void putDefaultHeader(String key, String value) {
-    defaultHeaders.put(key, value);
+  public void putDefaultHeader(Object key, Object value) {
+    defaultHeaders.put(String.valueOf(key), String.valueOf(value));
   }
 
   public boolean removeDefaultHeader(String key) {
@@ -286,6 +301,7 @@ public class GetpackClient {
     for (Map.Entry<?, ?> entry : headers.entrySet()) {
       builder.header(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
     }
+    Auth auth = getOrDefault(additionalParameters, "auth", Auth.class, this.auth);
     if (auth != null) {
       auth.apply(builder);
     }
