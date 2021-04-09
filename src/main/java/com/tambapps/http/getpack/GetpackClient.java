@@ -1,5 +1,6 @@
 package com.tambapps.http.getpack;
 
+import com.tambapps.http.getpack.auth.Auth;
 import com.tambapps.http.getpack.exception.ErrorResponseException;
 import groovy.json.JsonOutput;
 import groovy.json.JsonSlurper;
@@ -46,6 +47,9 @@ public class GetpackClient {
   @Getter
   @Setter
   private ContentType contentType;
+  @Getter
+  @Setter
+  private Auth auth;
 
   public GetpackClient() {
     this("");
@@ -288,6 +292,9 @@ public class GetpackClient {
     Map<?, ?> headers = getOrDefault(additionalParameters, "headers", Map.class, Collections.emptyMap());
     for (Map.Entry<?, ?> entry : headers.entrySet()) {
       builder.header(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
+    }
+    if (auth != null) {
+      auth.apply(builder);
     }
     return builder;
   }
