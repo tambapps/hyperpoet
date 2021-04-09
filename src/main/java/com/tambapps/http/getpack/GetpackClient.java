@@ -37,13 +37,13 @@ public class GetpackClient {
   private final Map<String, String> headers = new HashMap<>();
   @Getter
   @Setter
-  private Closure<?> contentResolver = new MethodClosure(this, "defaultContentResolve");
+  private Closure<?> contentResolver = new MethodClosure(this, "resolveContent");
   @Getter
   @Setter
-  private Closure<?> errorResponseHandler = new MethodClosure(this, "errorResponseHandle");
+  private Closure<?> errorResponseHandler = new MethodClosure(this, "handleErrorResponse");
   @Getter
   @Setter
-  private Closure<?> bodyEncoder = new MethodClosure(this, "bodyEncode");
+  private Closure<?> bodyEncoder = new MethodClosure(this, "encodeBody");
   @Getter
   @Setter
   private ContentType contentType;
@@ -269,7 +269,7 @@ public class GetpackClient {
   }
 
   // used by method closure
-  protected Object defaultContentResolve(Response response) throws IOException {
+  protected Object resolveContent(Response response) throws IOException {
     ResponseBody body = response.body();
     if (body == null) {
       return null;
@@ -293,12 +293,12 @@ public class GetpackClient {
   }
 
   // used by method closure
-  protected Object errorResponseHandle(Response response) throws IOException {
+  protected Object handleErrorResponse(Response response) throws IOException {
     throw new ErrorResponseException(response);
   }
 
   // used by method closure
-  protected RequestBody bodyEncode(Object body, ContentType contentType) throws IOException {
+  protected RequestBody encodeBody(Object body, ContentType contentType) throws IOException {
     if (body == null) {
       return RequestBody.create(null, new byte[]{});
     }
