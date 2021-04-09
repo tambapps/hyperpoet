@@ -72,13 +72,22 @@ public class GetpackClient {
     return (T) object;
   }
 
+  public Object get(String urlOrEndpoint, Closure<Void> responseHandler) throws IOException {
+    return get(Collections.emptyMap(), urlOrEndpoint, responseHandler);
+  }
+
   /**
    * Get the following url/endpoint and use the closure as a response handler
+   * @param additionalParameters additional parameters
    * @param urlOrEndpoint the url or endpoint
-   * @param closure the response handler
+   * @param responseHandler the response handler
+   * @return the value returned by the responseHandler
    */
-  public void get(String urlOrEndpoint, Closure<Void> closure) {
-
+  public Object get(Map<?, ?> additionalParameters, String urlOrEndpoint, Closure<Void> responseHandler)
+      throws IOException {
+    Request request = request(urlOrEndpoint, additionalParameters).get().build();
+    Response response = client.newCall(request).execute();
+    return responseHandler.call(response);
   }
 
   public Map<String, String> getDefaultHeaders() {
@@ -102,6 +111,7 @@ public class GetpackClient {
       params.add(String.format("%s=%s", urlEncode(entry.getKey()), urlEncode(entry.getValue())));
     }
     if (!params.isEmpty()) {
+      // TODO handle case when provided url already contains some query params
       url = url + "?" + String.join("&", params);
     }
     Request.Builder builder = new Request.Builder().url(url);
