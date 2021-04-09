@@ -46,6 +46,9 @@ public class GetpackClient {
   private ContentType defaultContentType;
   @Getter
   @Setter
+  private ContentType defaultAcceptContentType;
+  @Getter
+  @Setter
   private Auth auth;
 
   public GetpackClient() {
@@ -61,6 +64,7 @@ public class GetpackClient {
     this.contentResolver = getOrDefault(properties, "contentResolver", Closure.class, this.contentResolver);
     this.errorResponseHandler = getOrDefault(properties, "errorResponseHandler", Closure.class, this.errorResponseHandler);
     this.defaultContentType = getOrDefault(properties, "contentType", ContentType.class, defaultContentType);
+    this.defaultAcceptContentType = getOrDefault(properties, "acceptContentType", ContentType.class, this.defaultAcceptContentType);
     this.auth = getOrDefault(properties, "auth", Auth.class, null);
   }
 
@@ -299,6 +303,11 @@ public class GetpackClient {
     Auth auth = getOrDefault(additionalParameters, "auth", Auth.class, this.auth);
     if (auth != null) {
       auth.apply(builder);
+    }
+
+    ContentType acceptContentType = getOrDefault(additionalParameters, "acceptContentType", ContentType.class, this.defaultAcceptContentType);
+    if (acceptContentType != null) {
+      builder.header("Content-Type", acceptContentType.getMediaType().toString());
     }
     return builder;
   }
