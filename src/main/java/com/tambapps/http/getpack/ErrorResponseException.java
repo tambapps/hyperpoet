@@ -1,4 +1,4 @@
-package com.tambapps.http.getpack.exception;
+package com.tambapps.http.getpack;
 
 import okhttp3.Response;
 

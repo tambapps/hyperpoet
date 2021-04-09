@@ -1,7 +1,6 @@
 package com.tambapps.http.getpack;
 
 import com.tambapps.http.getpack.auth.Auth;
-import com.tambapps.http.getpack.exception.ErrorResponseException;
 import com.tambapps.http.getpack.util.UrlBuilder;
 import groovy.json.JsonOutput;
 import groovy.json.JsonSlurper;
@@ -24,13 +23,9 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class GetpackClient {
