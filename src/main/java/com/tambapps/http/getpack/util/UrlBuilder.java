@@ -1,30 +1,40 @@
 package com.tambapps.http.getpack.util;
 
+import lombok.Getter;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+@Getter
 public class UrlBuilder {
 
   private String url;
   private final List<QueryParam> queryParams = new ArrayList<>();
 
+  public UrlBuilder() {
+    this("");
+  }
+
   public UrlBuilder(String url) {
-    this.url = url != null ? url : "";
-    extractQueryParams(url);
+    this.url = url != null ? extractQueryParams(url) : "";
   }
 
   public UrlBuilder append(String urlOrEndpoint) {
+    urlOrEndpoint = extractQueryParams(urlOrEndpoint);
     if (url.isEmpty()) {
       url = urlOrEndpoint;
+      return this;
     }
     if (url.endsWith("/")) {
       url = url + (urlOrEndpoint.startsWith("/") ? urlOrEndpoint.substring(1) : urlOrEndpoint);
     } else {
       url = url + (urlOrEndpoint.startsWith("/") ? urlOrEndpoint :  "/" + urlOrEndpoint);
     }
-    extractQueryParams(urlOrEndpoint);
     return this;
   }
 
@@ -56,22 +66,51 @@ public class UrlBuilder {
     return url + "?" + queryParams.stream().map(QueryParam::toString).collect(Collectors.joining("&"));
   }
 
-  private void extractQueryParams(String url) {
+  /**
+   * Extract query param and returns the url without them
+   * @param url the url
+   * @return the url without query params
+   */
+  private String extractQueryParams(String url) {
     if (url == null || url.isEmpty()) {
-      return;
+      return url;
     }
     int start = url.indexOf("?");
     if (start < 0 || start >= url.length() - 1) {
-      return;
+      return url;
     }
     String paramsString = url.substring(start + 1);
     String[] params = paramsString.split("&");
     for (String param : params) {
       String[] fields = param.split("=");
       if (fields.length == 2) {
-        queryParams.add(new QueryParam(fields[0], fields[1]));
+        queryParams.add(new QueryParam(urlDecode(fields[0]), urlDecode(fields[1])));
       }
     }
+    return url.substring(0, start);
   }
 
+  private String urlDecode(String s) {
+    try {
+      return URLDecoder.decode(s, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException("Couldn't URL decode", e);
+    }
+  }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    UrlBuilder that = (UrlBuilder) o;
+    return toString().equals(that.toString());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(toString());
+  }
 }
