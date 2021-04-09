@@ -50,6 +50,29 @@ public class GetpackClient {
     this.baseUrl = baseUrl != null ? baseUrl : "";
   }
 
+  public Object patch(String urlOrEndpoint) throws IOException {
+    return patch(Collections.emptyMap(), urlOrEndpoint);
+  }
+
+  public Object patch(Map<?, ?> additionalParameters, String urlOrEndpoint) throws IOException {
+    RequestBody requestBody = requestBody(additionalParameters);
+    Request request = request(urlOrEndpoint, additionalParameters).patch(requestBody).build();
+    Response response = client.newCall(request).execute();
+    return handleResponse(response, additionalParameters);
+  }
+
+  public Object patch(String urlOrEndpoint, Closure<Void> responseHandler) throws IOException {
+    return post(Collections.emptyMap(), urlOrEndpoint, responseHandler);
+  }
+
+  public Object patch(Map<?, ?> additionalParameters, String urlOrEndpoint, Closure<Void> responseHandler)
+      throws IOException {
+    RequestBody requestBody = requestBody(additionalParameters);
+    Request request = request(urlOrEndpoint, additionalParameters).patch(requestBody).build();
+    Response response = client.newCall(request).execute();
+    return responseHandler.call(response);
+  }
+
   public Object post(String urlOrEndpoint) throws IOException {
     return post(Collections.emptyMap(), urlOrEndpoint);
   }
