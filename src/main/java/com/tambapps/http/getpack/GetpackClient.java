@@ -41,7 +41,7 @@ public class GetpackClient {
   private Closure<?> contentResolver = new MethodClosure(this, "defaultContentResolve");
   @Getter
   @Setter
-  private ContentType contentType;
+  private ContentType defaultContentType;
   @Getter
   @Setter
   private Auth auth;
@@ -219,8 +219,10 @@ public class GetpackClient {
     }
     // this also handles MultipartBody
     if (body instanceof RequestBody) {
-      return (MultipartBody) body;
+      return (RequestBody) body;
     }
+    String contentTypeString = getOrDefault(additionalParameters, "contentType", String.class, null);
+    ContentType contentType = contentTypeString != null ? ContentType.valueOf(contentTypeString) : defaultContentType;
     if (contentType == null) {
       return RequestBody.create(String.valueOf(body).getBytes(StandardCharsets.UTF_8));
     }
