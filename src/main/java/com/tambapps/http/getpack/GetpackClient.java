@@ -40,7 +40,7 @@ public class GetpackClient {
   private Closure<?> contentResolver = new MethodClosure(this, "defaultContentResolve");
   @Getter
   @Setter
-  private Closure<?> errorResponseHandler = new MethodClosure(this, "errorResponseHandler");
+  private Closure<?> errorResponseHandler = new MethodClosure(this, "errorResponseHandle");
   @Getter
   @Setter
   private ContentType defaultContentType;
@@ -60,10 +60,7 @@ public class GetpackClient {
     }
     this.contentResolver = getOrDefault(properties, "contentResolver", Closure.class, this.contentResolver);
     this.errorResponseHandler = getOrDefault(properties, "errorResponseHandler", Closure.class, this.errorResponseHandler);
-    String contentTypeString = getOrDefault(properties, "contentType", String.class, null);
-    if (contentTypeString != null) {
-      defaultContentType = ContentType.valueOf(contentTypeString);
-    }
+    this.defaultContentType = getOrDefault(properties, "contentType", ContentType.class, defaultContentType);
     this.auth = getOrDefault(properties, "auth", Auth.class, null);
   }
 
@@ -224,7 +221,7 @@ public class GetpackClient {
       return defaultValue;
     }
     if (!clazz.isAssignableFrom(object.getClass())) {
-      throw new IllegalArgumentException(String.format("Unexpected type for parameter '%s'", key));
+      throw new IllegalArgumentException(String.format("Unexpected type for parameter '%s', expected type %s", key, clazz.getSimpleName()));
     }
     return (T) object;
   }
@@ -238,8 +235,7 @@ public class GetpackClient {
     if (body instanceof RequestBody) {
       return (RequestBody) body;
     }
-    String contentTypeString = getOrDefault(additionalParameters, "contentType", String.class, null);
-    ContentType contentType = contentTypeString != null ? ContentType.valueOf(contentTypeString) : defaultContentType;
+    ContentType contentType = getOrDefault(additionalParameters, "contentType", ContentType.class, defaultContentType);
     if (contentType == null) {
       return RequestBody.create(String.valueOf(body).getBytes(StandardCharsets.UTF_8));
     }
