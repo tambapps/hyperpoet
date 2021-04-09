@@ -13,7 +13,12 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class GetpackClient {
@@ -41,7 +46,8 @@ public class GetpackClient {
    * @return the response data
    */
   public Object get(Map<?, ?> additionalParameters, String urlOrEndpoint) throws IOException {
-    Request request = request(urlOrEndpoint).get().build();
+    Request request = request(urlOrEndpoint, additionalParameters).get().build();
+
     Response response = client.newCall(request).execute();
     ResponseBody body = response.body();
     if (body == null) {
@@ -50,16 +56,16 @@ public class GetpackClient {
     if (!response.isSuccessful()) {
       throw new ErrorResponseException(response);
     }
-    Closure<?> contentResolver  = getOrDefault(additionalParameters, "contentResolver", this.contentResolver);
+    Closure<?> contentResolver  = getOrDefault(additionalParameters, "contentResolver", Closure.class, this.contentResolver);
     return contentResolver.call(response);
   }
 
-  private <T> T getOrDefault(Map<?, ?> additionalParameters, String key, T defaultValue) {
+  private <T> T getOrDefault(Map<?, ?> additionalParameters, String key, Class<T> clazz, T defaultValue) {
     Object object = additionalParameters.get(key);
     if (object == null) {
       return defaultValue;
     }
-    if (!defaultValue.getClass().isAssignableFrom(object.getClass())) {
+    if (!clazz.isAssignableFrom(object.getClass())) {
       throw new IllegalArgumentException(String.format("Unexpected type for parameter '%s'", key));
     }
     return (T) object;
@@ -74,9 +80,33 @@ public class GetpackClient {
 
   }
 
-  private Request.Builder request(String urlOrEndpoint) {
-    // TODO handle headers
-    return new Request.Builder().url(getUrl(urlOrEndpoint));
+  private Request.Builder request(String urlOrEndpoint, Map<?, ?> additionalParameters) {
+    // url stuff
+    String url = getUrl(urlOrEndpoint);
+    Map<?, ?> queryParams = getOrDefault(additionalParameters, "query", Map.class, Collections.emptyMap());
+    List<String> params = new ArrayList<>();
+    for (Map.Entry<?, ?> entry : queryParams.entrySet()) {
+      params.add(String.format("%s=%s", urlEncode(entry.getKey()), urlEncode(entry.getValue())));
+    }
+    if (!params.isEmpty()) {
+      url = url + "?" + String.join("&", params);
+    }
+    // headers stuff
+    // TODO handle default headers
+    Map<?, ?> headers = getOrDefault(additionalParameters, "headers", Map.class, Collections.emptyMap());
+    Request.Builder builder = new Request.Builder().url(url);
+    for (Map.Entry<?, ?> entry : headers.entrySet()) {
+      builder.header(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
+    }
+    return builder;
+  }
+
+  private String urlEncode(Object o) {
+    try {
+      return URLEncoder.encode(String.valueOf(o), "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException("Couldn't URL encode", e);
+    }
   }
 
   private String getUrl(String urlOrEndpoint) {
