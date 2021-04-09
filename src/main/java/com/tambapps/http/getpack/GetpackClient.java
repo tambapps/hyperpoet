@@ -34,25 +34,25 @@ public class GetpackClient {
   @Getter
   private final String baseUrl;
   @Getter
-  private final Map<String, String> defaultHeaders = new HashMap<>();
+  private final Map<String, String> headers = new HashMap<>();
   @Getter
   @Setter
-  private Closure<?> defaultContentResolver = new MethodClosure(this, "defaultContentResolve");
+  private Closure<?> contentResolver = new MethodClosure(this, "defaultContentResolve");
   @Getter
   @Setter
-  private Closure<?> defaultErrorResponseHandler = new MethodClosure(this, "errorResponseHandle");
+  private Closure<?> errorResponseHandler = new MethodClosure(this, "errorResponseHandle");
   @Getter
   @Setter
-  private Closure<?> defaultBodyEncoder = new MethodClosure(this, "bodyEncode");
+  private Closure<?> bodyEncoder = new MethodClosure(this, "bodyEncode");
   @Getter
   @Setter
-  private ContentType defaultContentType;
+  private ContentType contentType;
   @Getter
   @Setter
-  private ContentType defaultAcceptContentType;
+  private ContentType acceptContentType;
   @Getter
   @Setter
-  private Auth defaultAuth;
+  private Auth auth;
 
   public GetpackClient() {
     this("");
@@ -62,14 +62,14 @@ public class GetpackClient {
     this.baseUrl = getOrDefault(properties, "url", String.class, "");
     Map<?, ?> headers = getOrDefault(properties, "headers", Map.class, Collections.emptyMap());
     for (Map.Entry<?, ?> entry : headers.entrySet()) {
-      putDefaultHeader(entry.getKey(), entry.getValue());
+      putHeader(entry.getKey(), entry.getValue());
     }
-    this.defaultContentResolver = getOrDefault(properties, "contentResolver", Closure.class, this.defaultContentResolver);
-    this.defaultErrorResponseHandler = getOrDefault(properties, "errorResponseHandler", Closure.class, this.defaultErrorResponseHandler);
-    this.defaultBodyEncoder = getOrDefault(properties, "bodyEncoder", Closure.class, this.defaultBodyEncoder);
-    this.defaultContentType = getOrDefault(properties, "contentType", ContentType.class, defaultContentType);
-    this.defaultAcceptContentType = getOrDefault(properties, "acceptContentType", ContentType.class, this.defaultAcceptContentType);
-    this.defaultAuth = getOrDefault(properties, "auth", Auth.class, null);
+    this.contentResolver = getOrDefault(properties, "contentResolver", Closure.class, this.contentResolver);
+    this.errorResponseHandler = getOrDefault(properties, "errorResponseHandler", Closure.class, this.errorResponseHandler);
+    this.bodyEncoder = getOrDefault(properties, "bodyEncoder", Closure.class, this.bodyEncoder);
+    this.contentType = getOrDefault(properties, "contentType", ContentType.class, this.contentType);
+    this.acceptContentType = getOrDefault(properties, "acceptContentType", ContentType.class, this.acceptContentType);
+    this.auth = getOrDefault(properties, "auth", Auth.class, auth);
   }
 
   public GetpackClient(String baseUrl) {
@@ -203,23 +203,23 @@ public class GetpackClient {
     return responseHandler.call(response);
   }
 
-  public void putDefaultHeader(Object key, Object value) {
-    defaultHeaders.put(String.valueOf(key), String.valueOf(value));
+  public void putHeader(Object key, Object value) {
+    headers.put(String.valueOf(key), String.valueOf(value));
   }
 
-  public boolean removeDefaultHeader(String key) {
-    return defaultHeaders.remove(key) != null;
+  public boolean removeHeader(String key) {
+    return headers.remove(key) != null;
   }
 
   private Object handleResponse(Response response, Map<?, ?> additionalParameters) {
     if (!response.isSuccessful()) {
-      return defaultErrorResponseHandler.call(response);
+      return errorResponseHandler.call(response);
     }
     ResponseBody body = response.body();
     if (body == null) {
       return null;
     }
-    Closure<?> contentResolver = getOrDefault(additionalParameters, "contentResolver", Closure.class, this.defaultContentResolver);
+    Closure<?> contentResolver = getOrDefault(additionalParameters, "contentResolver", Closure.class, this.contentResolver);
     return contentResolver.call(response);
   }
 
@@ -236,8 +236,9 @@ public class GetpackClient {
 
   private RequestBody requestBody(Map<?, ?> additionalParameters) {
     Object body = getOrDefault(additionalParameters, "body", Object.class, null);
-    ContentType contentType = getOrDefault(additionalParameters, "contentType", ContentType.class, defaultContentType);
-    Closure<?> bodyEncoder = getOrDefault(additionalParameters, "bodyEncoder", Closure.class, this.defaultBodyEncoder);
+    ContentType contentType = getOrDefault(additionalParameters, "contentType", ContentType.class,
+        this.contentType);
+    Closure<?> bodyEncoder = getOrDefault(additionalParameters, "bodyEncoder", Closure.class, this.bodyEncoder);
     return (RequestBody) bodyEncoder.call(body, contentType);
   }
 
@@ -248,19 +249,19 @@ public class GetpackClient {
         .encoded();
     Request.Builder builder = new Request.Builder().url(url);
     // headers stuff
-    for (Map.Entry<String, String> entry : defaultHeaders.entrySet()) {
+    for (Map.Entry<String, String> entry : headers.entrySet()) {
       builder.header(entry.getKey(), entry.getValue());
     }
     Map<?, ?> headers = getOrDefault(additionalParameters, "headers", Map.class, Collections.emptyMap());
     for (Map.Entry<?, ?> entry : headers.entrySet()) {
       builder.header(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
     }
-    Auth auth = getOrDefault(additionalParameters, "auth", Auth.class, this.defaultAuth);
+    Auth auth = getOrDefault(additionalParameters, "auth", Auth.class, this.auth);
     if (auth != null) {
       auth.apply(builder);
     }
 
-    ContentType acceptContentType = getOrDefault(additionalParameters, "acceptContentType", ContentType.class, this.defaultAcceptContentType);
+    ContentType acceptContentType = getOrDefault(additionalParameters, "acceptContentType", ContentType.class, this.acceptContentType);
     if (acceptContentType != null) {
       builder.header("Content-Type", acceptContentType.getMediaType().toString());
     }
