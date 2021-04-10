@@ -50,7 +50,7 @@ public class GetpackClient {
   private final Map<MediaType, Closure<?>> bodyEncoders = Encoders.getMap();
   @Getter
   @Setter
-  private ContentType contentType;
+  private MediaType mediaType;
   @Getter
   @Setter
   private ContentType acceptContentType;
@@ -70,8 +70,8 @@ public class GetpackClient {
     }
     this.contentResolver = getOrDefault(properties, "contentResolver", Closure.class, this.contentResolver);
     this.errorResponseHandler = getOrDefault(properties, "errorResponseHandler", Closure.class, this.errorResponseHandler);
-    this.contentType = getOrDefault(properties, "contentType", ContentType.class, this.contentType);
     this.acceptContentType = getOrDefault(properties, "acceptContentType", ContentType.class, this.acceptContentType);
+    this.mediaType = getOrDefault(properties, "mediaType", MediaType.class, null);
     this.auth = getOrDefault(properties, "auth", Auth.class, auth);
   }
 
@@ -260,16 +260,16 @@ public class GetpackClient {
 
   private RequestBody requestBody(Map<?, ?> additionalParameters) {
     Object body = getOrDefault(additionalParameters, "body", Object.class, null);
-    ContentType contentType = getOrDefault(additionalParameters, "contentType", ContentType.class,
-        this.contentType);
+    MediaType mediaType = getOrDefault(additionalParameters, "mediaType", MediaType.class,
+        this.mediaType);
     if (body == null) {
       return RequestBody.create(null, new byte[]{});
     }
-    Closure<?> bodyEncoder = getOrDefault(additionalParameters, "bodyEncoder", Closure.class, bodyEncoders.get(contentType.getMediaType()));
+    Closure<?> bodyEncoder = getOrDefault(additionalParameters, "bodyEncoder", Closure.class, bodyEncoders.get(mediaType));
     if (bodyEncoder == null) {
-      throw new IllegalStateException("No body encoder was found for media type " + contentType);
+      throw new IllegalStateException("No body encoder was found for media type " + mediaType);
     }
-    return (RequestBody) bodyEncoder.call(body, contentType.getMediaType());
+    return (RequestBody) bodyEncoder.call(body, mediaType);
   }
 
   private Request.Builder request(String urlOrEndpoint, Map<?, ?> additionalParameters) {

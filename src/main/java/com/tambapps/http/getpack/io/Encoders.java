@@ -1,5 +1,6 @@
 package com.tambapps.http.getpack.io;
 
+import com.tambapps.http.getpack.MediaTypes;
 import groovy.json.JsonOutput;
 import groovy.lang.Closure;
 import groovy.util.Node;
@@ -17,8 +18,10 @@ public class Encoders {
   public static Map<MediaType, Closure<?>> getMap() {
     Map<MediaType, Closure<?>> map = new HashMap<>();
     Encoders encoders = new Encoders();
-    map.put(MediaType.get("application/json"), new MethodClosure(encoders, "encodeJsonBody"));
-    map.put(MediaType.get("application/xml"), new MethodClosure(encoders, "encodeXmlBody"));
+    map.put(MediaTypes.JSON, new MethodClosure(encoders, "encodeJsonBody"));
+    map.put(MediaTypes.XML, new MethodClosure(encoders, "encodeXmlBody"));
+    // null is default
+    map.put(null, new MethodClosure(encoders, "encodeStringBody"));
     return map;
   }
 
