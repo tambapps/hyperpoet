@@ -3,12 +3,9 @@ package com.tambapps.http.getpack;
 import com.tambapps.http.getpack.auth.Auth;
 import com.tambapps.http.getpack.io.Encoders;
 import com.tambapps.http.getpack.util.UrlBuilder;
-import groovy.json.JsonOutput;
 import groovy.json.JsonSlurper;
 import groovy.lang.Closure;
-import groovy.util.Node;
 import groovy.util.XmlSlurper;
-import groovy.xml.XmlUtil;
 import lombok.Getter;
 import lombok.Setter;
 import okhttp3.MediaType;
@@ -17,14 +14,11 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import org.codehaus.groovy.runtime.IOGroovyMethods;
 import org.codehaus.groovy.runtime.MethodClosure;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +47,7 @@ public class GetpackClient {
   private MediaType mediaType;
   @Getter
   @Setter
-  private ContentType acceptContentType;
+  private MediaType acceptMediaType;
   @Getter
   @Setter
   private Auth auth;
@@ -70,7 +64,7 @@ public class GetpackClient {
     }
     this.contentResolver = getOrDefault(properties, "contentResolver", Closure.class, this.contentResolver);
     this.errorResponseHandler = getOrDefault(properties, "errorResponseHandler", Closure.class, this.errorResponseHandler);
-    this.acceptContentType = getOrDefault(properties, "acceptContentType", ContentType.class, this.acceptContentType);
+    this.acceptMediaType = getOrDefault(properties, "acceptContentType", MediaType.class, this.acceptMediaType);
     this.mediaType = getOrDefault(properties, "mediaType", MediaType.class, null);
     this.auth = getOrDefault(properties, "auth", Auth.class, auth);
   }
@@ -291,9 +285,9 @@ public class GetpackClient {
       auth.apply(builder);
     }
 
-    ContentType acceptContentType = getOrDefault(additionalParameters, "acceptContentType", ContentType.class, this.acceptContentType);
+    MediaType acceptContentType = getOrDefault(additionalParameters, "acceptContentType", MediaType.class, this.acceptMediaType);
     if (acceptContentType != null) {
-      builder.header("Content-Type", acceptContentType.getMediaType().toString());
+      builder.header("Accept", acceptContentType.toString());
     }
     return builder;
   }

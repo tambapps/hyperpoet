@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows
 class GetpackClientTest {
 
   private GetpackClient client = new GetpackClient(url: "https://jsonplaceholder.typicode.com",
-      mediaType: MediaTypes.JSON, acceptContentType: ContentType.JSON)
+      mediaType: MediaTypes.JSON, acceptMediaType: MediaTypes.JSON)
 
   @Test
   void testGet() {
