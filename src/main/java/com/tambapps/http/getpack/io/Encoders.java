@@ -7,8 +7,11 @@ import groovy.util.Node;
 import groovy.xml.XmlUtil;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import org.codehaus.groovy.runtime.IOGroovyMethods;
 import org.codehaus.groovy.runtime.MethodClosure;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +23,10 @@ public class Encoders {
     Encoders encoders = new Encoders();
     map.put(MediaTypes.JSON, new MethodClosure(encoders, "encodeJsonBody"));
     map.put(MediaTypes.XML, new MethodClosure(encoders, "encodeXmlBody"));
+    map.put(null, new MethodClosure(encoders, "encodeStringBody"));
+    map.put(MediaTypes.TEXT, new MethodClosure(encoders, "encodeStringBody"));
+    map.put(MediaTypes.HTML, new MethodClosure(encoders, "encodeStringBody"));
+    map.put(MediaTypes.BINARY, new MethodClosure(encoders, "encodeBytesBody"));
     // null is default
     map.put(null, new MethodClosure(encoders, "encodeStringBody"));
     return map;
@@ -49,56 +56,26 @@ public class Encoders {
     return RequestBody.create(xmlData.getBytes(StandardCharsets.UTF_8), mediaType);
   }
 
-  /*
-  protected RequestBody encodeBody(Object body, MediaType contentType) throws IOException {
-    // this also handles MultipartBody
-    if (body instanceof RequestBody) {
-      return (RequestBody) body;
-    }
-    if (contentType == null) {
-      return RequestBody.create(String.valueOf(body).getBytes(StandardCharsets.UTF_8));
-    }
-    switch (ContentType.HTML) {
-      case JSON:
-        String jsonBody;
-        if (body instanceof CharSequence) {
-          jsonBody = body.toString();
-        } else {
-          jsonBody = JsonOutput.toJson(body);
-        }
-        return RequestBody.create(jsonBody.getBytes(StandardCharsets.UTF_8), contentType.getMediaType());
-      case XML:
-        String xmlData;
-        if (body instanceof CharSequence) {
-          xmlData = body.toString();
-        } else if (body instanceof Node) {
-          xmlData = XmlUtil.serialize((Node) body);
-        } else {
-          throw new IllegalArgumentException("body must be a String or a groovy.util.Node to be serialized to XML");
-        }
-        return RequestBody.create(xmlData.getBytes(StandardCharsets.UTF_8), contentType.getMediaType());
-      case TEXT:
-      case HTML:
-        return RequestBody.create(String.valueOf(body).getBytes(StandardCharsets.UTF_8), contentType.getMediaType());
-      case BINARY:
-        byte[] bytes;
-        if (body instanceof byte[]) {
-          bytes = (byte[]) body;
-        } else if (body instanceof Byte[]) {
-          Byte[] bytes1 = (Byte[]) body;
-          bytes = new byte[bytes1.length];
-          for (int i = 0; i < bytes.length; i++) {
-            bytes[i] = bytes1[i];
-          }
-        } else if (body instanceof InputStream) {
-          bytes = IOGroovyMethods.getBytes((InputStream) body);
-        } else {
-          throw new IllegalArgumentException("body must be a byte array or an InputStream to be serialized to XML");
-        }
-        return RequestBody.create(bytes, contentType.getMediaType());
-      default:
-        throw new UnsupportedOperationException(contentType + " type is not handled");
-    }
+  protected RequestBody encodeStringBody(Object body, MediaType mediaType) {
+    return RequestBody.create(String.valueOf(body).getBytes(StandardCharsets.UTF_8), mediaType);
   }
-   */
+
+  protected RequestBody encodeBytesBody(Object body, MediaType mediaType) throws IOException {
+    byte[] bytes;
+    if (body instanceof byte[]) {
+      bytes = (byte[]) body;
+    } else if (body instanceof Byte[]) {
+      Byte[] bytes1 = (Byte[]) body;
+      bytes = new byte[bytes1.length];
+      for (int i = 0; i < bytes.length; i++) {
+        bytes[i] = bytes1[i];
+      }
+    } else if (body instanceof InputStream) {
+      bytes = IOGroovyMethods.getBytes((InputStream) body);
+    } else {
+      throw new IllegalArgumentException("body must be a byte array or an InputStream to be serialized to bytes");
+    }
+    return RequestBody.create(bytes, mediaType);
+  }
+
 }
