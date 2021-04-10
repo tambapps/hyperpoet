@@ -27,6 +27,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The HTTP client
+ */
 public class GetpackClient {
 
   @Getter
@@ -83,8 +86,7 @@ public class GetpackClient {
   public Object method(Map<?, ?> additionalParameters, String urlOrEndpoint, String method) throws IOException {
     RequestBody requestBody = requestBody(additionalParameters);
     Request request = request(urlOrEndpoint, additionalParameters).method(method, requestBody).build();
-    Response response = client.newCall(request).execute();
-    return handleResponse(response, additionalParameters);
+    return doRequest(request, additionalParameters);
   }
 
   public Object method(String urlOrEndpoint, String method, Closure<Void> responseHandler) throws IOException {
@@ -95,8 +97,7 @@ public class GetpackClient {
       throws IOException {
     RequestBody requestBody = requestBody(additionalParameters);
     Request request = request(urlOrEndpoint, additionalParameters).method(method, requestBody).build();
-    Response response = client.newCall(request).execute();
-    return responseHandler.call(response);
+    return doRequest(request, responseHandler);
   }
 
   public Object put(String urlOrEndpoint) throws IOException {
@@ -106,8 +107,7 @@ public class GetpackClient {
   public Object put(Map<?, ?> additionalParameters, String urlOrEndpoint) throws IOException {
     RequestBody requestBody = requestBody(additionalParameters);
     Request request = request(urlOrEndpoint, additionalParameters).put(requestBody).build();
-    Response response = client.newCall(request).execute();
-    return handleResponse(response, additionalParameters);
+    return doRequest(request, additionalParameters);
   }
 
   public Object put(String urlOrEndpoint, Closure<Void> responseHandler) throws IOException {
@@ -118,8 +118,7 @@ public class GetpackClient {
       throws IOException {
     RequestBody requestBody = requestBody(additionalParameters);
     Request request = request(urlOrEndpoint, additionalParameters).put(requestBody).build();
-    Response response = client.newCall(request).execute();
-    return responseHandler.call(response);
+    return doRequest(request, responseHandler);
   }
 
   public Object patch(String urlOrEndpoint) throws IOException {
@@ -129,8 +128,7 @@ public class GetpackClient {
   public Object patch(Map<?, ?> additionalParameters, String urlOrEndpoint) throws IOException {
     RequestBody requestBody = requestBody(additionalParameters);
     Request request = request(urlOrEndpoint, additionalParameters).patch(requestBody).build();
-    Response response = client.newCall(request).execute();
-    return handleResponse(response, additionalParameters);
+    return doRequest(request, additionalParameters);
   }
 
   public Object patch(String urlOrEndpoint, Closure<Void> responseHandler) throws IOException {
@@ -141,8 +139,7 @@ public class GetpackClient {
       throws IOException {
     RequestBody requestBody = requestBody(additionalParameters);
     Request request = request(urlOrEndpoint, additionalParameters).patch(requestBody).build();
-    Response response = client.newCall(request).execute();
-    return responseHandler.call(response);
+    return doRequest(request, responseHandler);
   }
 
   public Object post(String urlOrEndpoint) throws IOException {
@@ -152,8 +149,7 @@ public class GetpackClient {
   public Object post(Map<?, ?> additionalParameters, String urlOrEndpoint) throws IOException {
     RequestBody requestBody = requestBody(additionalParameters);
     Request request = request(urlOrEndpoint, additionalParameters).post(requestBody).build();
-    Response response = client.newCall(request).execute();
-    return handleResponse(response, additionalParameters);
+    return doRequest(request, additionalParameters);
   }
 
   public Object post(String urlOrEndpoint, Closure<Void> responseHandler) throws IOException {
@@ -164,8 +160,7 @@ public class GetpackClient {
       throws IOException {
     RequestBody requestBody = requestBody(additionalParameters);
     Request request = request(urlOrEndpoint, additionalParameters).post(requestBody).build();
-    Response response = client.newCall(request).execute();
-    return responseHandler.call(response);
+    return doRequest(request, responseHandler);
   }
 
   public Object delete(String urlOrEndpoint) throws IOException {
@@ -174,9 +169,7 @@ public class GetpackClient {
 
   public Object delete(Map<?, ?> additionalParameters, String urlOrEndpoint) throws IOException {
     Request request = request(urlOrEndpoint, additionalParameters).delete().build();
-
-    Response response = client.newCall(request).execute();
-    return handleResponse(response, additionalParameters);
+    return doRequest(request, additionalParameters);
   }
 
   public Object delete(String urlOrEndpoint, Closure<Void> responseHandler) throws IOException {
@@ -186,8 +179,7 @@ public class GetpackClient {
   public Object delete(Map<?, ?> additionalParameters, String urlOrEndpoint, Closure<Void> responseHandler)
       throws IOException {
     Request request = request(urlOrEndpoint, additionalParameters).delete().build();
-    Response response = client.newCall(request).execute();
-    return responseHandler.call(response);
+    return doRequest(request, responseHandler);
   }
 
   public Object get(String urlOrEndpoint) throws IOException {
@@ -202,9 +194,7 @@ public class GetpackClient {
    */
   public Object get(Map<?, ?> additionalParameters, String urlOrEndpoint) throws IOException {
     Request request = request(urlOrEndpoint, additionalParameters).get().build();
-
-    Response response = client.newCall(request).execute();
-    return handleResponse(response, additionalParameters);
+    return doRequest(request, additionalParameters);
   }
 
   public Object get(String urlOrEndpoint, Closure<Void> responseHandler) throws IOException {
@@ -222,8 +212,7 @@ public class GetpackClient {
   public Object get(Map<?, ?> additionalParameters, String urlOrEndpoint, Closure<Void> responseHandler)
       throws IOException {
     Request request = request(urlOrEndpoint, additionalParameters).get().build();
-    Response response = client.newCall(request).execute();
-    return responseHandler.call(response);
+    return doRequest(request, responseHandler);
   }
 
   public void putHeader(Object key, Object value) {
@@ -232,6 +221,18 @@ public class GetpackClient {
 
   public boolean removeHeader(String key) {
     return headers.remove(key) != null;
+  }
+
+  private Object doRequest(Request request, Closure<Void> responseHandler) throws IOException {
+    try (Response response = client.newCall(request).execute()) {
+      return responseHandler.call(response);
+    }
+  }
+
+  private Object doRequest(Request request, Map<?, ?> additionalParameters) throws IOException {
+    try (Response response = client.newCall(request).execute()) {
+      return handleResponse(response, additionalParameters);
+    }
   }
 
   private Object handleResponse(Response response, Map<?, ?> additionalParameters) {
