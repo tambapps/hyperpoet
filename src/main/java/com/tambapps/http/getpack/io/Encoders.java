@@ -38,13 +38,7 @@ public final class Encoders {
   }
 
   public static String encodeJsonBody(Object body) {
-    String jsonBody;
-    if (body instanceof CharSequence) {
-      jsonBody = body.toString();
-    } else {
-      jsonBody = JsonOutput.toJson(body);
-    }
-    return jsonBody;
+    return JsonOutput.toJson(body);
   }
 
   public static String encodeXmlBody(Object body) {
