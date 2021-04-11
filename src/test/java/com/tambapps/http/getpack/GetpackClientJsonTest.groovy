@@ -1,5 +1,6 @@
 package com.tambapps.http.getpack
 
+import okhttp3.Request
 import okhttp3.ResponseBody
 import org.junit.jupiter.api.Test
 
@@ -11,7 +12,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows
 class GetpackClientJsonTest {
 
   private GetpackClient client = new GetpackClient(url: "https://jsonplaceholder.typicode.com",
-      contentType: ContentType.JSON, acceptContentType: ContentType.JSON)
+      contentType: ContentType.JSON, acceptContentType: ContentType.JSON).with {
+    onPreExecute = { Request request ->
+      println("headers\n${request.headers()}")
+    }
+    it
+  }
 
   @Test
   void testGet() {

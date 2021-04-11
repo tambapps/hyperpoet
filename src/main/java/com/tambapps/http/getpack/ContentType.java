@@ -45,6 +45,9 @@ public class ContentType {
 
   @Override
   public String toString() {
+    if (additionalParameters.isEmpty()) {
+      return contentType;
+    }
     return contentType + ";" + String.join("; ", additionalParameters);
   }
 }

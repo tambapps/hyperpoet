@@ -233,7 +233,13 @@ public class GetpackClient {
   }
 
   private Object doRequest(Request request, Map<?, ?> additionalParameters) throws IOException {
+    if (onPreExecute != null) {
+      onPreExecute.call(request);
+    }
     try (Response response = okHttpClient.newCall(request).execute()) {
+      if (onPostExecute != null) {
+        onPostExecute.call(request, response);
+      }
       return handleResponse(response, additionalParameters);
     }
   }
