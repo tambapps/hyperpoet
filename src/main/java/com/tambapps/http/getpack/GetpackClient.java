@@ -1,6 +1,7 @@
 package com.tambapps.http.getpack;
 
 import com.tambapps.http.getpack.auth.Auth;
+import com.tambapps.http.getpack.io.Decoders;
 import com.tambapps.http.getpack.io.Encoders;
 import com.tambapps.http.getpack.util.UrlBuilder;
 import groovy.json.JsonSlurper;
@@ -36,12 +37,9 @@ public class GetpackClient {
   private final Map<String, String> headers = new HashMap<>();
   @Getter
   @Setter
-  private Closure<?> contentResolver = new MethodClosure(this, "resolveContent");
-  @Getter
-  @Setter
   private Closure<?> errorResponseHandler = new MethodClosure(this, "handleErrorResponse");
-  // TODO allow setting encoders
   private final Map<MediaType, Closure<?>> bodyEncoders = Encoders.getMap();
+  private final Map<MediaType, Closure<?>> decoders = Decoders.getMap();
   @Getter
   @Setter
   private MediaType mediaType;
@@ -62,7 +60,6 @@ public class GetpackClient {
     for (Map.Entry<?, ?> entry : headers.entrySet()) {
       putHeader(entry.getKey(), entry.getValue());
     }
-    this.contentResolver = getOrDefault(properties, "contentResolver", Closure.class, this.contentResolver);
     this.errorResponseHandler = getOrDefault(properties, "errorResponseHandler", Closure.class, this.errorResponseHandler);
     this.acceptMediaType = getOrDefault(properties, "acceptContentType", MediaType.class, this.acceptMediaType);
     this.mediaType = getOrDefault(properties, "mediaType", MediaType.class, null);
@@ -237,8 +234,15 @@ public class GetpackClient {
     if (body == null) {
       return null;
     }
-    Closure<?> contentResolver = getOrDefault(additionalParameters, "contentResolver", Closure.class, this.contentResolver);
-    return contentResolver.call(response);
+    String mediaTypeString = response.header("Content-Type");
+    MediaType responseMediaType = mediaTypeString != null ? MediaType.get(mediaTypeString) : null;
+    Closure<?> decoder = getOrDefault(additionalParameters, "decoder", Closure.class, decoders.get(responseMediaType));
+    // TODO doesn't work when mediatype have additional data like charset: UTF-8
+    // TODO change map to String instead of mediatype
+    if (decoder == null) {
+      throw new IllegalStateException("No decoder was found for media type " + mediaType);
+    }
+    return decoder.call(body);
   }
 
   private static <T> T getOrDefault(Map<?, ?> additionalParameters, String key, Class<T> clazz, T defaultValue) {

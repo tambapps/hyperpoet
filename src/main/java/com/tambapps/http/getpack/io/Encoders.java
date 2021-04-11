@@ -27,7 +27,7 @@ public class Encoders {
     map.put(MediaTypes.TEXT, new MethodClosure(Encoders.class, "encodeStringBody"));
     map.put(MediaTypes.HTML, new MethodClosure(Encoders.class, "encodeStringBody"));
     map.put(MediaTypes.BINARY, new MethodClosure(Encoders.class, "encodeBytesBody"));
-    // null is default
+    // default encoder (when no content type was found)
     map.put(null, new MethodClosure(Encoders.class, "encodeStringBody"));
     return map;
   }
