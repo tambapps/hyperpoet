@@ -16,4 +16,9 @@ public class ErrorResponseException extends IOException {
   public ErrorResponseException(Response response) {
     this.response = response;
   }
+
+  @Override
+  public String toString() {
+    return String.format("%d - %s", response.code(), response.message());
+  }
 }
