@@ -1,7 +1,7 @@
 package com.tambapps.http.getpack.io;
 
 import com.tambapps.http.getpack.ContentType;
-import com.tambapps.http.getpack.MediaTypes;
+import com.tambapps.http.getpack.ContentType;
 import groovy.json.JsonOutput;
 import groovy.lang.Closure;
 import groovy.util.Node;
@@ -23,11 +23,11 @@ public class Encoders {
 
   public static Map<ContentType, Closure<?>> getMap() {
     Map<ContentType, Closure<?>> map = new HashMap<>();
-    map.put(MediaTypes.JSON, new MethodClosure(Encoders.class, "encodeJsonBody"));
-    map.put(MediaTypes.XML, new MethodClosure(Encoders.class, "encodeXmlBody"));
-    map.put(MediaTypes.TEXT, new MethodClosure(Encoders.class, "encodeStringBody"));
-    map.put(MediaTypes.HTML, new MethodClosure(Encoders.class, "encodeStringBody"));
-    map.put(MediaTypes.BINARY, new MethodClosure(Encoders.class, "encodeBytesBody"));
+    map.put(ContentType.JSON, new MethodClosure(Encoders.class, "encodeJsonBody"));
+    map.put(ContentType.XML, new MethodClosure(Encoders.class, "encodeXmlBody"));
+    map.put(ContentType.TEXT, new MethodClosure(Encoders.class, "encodeStringBody"));
+    map.put(ContentType.HTML, new MethodClosure(Encoders.class, "encodeStringBody"));
+    map.put(ContentType.BINARY, new MethodClosure(Encoders.class, "encodeBytesBody"));
     // default encoder (when no content type was found)
     map.put(null, new MethodClosure(Encoders.class, "encodeStringBody"));
     return map;

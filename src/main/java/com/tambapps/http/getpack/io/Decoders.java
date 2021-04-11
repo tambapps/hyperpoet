@@ -1,7 +1,7 @@
 package com.tambapps.http.getpack.io;
 
 import com.tambapps.http.getpack.ContentType;
-import com.tambapps.http.getpack.MediaTypes;
+import com.tambapps.http.getpack.ContentType;
 import groovy.json.JsonSlurper;
 import groovy.lang.Closure;
 import groovy.util.XmlSlurper;
@@ -20,11 +20,11 @@ public class Decoders {
 
   public static Map<ContentType, Closure<?>> getMap() {
     Map<ContentType, Closure<?>> map = new HashMap<>();
-    map.put(MediaTypes.JSON, new MethodClosure(Decoders.class, "decodeJsonResponseBody"));
-    map.put(MediaTypes.XML, new MethodClosure(Decoders.class, "decodeXmlResponseBody"));
-    map.put(MediaTypes.TEXT, new MethodClosure(Decoders.class, "decodeStringResponseBody"));
-    map.put(MediaTypes.HTML, new MethodClosure(Decoders.class, "decodeStringResponseBody"));
-    map.put(MediaTypes.BINARY, new MethodClosure(Decoders.class, "decodeBytesResponseBody"));
+    map.put(ContentType.JSON, new MethodClosure(Decoders.class, "decodeJsonResponseBody"));
+    map.put(ContentType.XML, new MethodClosure(Decoders.class, "decodeXmlResponseBody"));
+    map.put(ContentType.TEXT, new MethodClosure(Decoders.class, "decodeStringResponseBody"));
+    map.put(ContentType.HTML, new MethodClosure(Decoders.class, "decodeStringResponseBody"));
+    map.put(ContentType.BINARY, new MethodClosure(Decoders.class, "decodeBytesResponseBody"));
     // default decoder (when no content type was found)
     map.put(null, new MethodClosure(Decoders.class, "decodeStringResponseBody"));
     return map;

@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -19,9 +20,19 @@ import java.util.List;
 @Value
 public class ContentType {
 
+  public static final ContentType JSON = new ContentType("application/json");
+  public static final ContentType XML = new ContentType("application/xml");
+  public static final ContentType TEXT = new ContentType("text/plain");
+  public static final ContentType HTML = new ContentType("text/html");
+  public static final ContentType BINARY = new ContentType("application/octet-stream");
+
   String contentType;
   @EqualsAndHashCode.Exclude
   List<String> additionalParameters;
+
+  private ContentType(String contentType) {
+    this(contentType, Collections.emptyList());
+  }
 
   public static ContentType from(String headerValue) {
     String[] fields = headerValue.split(";");
