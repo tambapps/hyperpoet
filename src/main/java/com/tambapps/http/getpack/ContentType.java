@@ -8,6 +8,12 @@ import lombok.Value;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class representing a content type. It only consider the actual content type from header for
+ * equality/hashCode.
+ * E.g for the value 'application/json; charset=UTF-8' it will only consider 'application/json'
+ * for equality/hashCode
+ */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode
 @Value
