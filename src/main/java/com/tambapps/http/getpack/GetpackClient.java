@@ -315,6 +315,10 @@ public class GetpackClient {
     for (Map.Entry<?, ?> entry : headers.entrySet()) {
       builder.header(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
     }
+    ContentType acceptContentType = getOrDefault(additionalParameters, "acceptContentType", ContentType.class, null);
+    if (acceptContentType != null) {
+      builder.header("Accept", contentType.toString());
+    }
     // auth stuff
     Auth auth = getOrDefault(additionalParameters, "auth", Auth.class, this.auth);
     if (auth != null) {
