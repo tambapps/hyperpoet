@@ -34,7 +34,7 @@ import java.util.Map;
 @Setter
 public class GetpackClient {
 
-  private final OkHttpClient okHttpClient = new OkHttpClient();
+  private final OkHttpClient okHttpClient;
   private final Map<String, String> headers = new HashMap<>();
   private final Map<ContentType, Closure<?>> encoders = Encoders.getMap();
   private final Map<ContentType, Closure<?>> decoders = Decoders.getMap();
@@ -48,6 +48,10 @@ public class GetpackClient {
     this("");
   }
 
+  public GetpackClient(OkHttpClient client) {
+    this(client, "");
+  }
+
   public GetpackClient(Map<?, ?> properties) {
     this(getOrDefault(properties, "url", String.class, ""));
     Map<?, ?> headers = getOrDefault(properties, "headers", Map.class, Collections.emptyMap());
@@ -59,8 +63,12 @@ public class GetpackClient {
     this.contentType = getOrDefault(properties, "contentType", ContentType.class, null);
     this.auth = getOrDefault(properties, "auth", Auth.class, auth);
   }
-
   public GetpackClient(String baseUrl) {
+    this(new OkHttpClient(), baseUrl);
+  }
+
+  public GetpackClient(OkHttpClient okHttpClient, String baseUrl) {
+    this.okHttpClient = okHttpClient;
     this.baseUrl = baseUrl != null ? baseUrl : "";
   }
 
