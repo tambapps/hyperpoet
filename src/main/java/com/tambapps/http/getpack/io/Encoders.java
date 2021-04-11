@@ -1,13 +1,10 @@
 package com.tambapps.http.getpack.io;
 
 import com.tambapps.http.getpack.ContentType;
-import com.tambapps.http.getpack.ContentType;
 import groovy.json.JsonOutput;
 import groovy.lang.Closure;
 import groovy.util.Node;
 import groovy.xml.XmlUtil;
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
 import org.codehaus.groovy.runtime.IOGroovyMethods;
 import org.codehaus.groovy.runtime.MethodClosure;
 
@@ -17,14 +14,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Class holding several common encoders.
+ * Utility class holding several common encoders.
  * An encoder should return one of the following types
  * - a byte array (primitive byte, not Byte)
- * - an inputstream
+ * - an InputStream
  * - a String
  *
  */
-public class Encoders {
+public final class Encoders {
 
   private Encoders() {}
 

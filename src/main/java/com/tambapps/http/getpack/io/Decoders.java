@@ -1,7 +1,6 @@
 package com.tambapps.http.getpack.io;
 
 import com.tambapps.http.getpack.ContentType;
-import com.tambapps.http.getpack.ContentType;
 import groovy.json.JsonSlurper;
 import groovy.lang.Closure;
 import groovy.util.XmlSlurper;
@@ -14,6 +13,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Utility class holding several common decoders. A decoder can return any kind of objects
+ */
 public class Decoders {
 
   private Decoders() {}
@@ -38,7 +40,7 @@ public class Decoders {
     try {
       return new XmlSlurper().parseText(body.string());
     } catch (SAXException | ParserConfigurationException e) {
-      throw new IOException("An error occureed whilte attempting to load XML resopnse body");
+      throw new IOException("An error occurred while attempting to load XML response body");
     }
   }
 
