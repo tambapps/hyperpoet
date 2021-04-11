@@ -1,5 +1,6 @@
 package com.tambapps.http.getpack
 
+import okhttp3.ResponseBody
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertEquals
@@ -51,5 +52,11 @@ class GetpackClientJsonTest {
     //assertEquals('bar', post.body)
     //assertEquals(1, post.userId)
     assertEquals(101, post.id)
+  }
+
+  @Test
+  void testGetOverrideDecoder() {
+    def todo = client.get("/todos/1", decoder: { ResponseBody body -> body.string() })
+    assertEquals(String.class, todo.class)
   }
 }

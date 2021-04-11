@@ -30,28 +30,20 @@ import java.util.Map;
 /**
  * The HTTP client
  */
+@Getter
 public class GetpackClient {
 
-  @Getter
-  private final OkHttpClient client = new OkHttpClient();
-  @Getter
+  private final OkHttpClient okHttpClient = new OkHttpClient();
   private final String baseUrl;
-  @Getter
   private final Map<String, String> headers = new HashMap<>();
-  @Getter
   @Setter
   private Closure<?> errorResponseHandler = new MethodClosure(this, "handleErrorResponse");
-  @Getter
   private final Map<ContentType, Closure<?>> encoders = Encoders.getMap();
-  @Getter
   private final Map<ContentType, Closure<?>> decoders = Decoders.getMap();
-  @Getter
   @Setter
   private ContentType contentType;
-  @Getter
   @Setter
   private ContentType acceptContentType;
-  @Getter
   @Setter
   private Auth auth;
 
@@ -183,7 +175,7 @@ public class GetpackClient {
   }
 
   /**
-   * Get the following url/endpoint and returns the response
+   * Get the following url/endpoint and returns the decoded response
    * @param additionalParameters additional parameters
    * @param urlOrEndpoint the url or endpoint
    * @return the response data
@@ -220,13 +212,13 @@ public class GetpackClient {
   }
 
   private Object doRequest(Request request, Closure<Void> responseHandler) throws IOException {
-    try (Response response = client.newCall(request).execute()) {
+    try (Response response = okHttpClient.newCall(request).execute()) {
       return responseHandler.call(response);
     }
   }
 
   private Object doRequest(Request request, Map<?, ?> additionalParameters) throws IOException {
-    try (Response response = client.newCall(request).execute()) {
+    try (Response response = okHttpClient.newCall(request).execute()) {
       return handleResponse(response, additionalParameters);
     }
   }
