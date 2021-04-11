@@ -38,14 +38,14 @@ public class GetpackClient {
   @Getter
   @Setter
   private Closure<?> errorResponseHandler = new MethodClosure(this, "handleErrorResponse");
-  private final Map<MediaType, Closure<?>> bodyEncoders = Encoders.getMap();
-  private final Map<MediaType, Closure<?>> decoders = Decoders.getMap();
+  private final Map<ContentType, Closure<?>> bodyEncoders = Encoders.getMap();
+  private final Map<ContentType, Closure<?>> decoders = Decoders.getMap();
   @Getter
   @Setter
-  private MediaType mediaType;
+  private ContentType contentType;
   @Getter
   @Setter
-  private MediaType acceptMediaType;
+  private ContentType acceptContentType;
   @Getter
   @Setter
   private Auth auth;
@@ -61,8 +61,8 @@ public class GetpackClient {
       putHeader(entry.getKey(), entry.getValue());
     }
     this.errorResponseHandler = getOrDefault(properties, "errorResponseHandler", Closure.class, this.errorResponseHandler);
-    this.acceptMediaType = getOrDefault(properties, "acceptContentType", MediaType.class, this.acceptMediaType);
-    this.mediaType = getOrDefault(properties, "mediaType", MediaType.class, null);
+    this.acceptContentType = getOrDefault(properties, "acceptContentType", ContentType.class, this.acceptContentType);
+    this.contentType = getOrDefault(properties, "contentType", ContentType.class, null);
     this.auth = getOrDefault(properties, "auth", Auth.class, auth);
   }
 
@@ -234,13 +234,11 @@ public class GetpackClient {
     if (body == null) {
       return null;
     }
-    String mediaTypeString = response.header("Content-Type");
-    MediaType responseMediaType = mediaTypeString != null ? MediaType.get(mediaTypeString) : null;
-    Closure<?> decoder = getOrDefault(additionalParameters, "decoder", Closure.class, decoders.get(responseMediaType));
-    // TODO doesn't work when mediatype have additional data like charset: UTF-8
-    // TODO change map to String instead of mediatype
+    String contentTypeHeader = response.header("Content-Type");
+    ContentType responseContentType = contentTypeHeader != null ? ContentType.from(contentTypeHeader) : null;
+    Closure<?> decoder = getOrDefault(additionalParameters, "decoder", Closure.class, decoders.get(responseContentType));
     if (decoder == null) {
-      throw new IllegalStateException("No decoder was found for media type " + mediaType);
+      throw new IllegalStateException("No decoder was found for media type " + responseContentType);
     }
     return decoder.call(body);
   }
@@ -258,16 +256,17 @@ public class GetpackClient {
 
   private RequestBody requestBody(Map<?, ?> additionalParameters) {
     Object body = getOrDefault(additionalParameters, "body", Object.class, null);
-    MediaType mediaType = getOrDefault(additionalParameters, "mediaType", MediaType.class,
-        this.mediaType);
+    ContentType contentType = getOrDefault(additionalParameters, "contentType", ContentType.class,
+        this.contentType);
     if (body == null) {
       return RequestBody.create(null, new byte[]{});
     }
-    Closure<?> bodyEncoder = getOrDefault(additionalParameters, "bodyEncoder", Closure.class, bodyEncoders.get(mediaType));
+    Closure<?> bodyEncoder = getOrDefault(additionalParameters, "bodyEncoder", Closure.class, bodyEncoders.get(
+        contentType));
     if (bodyEncoder == null) {
-      throw new IllegalStateException("No body encoder was found for media type " + mediaType);
+      throw new IllegalStateException("No body encoder was found for media type " + contentType);
     }
-    return (RequestBody) bodyEncoder.call(body, mediaType);
+    return (RequestBody) bodyEncoder.call(body, MediaType.get(contentType.toString()));
   }
 
   private Request.Builder request(String urlOrEndpoint, Map<?, ?> additionalParameters) {
@@ -289,7 +288,7 @@ public class GetpackClient {
       auth.apply(builder);
     }
 
-    MediaType acceptContentType = getOrDefault(additionalParameters, "acceptContentType", MediaType.class, this.acceptMediaType);
+    ContentType acceptContentType = getOrDefault(additionalParameters, "acceptContentType", ContentType.class, this.acceptContentType);
     if (acceptContentType != null) {
       builder.header("Accept", acceptContentType.toString());
     }

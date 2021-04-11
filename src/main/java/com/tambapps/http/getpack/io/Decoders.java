@@ -1,10 +1,10 @@
 package com.tambapps.http.getpack.io;
 
+import com.tambapps.http.getpack.ContentType;
 import com.tambapps.http.getpack.MediaTypes;
 import groovy.json.JsonSlurper;
 import groovy.lang.Closure;
 import groovy.util.XmlSlurper;
-import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import org.codehaus.groovy.runtime.MethodClosure;
 import org.xml.sax.SAXException;
@@ -18,8 +18,8 @@ public class Decoders {
 
   private Decoders() {}
 
-  public static Map<MediaType, Closure<?>> getMap() {
-    Map<MediaType, Closure<?>> map = new HashMap<>();
+  public static Map<ContentType, Closure<?>> getMap() {
+    Map<ContentType, Closure<?>> map = new HashMap<>();
     map.put(MediaTypes.JSON, new MethodClosure(Decoders.class, "decodeJsonResponseBody"));
     map.put(MediaTypes.XML, new MethodClosure(Decoders.class, "decodeXmlResponseBody"));
     map.put(MediaTypes.TEXT, new MethodClosure(Decoders.class, "decodeStringResponseBody"));
