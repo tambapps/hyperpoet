@@ -39,7 +39,6 @@ public class GetpackClient {
   private Closure<?> onPostExecute = null;
   private String baseUrl;
   private ContentType contentType;
-  private ContentType acceptContentType;
   private Auth auth;
 
   public GetpackClient() {
@@ -57,7 +56,10 @@ public class GetpackClient {
       putHeader(entry.getKey(), entry.getValue());
     }
     this.errorResponseHandler = getOrDefault(properties, "errorResponseHandler", Closure.class, this.errorResponseHandler);
-    this.acceptContentType = getOrDefault(properties, "acceptContentType", ContentType.class, this.acceptContentType);
+    ContentType acceptContentType = getOrDefault(properties, "acceptContentType", ContentType.class, null);
+    if (acceptContentType != null) {
+      acceptContentType(acceptContentType);
+    }
     this.contentType = getOrDefault(properties, "contentType", ContentType.class, null);
     this.auth = getOrDefault(properties, "auth", Auth.class, auth);
   }
@@ -210,6 +212,10 @@ public class GetpackClient {
     headers.put(String.valueOf(key), String.valueOf(value));
   }
 
+  public void acceptContentType(ContentType contentType) {
+    headers.put("Accept", contentType.toString());
+  }
+
   public boolean removeHeader(String key) {
     return headers.remove(key) != null;
   }
@@ -303,14 +309,10 @@ public class GetpackClient {
     for (Map.Entry<?, ?> entry : headers.entrySet()) {
       builder.header(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
     }
+    // auth stuff
     Auth auth = getOrDefault(additionalParameters, "auth", Auth.class, this.auth);
     if (auth != null) {
       auth.apply(builder);
-    }
-
-    ContentType acceptContentType = getOrDefault(additionalParameters, "acceptContentType", ContentType.class, this.acceptContentType);
-    if (acceptContentType != null) {
-      builder.header("Accept", acceptContentType.toString());
     }
     return builder;
   }
