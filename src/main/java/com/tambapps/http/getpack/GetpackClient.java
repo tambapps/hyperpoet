@@ -312,30 +312,6 @@ public class GetpackClient {
   }
 
   // used by method closure
-  protected Object resolveContent(Response response) throws IOException {
-    ResponseBody body = response.body();
-    if (body == null) {
-      return null;
-    }
-    String responseContentType = response.headers().get("Content-Type");
-    if (responseContentType == null) {
-      return body.string();
-    } else if (responseContentType.contains("application/json")) {
-      return new JsonSlurper().parseText(body.string());
-    } else if (responseContentType.contains("application/xml")) {
-      try {
-        return new XmlSlurper().parseText(body.string());
-      } catch (SAXException | ParserConfigurationException e) {
-        throw new IOException("Error while parsing XML", e);
-      }
-    } else if (responseContentType.contains("application/octet-stream")) {
-      return body.bytes();
-    } else {
-      return body.string();
-    }
-  }
-
-  // used by method closure
   protected Object handleErrorResponse(Response response) throws IOException {
     throw new ErrorResponseException(response);
   }
