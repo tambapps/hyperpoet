@@ -31,20 +31,17 @@ import java.util.Map;
  * The HTTP client
  */
 @Getter
+@Setter
 public class GetpackClient {
 
   private final OkHttpClient okHttpClient = new OkHttpClient();
-  private final String baseUrl;
   private final Map<String, String> headers = new HashMap<>();
-  @Setter
-  private Closure<?> errorResponseHandler = new MethodClosure(this, "handleErrorResponse");
   private final Map<ContentType, Closure<?>> encoders = Encoders.getMap();
   private final Map<ContentType, Closure<?>> decoders = Decoders.getMap();
-  @Setter
+  private Closure<?> errorResponseHandler = new MethodClosure(this, "handleErrorResponse");
+  private String baseUrl;
   private ContentType contentType;
-  @Setter
   private ContentType acceptContentType;
-  @Setter
   private Auth auth;
 
   public GetpackClient() {
