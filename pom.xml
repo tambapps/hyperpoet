@@ -18,6 +18,39 @@
           <target>8</target>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
+        <version>1.6.1</version>
+        <configuration>
+          <testSources>
+            <testSource>
+              <directory>src/test/java</directory>
+              <includes>
+                <include>**/*.groovy</include>
+              </includes>
+            </testSource>
+            <testSource>
+              <directory>src/test/groovy</directory>
+              <directory>src/test</directory>
+              <includes>
+                <include>**/*.groovy</include>
+              </includes>
+            </testSource>
+          </testSources>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>addTestSources</goal>
+              <goal>generateTestStubs</goal>
+              <goal>compileTests</goal>
+              <goal>removeTestStubs</goal>
+              <goal>removeStubs</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
