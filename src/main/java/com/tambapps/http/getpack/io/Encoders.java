@@ -18,23 +18,21 @@ import java.util.Map;
 
 public class Encoders {
 
+  private Encoders() {}
+
   public static Map<MediaType, Closure<?>> getMap() {
     Map<MediaType, Closure<?>> map = new HashMap<>();
-    Encoders encoders = new Encoders();
-    map.put(MediaTypes.JSON, new MethodClosure(encoders, "encodeJsonBody"));
-    map.put(MediaTypes.XML, new MethodClosure(encoders, "encodeXmlBody"));
-    map.put(null, new MethodClosure(encoders, "encodeStringBody"));
-    map.put(MediaTypes.TEXT, new MethodClosure(encoders, "encodeStringBody"));
-    map.put(MediaTypes.HTML, new MethodClosure(encoders, "encodeStringBody"));
-    map.put(MediaTypes.BINARY, new MethodClosure(encoders, "encodeBytesBody"));
+    map.put(MediaTypes.JSON, new MethodClosure(Encoders.class, "encodeJsonBody"));
+    map.put(MediaTypes.XML, new MethodClosure(Encoders.class, "encodeXmlBody"));
+    map.put(MediaTypes.TEXT, new MethodClosure(Encoders.class, "encodeStringBody"));
+    map.put(MediaTypes.HTML, new MethodClosure(Encoders.class, "encodeStringBody"));
+    map.put(MediaTypes.BINARY, new MethodClosure(Encoders.class, "encodeBytesBody"));
     // null is default
-    map.put(null, new MethodClosure(encoders, "encodeStringBody"));
+    map.put(null, new MethodClosure(Encoders.class, "encodeStringBody"));
     return map;
   }
 
-  private Encoders() {}
-
-  protected RequestBody encodeJsonBody(Object body, MediaType mediaType) {
+  public static RequestBody encodeJsonBody(Object body, MediaType mediaType) {
     String jsonBody;
     if (body instanceof CharSequence) {
       jsonBody = body.toString();
@@ -44,7 +42,7 @@ public class Encoders {
     return RequestBody.create(jsonBody.getBytes(StandardCharsets.UTF_8), mediaType);
   }
 
-  protected RequestBody encodeXmlBody(Object body, MediaType mediaType) {
+  public static RequestBody encodeXmlBody(Object body, MediaType mediaType) {
     String xmlData;
     if (body instanceof CharSequence) {
       xmlData = body.toString();
@@ -56,11 +54,11 @@ public class Encoders {
     return RequestBody.create(xmlData.getBytes(StandardCharsets.UTF_8), mediaType);
   }
 
-  protected RequestBody encodeStringBody(Object body, MediaType mediaType) {
+  public static RequestBody encodeStringBody(Object body, MediaType mediaType) {
     return RequestBody.create(String.valueOf(body).getBytes(StandardCharsets.UTF_8), mediaType);
   }
 
-  protected RequestBody encodeBytesBody(Object body, MediaType mediaType) throws IOException {
+  public static RequestBody encodeBytesBody(Object body, MediaType mediaType) throws IOException {
     byte[] bytes;
     if (body instanceof byte[]) {
       bytes = (byte[]) body;
