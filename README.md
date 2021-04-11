@@ -9,7 +9,8 @@ You can check out the doc [here](https://github.com/tambapps/getpack/wiki)
 
 ```groovy
 import com.tambapps.http.getpack.ContentType
-import com.tambapps.http.getpack.io.Encoders
+import com.tambapps.http.getpack.io.Composers
+import com.tambapps.http.getpack.io.Composers
 
 client = new GetpackClient(url: API_URL, contentType: ContentType.JSON, acceptContentType: ContentType.JSON)
 def data = client.get("/posts/1", query: [author: 'someone@gmail.com'])
@@ -19,5 +20,5 @@ newPost = [title: 'a new post', author: 'me@gmail.com', body: 'This is new!']
 client.post("/posts", body: newPost)
 
 postFile = new File("/path/from/post.csv")
-client.post("/posts", body: postFile.text, contentType: new ContentType('text/csv'), encoder: Encoders.&encodeStringBody)
+client.post("/posts", body: postFile.text, contentType: new ContentType('text/csv'), composer: Composers.&composeStringBody)
 ```

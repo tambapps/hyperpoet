@@ -1,8 +1,8 @@
 package com.tambapps.http.getpack;
 
 import com.tambapps.http.getpack.auth.Auth;
-import com.tambapps.http.getpack.io.Decoders;
-import com.tambapps.http.getpack.io.Encoders;
+import com.tambapps.http.getpack.io.Composers;
+import com.tambapps.http.getpack.io.Parsers;
 import com.tambapps.http.getpack.util.UrlBuilder;
 import groovy.lang.Closure;
 import lombok.Getter;
@@ -32,8 +32,8 @@ public class GetpackClient {
 
   private final OkHttpClient okHttpClient;
   private final Map<String, String> headers = new HashMap<>();
-  private final Map<ContentType, Closure<?>> encoders = Encoders.getMap();
-  private final Map<ContentType, Closure<?>> decoders = Decoders.getMap();
+  private final Map<ContentType, Closure<?>> composers = Composers.getMap();
+  private final Map<ContentType, Closure<?>> parsers = Parsers.getMap();
   private Closure<?> errorResponseHandler = new MethodClosure(this, "handleErrorResponse");
   private Closure<?> onPreExecute = null;
   private Closure<?> onPostExecute = null;
@@ -254,11 +254,11 @@ public class GetpackClient {
     }
     String contentTypeHeader = response.header("Content-Type");
     ContentType responseContentType = contentTypeHeader != null ? ContentType.from(contentTypeHeader) : null;
-    Closure<?> decoder = getOrDefault(additionalParameters, "decoder", Closure.class, decoders.get(responseContentType));
-    if (decoder == null) {
-      throw new IllegalStateException("No decoder was found for media type " + responseContentType);
+    Closure<?> parser = getOrDefault(additionalParameters, "parser", Closure.class, parsers.get(responseContentType));
+    if (parser == null) {
+      throw new IllegalStateException("No parser was found for media type " + responseContentType);
     }
-    return decoder.call(body);
+    return parser.call(body);
   }
 
   private static <T> T getOrDefault(Map<?, ?> additionalParameters, String key, Class<T> clazz, T defaultValue) {
@@ -279,13 +279,13 @@ public class GetpackClient {
     if (body == null) {
       return RequestBody.create(null, new byte[]{});
     }
-    Closure<?> bodyEncoder = getOrDefault(additionalParameters, "encoder", Closure.class,
-        encoders.get(contentType));
-    if (bodyEncoder == null) {
-      throw new IllegalStateException("No body encoder was found for media type " + contentType);
+    Closure<?> composer = getOrDefault(additionalParameters, "composer", Closure.class,
+        composers.get(contentType));
+    if (composer == null) {
+      throw new IllegalStateException("No composer was found for media type " + contentType);
     }
     MediaType mediaType = contentType != null ? MediaType.get(contentType.toString()) : null;
-    return toRequestBody(bodyEncoder.call(body), mediaType);
+    return toRequestBody(composer.call(body), mediaType);
   }
 
   private RequestBody toRequestBody(Object object, MediaType mediaType) throws IOException {

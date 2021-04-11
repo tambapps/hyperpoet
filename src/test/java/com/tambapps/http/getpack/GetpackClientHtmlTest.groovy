@@ -11,7 +11,7 @@ class GetpackClientHtmlTest {
 
   private GetpackClient client = new GetpackClient(url: "https://fr.wikipedia.org",
       contentType: ContentType.JSON, acceptContentType: ContentType.HTML).with {
-    decoders[ContentType.HTML] = { ResponseBody body -> Jsoup.parse(body.string()) }
+    parsers[ContentType.HTML] = { ResponseBody body -> Jsoup.parse(body.string()) }
     it
   }
 

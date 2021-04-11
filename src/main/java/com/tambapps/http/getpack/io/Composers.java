@@ -14,34 +14,34 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Utility class holding several common encoders.
- * An encoder should return one of the following types
+ * Utility class holding several common composers.
+ * An composer should return one of the following types
  * - a byte array (primitive byte, not Byte)
  * - an InputStream
  * - a String
  *
  */
-public final class Encoders {
+public final class Composers {
 
-  private Encoders() {}
+  private Composers() {}
 
   public static Map<ContentType, Closure<?>> getMap() {
     Map<ContentType, Closure<?>> map = new HashMap<>();
-    map.put(ContentType.JSON, new MethodClosure(Encoders.class, "encodeJsonBody"));
-    map.put(ContentType.XML, new MethodClosure(Encoders.class, "encodeXmlBody"));
-    map.put(ContentType.TEXT, new MethodClosure(Encoders.class, "encodeStringBody"));
-    map.put(ContentType.HTML, new MethodClosure(Encoders.class, "encodeStringBody"));
-    map.put(ContentType.BINARY, new MethodClosure(Encoders.class, "encodeBytesBody"));
-    // default encoder (when no content type was found)
-    map.put(null, new MethodClosure(Encoders.class, "encodeStringBody"));
+    map.put(ContentType.JSON, new MethodClosure(Composers.class, "composeJsonBody"));
+    map.put(ContentType.XML, new MethodClosure(Composers.class, "composeXmlBody"));
+    map.put(ContentType.TEXT, new MethodClosure(Composers.class, "composeStringBody"));
+    map.put(ContentType.HTML, new MethodClosure(Composers.class, "composeStringBody"));
+    map.put(ContentType.BINARY, new MethodClosure(Composers.class, "composeBytesBody"));
+    // default composer (when no content type was found)
+    map.put(null, new MethodClosure(Composers.class, "composeStringBody"));
     return map;
   }
 
-  public static String encodeJsonBody(Object body) {
+  public static String composeJsonBody(Object body) {
     return JsonOutput.toJson(body);
   }
 
-  public static String encodeXmlBody(Object body) {
+  public static String composeXmlBody(Object body) {
     String xmlData;
     if (body instanceof CharSequence) {
       xmlData = body.toString();
@@ -53,11 +53,11 @@ public final class Encoders {
     return xmlData;
   }
 
-  public static String encodeStringBody(Object body) {
+  public static String composeStringBody(Object body) {
     return String.valueOf(body);
   }
 
-  public static byte[] encodeBytesBody(Object body) throws IOException {
+  public static byte[] composeBytesBody(Object body) throws IOException {
     byte[] bytes;
     if (body instanceof byte[]) {
       bytes = (byte[]) body;

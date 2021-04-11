@@ -61,8 +61,8 @@ class GetpackClientJsonTest {
   }
 
   @Test
-  void testGetOverrideDecoder() {
-    def todo = client.get("/todos/1", decoder: { ResponseBody body -> body.string() })
+  void testGetOverrideParser() {
+    def todo = client.get("/todos/1", parser: { ResponseBody body -> body.string() })
     assertEquals(String.class, todo.class)
   }
 }
