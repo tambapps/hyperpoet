@@ -1,7 +1,5 @@
 package com.tambapps.http.getpack
 
-import okhttp3.ResponseBody
-import org.jsoup.Jsoup
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertEquals
