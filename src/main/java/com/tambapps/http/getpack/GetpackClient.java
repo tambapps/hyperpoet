@@ -15,11 +15,14 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.codehaus.groovy.runtime.IOGroovyMethods;
 import org.codehaus.groovy.runtime.MethodClosure;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -254,19 +257,33 @@ public class GetpackClient {
     return (T) object;
   }
 
-  private RequestBody requestBody(Map<?, ?> additionalParameters) {
+  private RequestBody requestBody(Map<?, ?> additionalParameters) throws IOException {
     Object body = getOrDefault(additionalParameters, "body", Object.class, null);
     ContentType contentType = getOrDefault(additionalParameters, "contentType", ContentType.class,
         this.contentType);
     if (body == null) {
       return RequestBody.create(null, new byte[]{});
     }
-    Closure<?> bodyEncoder = getOrDefault(additionalParameters, "bodyEncoder", Closure.class, bodyEncoders.get(
-        contentType));
+    Closure<?> bodyEncoder = getOrDefault(additionalParameters, "bodyEncoder", Closure.class,
+        bodyEncoders.get(contentType));
     if (bodyEncoder == null) {
       throw new IllegalStateException("No body encoder was found for media type " + contentType);
     }
-    return (RequestBody) bodyEncoder.call(body, MediaType.get(contentType.toString()));
+    MediaType mediaType = contentType != null ? MediaType.get(contentType.toString()) : null;
+    return toRequestBody(bodyEncoder.call(body), mediaType);
+  }
+
+  private RequestBody toRequestBody(Object object, MediaType mediaType) throws IOException {
+    if (object instanceof String) {
+      return RequestBody.create(object.toString().getBytes(StandardCharsets.UTF_8), mediaType);
+    } else if (object instanceof InputStream) {
+      return RequestBody.create(IOGroovyMethods.getBytes((InputStream) object), mediaType);
+    } else if (object instanceof byte[]) {
+      return RequestBody.create((byte[]) object, mediaType);
+    } else {
+      throw new IllegalStateException(String.format("Couldn't transform encoded data of type %s to a RequestBody",
+          object.getClass().getSimpleName()));
+    }
   }
 
   private Request.Builder request(String urlOrEndpoint, Map<?, ?> additionalParameters) {

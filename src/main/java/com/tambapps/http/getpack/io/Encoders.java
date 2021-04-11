@@ -13,10 +13,17 @@ import org.codehaus.groovy.runtime.MethodClosure;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class holding several common encoders.
+ * An encoder should return one of the following types
+ * - a byte array (primitive byte, not Byte)
+ * - an inputstream
+ * - a String
+ *
+ */
 public class Encoders {
 
   private Encoders() {}
@@ -33,18 +40,17 @@ public class Encoders {
     return map;
   }
 
-  // TODO make these methods return String, InputStream, bytes or response body
-  public static RequestBody encodeJsonBody(Object body, MediaType mediaType) {
+  public static String encodeJsonBody(Object body) {
     String jsonBody;
     if (body instanceof CharSequence) {
       jsonBody = body.toString();
     } else {
       jsonBody = JsonOutput.toJson(body);
     }
-    return RequestBody.create(jsonBody.getBytes(StandardCharsets.UTF_8), mediaType);
+    return jsonBody;
   }
 
-  public static RequestBody encodeXmlBody(Object body, MediaType mediaType) {
+  public static String encodeXmlBody(Object body) {
     String xmlData;
     if (body instanceof CharSequence) {
       xmlData = body.toString();
@@ -53,14 +59,14 @@ public class Encoders {
     } else {
       throw new IllegalArgumentException("body must be a String or a groovy.util.Node to be serialized to XML");
     }
-    return RequestBody.create(xmlData.getBytes(StandardCharsets.UTF_8), mediaType);
+    return xmlData;
   }
 
-  public static RequestBody encodeStringBody(Object body, MediaType mediaType) {
-    return RequestBody.create(String.valueOf(body).getBytes(StandardCharsets.UTF_8), mediaType);
+  public static String encodeStringBody(Object body) {
+    return String.valueOf(body);
   }
 
-  public static RequestBody encodeBytesBody(Object body, MediaType mediaType) throws IOException {
+  public static byte[] encodeBytesBody(Object body) throws IOException {
     byte[] bytes;
     if (body instanceof byte[]) {
       bytes = (byte[]) body;
@@ -73,9 +79,9 @@ public class Encoders {
     } else if (body instanceof InputStream) {
       bytes = IOGroovyMethods.getBytes((InputStream) body);
     } else {
-      throw new IllegalArgumentException("body must be a byte array or an InputStream to be serialized to bytes");
+      throw new IllegalArgumentException("Body must be a byte array or an InputStream to be serialized to bytes");
     }
-    return RequestBody.create(bytes, mediaType);
+    return bytes;
   }
 
 }
