@@ -264,7 +264,7 @@ public class GetpackClient {
     if (body == null) {
       return RequestBody.create(null, new byte[]{});
     }
-    Closure<?> bodyEncoder = getOrDefault(additionalParameters, "bodyEncoder", Closure.class,
+    Closure<?> bodyEncoder = getOrDefault(additionalParameters, "encoder", Closure.class,
         encoders.get(contentType));
     if (bodyEncoder == null) {
       throw new IllegalStateException("No body encoder was found for media type " + contentType);
