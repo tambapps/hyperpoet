@@ -9,7 +9,7 @@ import java.net.URLEncoder;
  * Represents a single query parameter
  */
 @Value
-public class QueryParam {
+class QueryParam {
 
   String key;
   String value;
