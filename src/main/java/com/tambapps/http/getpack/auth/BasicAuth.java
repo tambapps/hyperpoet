@@ -14,7 +14,7 @@ public class BasicAuth implements Auth {
 
   /**
    * Constructs a basic authentication with the given username and password. They are not stored in
-   * memory. Only the (Base64 encoded) header is kept
+   * memory. Only the Base64 encoded header is kept
    * @param username the username
    * @param password the password
    */
