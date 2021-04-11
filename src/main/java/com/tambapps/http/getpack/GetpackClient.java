@@ -41,7 +41,9 @@ public class GetpackClient {
   @Getter
   @Setter
   private Closure<?> errorResponseHandler = new MethodClosure(this, "handleErrorResponse");
+  @Getter
   private final Map<ContentType, Closure<?>> encoders = Encoders.getMap();
+  @Getter
   private final Map<ContentType, Closure<?>> decoders = Decoders.getMap();
   @Getter
   @Setter

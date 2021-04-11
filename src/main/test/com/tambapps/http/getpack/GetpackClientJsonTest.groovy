@@ -1,5 +1,7 @@
 package com.tambapps.http.getpack
 
+import okhttp3.ResponseBody
+import org.jsoup.Jsoup
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertEquals
@@ -7,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull
 import static org.junit.jupiter.api.Assertions.assertThrows
 
 
-class GetpackClientTest {
+class GetpackClientJsonTest {
 
   private GetpackClient client = new GetpackClient(url: "https://jsonplaceholder.typicode.com",
       contentType: ContentType.JSON, acceptContentType: ContentType.JSON)

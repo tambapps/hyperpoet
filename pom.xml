@@ -59,6 +59,13 @@
       <scope>test</scope>
       <!-- <type>pom</type>  required JUST since Groovy 2.5.0 -->
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>1.13.1</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <properties>
