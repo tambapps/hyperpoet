@@ -41,7 +41,7 @@ public class GetpackClient {
   @Getter
   @Setter
   private Closure<?> errorResponseHandler = new MethodClosure(this, "handleErrorResponse");
-  private final Map<ContentType, Closure<?>> bodyEncoders = Encoders.getMap();
+  private final Map<ContentType, Closure<?>> encoders = Encoders.getMap();
   private final Map<ContentType, Closure<?>> decoders = Decoders.getMap();
   @Getter
   @Setter
@@ -265,7 +265,7 @@ public class GetpackClient {
       return RequestBody.create(null, new byte[]{});
     }
     Closure<?> bodyEncoder = getOrDefault(additionalParameters, "bodyEncoder", Closure.class,
-        bodyEncoders.get(contentType));
+        encoders.get(contentType));
     if (bodyEncoder == null) {
       throw new IllegalStateException("No body encoder was found for media type " + contentType);
     }
