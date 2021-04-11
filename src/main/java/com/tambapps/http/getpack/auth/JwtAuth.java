@@ -3,9 +3,6 @@ package com.tambapps.http.getpack.auth;
 import lombok.AllArgsConstructor;
 import okhttp3.Request;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-
 /**
  * Represents a JWT Authentication by token
  */
