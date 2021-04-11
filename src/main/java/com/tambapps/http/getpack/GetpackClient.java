@@ -17,9 +17,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.codehaus.groovy.runtime.IOGroovyMethods;
 import org.codehaus.groovy.runtime.MethodClosure;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -39,6 +37,8 @@ public class GetpackClient {
   private final Map<ContentType, Closure<?>> encoders = Encoders.getMap();
   private final Map<ContentType, Closure<?>> decoders = Decoders.getMap();
   private Closure<?> errorResponseHandler = new MethodClosure(this, "handleErrorResponse");
+  private Closure<?> onPreExecute = null;
+  private Closure<?> onPostExecute = null;
   private String baseUrl;
   private ContentType contentType;
   private ContentType acceptContentType;
@@ -217,7 +217,13 @@ public class GetpackClient {
   }
 
   private Object doRequest(Request request, Closure<Void> responseHandler) throws IOException {
+    if (onPreExecute != null) {
+      onPreExecute.call(request);
+    }
     try (Response response = okHttpClient.newCall(request).execute()) {
+      if (onPostExecute != null) {
+        onPostExecute.call(request, response);
+      }
       return responseHandler.call(response);
     }
   }
