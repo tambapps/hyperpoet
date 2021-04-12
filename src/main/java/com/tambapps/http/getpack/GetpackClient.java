@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * The HTTP client
@@ -50,7 +51,8 @@ public class GetpackClient {
   }
 
   public GetpackClient(Map<?, ?> properties) {
-    this(getOrDefault(properties, "url", String.class, ""));
+    this(getOrDefaultSupply(properties, "okHttpClient", OkHttpClient.class, OkHttpClient::new),
+        getOrDefault(properties, "url", String.class, ""));
     Map<?, ?> headers = getOrDefault(properties, "headers", Map.class, Collections.emptyMap());
     for (Map.Entry<?, ?> entry : headers.entrySet()) {
       putHeader(entry.getKey(), entry.getValue());
@@ -256,7 +258,7 @@ public class GetpackClient {
     ContentType responseContentType = contentTypeHeader != null ? ContentType.from(contentTypeHeader) : null;
     Closure<?> parser = getOrDefault(additionalParameters, "parser", Closure.class, parsers.get(responseContentType));
     if (parser == null) {
-      throw new IllegalStateException("No parser was found for media type " + responseContentType);
+      throw new IllegalStateException("No parser was found for content type " + responseContentType);
     }
     return parser.call(body);
   }
@@ -265,6 +267,17 @@ public class GetpackClient {
     Object object = additionalParameters.get(key);
     if (object == null) {
       return defaultValue;
+    }
+    if (!clazz.isAssignableFrom(object.getClass())) {
+      throw new IllegalArgumentException(String.format("Unexpected type for parameter '%s', expected type %s", key, clazz.getSimpleName()));
+    }
+    return (T) object;
+  }
+
+  private static <T> T getOrDefaultSupply(Map<?, ?> additionalParameters, String key, Class<T> clazz, Supplier<T> defaultValueSupplier) {
+    Object object = additionalParameters.get(key);
+    if (object == null) {
+      return defaultValueSupplier.get();
     }
     if (!clazz.isAssignableFrom(object.getClass())) {
       throw new IllegalArgumentException(String.format("Unexpected type for parameter '%s', expected type %s", key, clazz.getSimpleName()));
@@ -282,21 +295,24 @@ public class GetpackClient {
     Closure<?> composer = getOrDefault(additionalParameters, "composer", Closure.class,
         composers.get(contentType));
     if (composer == null) {
-      throw new IllegalStateException("No composer was found for media type " + contentType);
+      throw new IllegalStateException("No composer was found for content type " + contentType);
     }
     MediaType mediaType = contentType != null ? MediaType.get(contentType.toString()) : null;
     return toRequestBody(composer.call(body), mediaType);
   }
 
   private RequestBody toRequestBody(Object object, MediaType mediaType) throws IOException {
-    if (object instanceof String) {
+    if (object instanceof RequestBody) {
+      return (RequestBody) object;
+    } else if (object instanceof String) {
       return RequestBody.create(object.toString().getBytes(StandardCharsets.UTF_8), mediaType);
     } else if (object instanceof InputStream) {
       return RequestBody.create(IOGroovyMethods.getBytes((InputStream) object), mediaType);
     } else if (object instanceof byte[]) {
       return RequestBody.create((byte[]) object, mediaType);
     } else {
-      throw new IllegalStateException(String.format("Couldn't transform encoded data of type %s to a RequestBody",
+      throw new IllegalStateException(String.format("Couldn't transform composed data of type %s to a RequestBody."
+              + "The result must either be a String, an InputStream, a byte array or a okhttp3.RequestBody",
           object.getClass().getSimpleName()));
     }
   }

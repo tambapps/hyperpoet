@@ -19,6 +19,7 @@ import java.util.Map;
  * - a byte array (primitive byte, not Byte)
  * - an InputStream
  * - a String
+ * - A okhttp3.RequestBody
  *
  */
 public final class Composers {
