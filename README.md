@@ -1,24 +1,25 @@
-# Getpack
+# Hyperpoet
 
-Getpack is a Groovy-friendly library written in Java 8. It is backed by OkHttp and was inspired from
+Hyperpoet is a Groovy-friendly library written in Java 8. It is backed by OkHttp and was inspired from
 [httpbuilder](https://github.com/jgritman/httpbuilder) library. 
 
-You can check out the doc [here](https://github.com/tambapps/getpack/wiki)
+You can check out the doc [here](https://github.com/tambapps/hyperpoet/wiki)
 
 ## Example
 
 ```groovy
-import com.tambapps.http.getpack.ContentType
-import com.tambapps.http.getpack.io.Composers
-import com.tambapps.http.getpack.io.Composers
+import com.tambapps.http.hyperpoet.HttpPoet
+import com.tambapps.http.hyperpoet.ContentType
+import com.tambapps.http.hyperpoet.io.Composers
+import com.tambapps.http.hyperpoet.io.Composers
 
-client = new GetpackClient(url: API_URL, contentType: ContentType.JSON, acceptContentType: ContentType.JSON)
-def data = client.get("/posts/1", query: [author: 'someone@gmail.com'])
+poet = new HttpPoet(url: API_URL, contentType: ContentType.JSON, acceptContentType: ContentType.JSON)
+def data = poet.get("/posts/1", query: [author: 'someone@gmail.com'])
 processData(data)
 
 newPost = [title: 'a new post', author: 'me@gmail.com', body: 'This is new!']
-client.post("/posts", body: newPost)
+poet.post("/posts", body: newPost)
 
 postFile = new File("/path/from/post.csv")
-client.post("/posts", body: postFile.text, contentType: new ContentType('text/csv'), composer: Composers.&composeStringBody)
+poet.post("/posts", body: postFile.text, contentType: new ContentType('text/csv'), composer: Composers.&composeStringBody)
 ```

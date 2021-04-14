@@ -1,4 +1,4 @@
-package com.tambapps.http.getpack.util;
+package com.tambapps.http.hyperpoet.util;
 
 import lombok.Getter;
 

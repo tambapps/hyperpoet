@@ -1,4 +1,4 @@
-package com.tambapps.http.getpack
+package com.tambapps.http.hyperpoet
 
 import okhttp3.Request
 import okhttp3.ResponseBody
@@ -9,9 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull
 import static org.junit.jupiter.api.Assertions.assertThrows
 
 
-class GetpackClientJsonTest {
+class HttpPoetJsonTest {
 
-  private GetpackClient client = new GetpackClient(url: "https://jsonplaceholder.typicode.com",
+  private HttpPoet client = new HttpPoet(url: "https://jsonplaceholder.typicode.com",
       contentType: ContentType.JSON, acceptContentType: ContentType.JSON).with {
     onPreExecute = { Request request ->
       println("headers\n${request.headers()}")

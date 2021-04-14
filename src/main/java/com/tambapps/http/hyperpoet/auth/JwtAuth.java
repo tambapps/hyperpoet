@@ -1,4 +1,4 @@
-package com.tambapps.http.getpack.auth;
+package com.tambapps.http.hyperpoet.auth;
 
 import lombok.AllArgsConstructor;
 import okhttp3.Request;

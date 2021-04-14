@@ -1,4 +1,4 @@
-package com.tambapps.http.getpack;
+package com.tambapps.http.hyperpoet;
 
 import lombok.Getter;
 import okhttp3.Response;

@@ -1,9 +1,9 @@
-package com.tambapps.http.getpack;
+package com.tambapps.http.hyperpoet;
 
-import com.tambapps.http.getpack.auth.Auth;
-import com.tambapps.http.getpack.io.Composers;
-import com.tambapps.http.getpack.io.Parsers;
-import com.tambapps.http.getpack.util.UrlBuilder;
+import com.tambapps.http.hyperpoet.auth.Auth;
+import com.tambapps.http.hyperpoet.io.Composers;
+import com.tambapps.http.hyperpoet.io.Parsers;
+import com.tambapps.http.hyperpoet.util.UrlBuilder;
 import groovy.lang.Closure;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,7 +29,7 @@ import java.util.function.Supplier;
  */
 @Getter
 @Setter
-public class GetpackClient {
+public class HttpPoet {
 
   private final OkHttpClient okHttpClient;
   private final Map<String, String> headers = new HashMap<>();
@@ -42,15 +42,15 @@ public class GetpackClient {
   private ContentType contentType;
   private Auth auth;
 
-  public GetpackClient() {
+  public HttpPoet() {
     this("");
   }
 
-  public GetpackClient(OkHttpClient client) {
+  public HttpPoet(OkHttpClient client) {
     this(client, "");
   }
 
-  public GetpackClient(Map<?, ?> properties) {
+  public HttpPoet(Map<?, ?> properties) {
     this(getOrDefaultSupply(properties, "okHttpClient", OkHttpClient.class, OkHttpClient::new),
         getOrDefault(properties, "url", String.class, ""));
     Map<?, ?> headers = getOrDefault(properties, "headers", Map.class, Collections.emptyMap());
@@ -65,11 +65,11 @@ public class GetpackClient {
     this.contentType = getOrDefault(properties, "contentType", ContentType.class, null);
     this.auth = getOrDefault(properties, "auth", Auth.class, auth);
   }
-  public GetpackClient(String baseUrl) {
+  public HttpPoet(String baseUrl) {
     this(new OkHttpClient(), baseUrl);
   }
 
-  public GetpackClient(OkHttpClient okHttpClient, String baseUrl) {
+  public HttpPoet(OkHttpClient okHttpClient, String baseUrl) {
     this.okHttpClient = okHttpClient;
     this.baseUrl = baseUrl != null ? baseUrl : "";
   }

@@ -1,6 +1,6 @@
-package com.tambapps.http.getpack.io;
+package com.tambapps.http.hyperpoet.io;
 
-import com.tambapps.http.getpack.ContentType;
+import com.tambapps.http.hyperpoet.ContentType;
 import groovy.json.JsonOutput;
 import groovy.lang.Closure;
 import groovy.util.Node;

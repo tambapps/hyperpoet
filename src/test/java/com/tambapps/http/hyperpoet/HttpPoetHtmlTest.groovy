@@ -1,4 +1,4 @@
-package com.tambapps.http.getpack
+package com.tambapps.http.hyperpoet
 
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertEquals
 
-class GetpackClientHtmlTest {
+class HttpPoetHtmlTest {
 
-  private GetpackClient client = new GetpackClient(url: "https://fr.wikipedia.org",
+  private HttpPoet client = new HttpPoet(url: "https://fr.wikipedia.org",
       contentType: ContentType.JSON, acceptContentType: ContentType.HTML).with {
     parsers[ContentType.HTML] = { ResponseBody body -> Jsoup.parse(body.string()) }
     it
