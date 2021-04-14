@@ -14,7 +14,7 @@ import com.tambapps.http.hyperpoet.io.Composers
 import com.tambapps.http.hyperpoet.io.Composers
 
 poet = new HttpPoet(url: API_URL, contentType: ContentType.JSON, acceptContentType: ContentType.JSON)
-def data = poet.get("/posts/1", query: [author: 'someone@gmail.com'])
+def data = poet.get("/posts", query: [author: 'someone@gmail.com'])
 processData(data)
 
 newPost = [title: 'a new post', author: 'me@gmail.com', body: 'This is new!']
