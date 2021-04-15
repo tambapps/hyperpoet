@@ -237,8 +237,12 @@ public class HttpPoet {
       }
     }
     try (Response response = okHttpClient.newCall(request).execute()) {
-      if (onPostExecute != null) {
+      // TODO document it AND DON'T FORGET to document that you cannot fetch responsebody here
+      //  because it will consume it and you'll can't extract it in the response handler
+      if (onPostExecute.getMaximumNumberOfParameters() > 1) {
         onPostExecute.call(request, response);
+      } else {
+        onPostExecute.call(response);
       }
       return responseHandler.call(response);
     }
@@ -254,7 +258,11 @@ public class HttpPoet {
     }
     try (Response response = okHttpClient.newCall(request).execute()) {
       if (onPostExecute != null) {
-        onPostExecute.call(request, response);
+        if (onPostExecute.getMaximumNumberOfParameters() > 1) {
+          onPostExecute.call(request, response);
+        } else {
+          onPostExecute.call(response);
+        }
       }
       return handleResponse(response, additionalParameters);
     }
