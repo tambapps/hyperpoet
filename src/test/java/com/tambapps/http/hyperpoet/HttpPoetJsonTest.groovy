@@ -1,13 +1,13 @@
 package com.tambapps.http.hyperpoet
 
 import okhttp3.Request
+import okhttp3.Response
 import okhttp3.ResponseBody
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertNotNull
 import static org.junit.jupiter.api.Assertions.assertThrows
-
 
 class HttpPoetJsonTest {
 
@@ -19,6 +19,9 @@ class HttpPoetJsonTest {
         assertNotNull(body)
         println("Body: " + new String(body))
       }
+    }
+    onPostExecute = { Response response ->
+      println(response.code())
     }
     it
   }
