@@ -36,8 +36,8 @@ public class HttpPoet {
   private final Map<ContentType, Closure<?>> composers = Composers.getMap();
   private final Map<ContentType, Closure<?>> parsers = Parsers.getMap();
   private Closure<?> errorResponseHandler = new MethodClosure(this, "handleErrorResponse");
-  private Closure<?> onPreExecute = null;
-  private Closure<?> onPostExecute = null;
+  private Closure<?> onPreExecute;
+  private Closure<?> onPostExecute;
   private String baseUrl;
   private ContentType contentType;
   private Auth auth;
@@ -58,6 +58,8 @@ public class HttpPoet {
       putHeader(entry.getKey(), entry.getValue());
     }
     this.errorResponseHandler = getOrDefault(properties, "errorResponseHandler", Closure.class, this.errorResponseHandler);
+    this.onPreExecute = getOrDefault(properties, "onPreExecute", Closure.class, null);
+    this.onPostExecute = getOrDefault(properties, "onPostExecute", Closure.class, null);
     ContentType acceptContentType = getOrDefault(properties, "acceptContentType", ContentType.class, null);
     if (acceptContentType != null) {
       acceptContentType(acceptContentType);
