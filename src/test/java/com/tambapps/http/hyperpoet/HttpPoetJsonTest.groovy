@@ -13,8 +13,12 @@ class HttpPoetJsonTest {
 
   private HttpPoet client = new HttpPoet(url: "https://jsonplaceholder.typicode.com",
       contentType: ContentType.JSON, acceptContentType: ContentType.JSON).with {
-    onPreExecute = { Request request ->
+    onPreExecute = { Request request, byte[] body ->
       println("headers\n${request.headers()}")
+      if (request.method() in ['POST', 'PATCH', 'PUT']) {
+        assertNotNull(body)
+        println("Body: " + new String(body))
+      }
     }
     it
   }

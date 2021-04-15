@@ -13,9 +13,12 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okio.BufferedSink;
+import okio.Okio;
 import org.codehaus.groovy.runtime.IOGroovyMethods;
 import org.codehaus.groovy.runtime.MethodClosure;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -226,7 +229,12 @@ public class HttpPoet {
 
   private Object doRequest(Request request, Closure<?> responseHandler) throws IOException {
     if (onPreExecute != null) {
-      onPreExecute.call(request);
+      // TODO document it
+      if (onPreExecute.getMaximumNumberOfParameters() > 1) {
+        onPreExecute.call(request, extractRequestBody(request.body()));
+      } else {
+        onPreExecute.call(request);
+      }
     }
     try (Response response = okHttpClient.newCall(request).execute()) {
       if (onPostExecute != null) {
@@ -238,7 +246,11 @@ public class HttpPoet {
 
   private Object doRequest(Request request, Map<?, ?> additionalParameters) throws IOException {
     if (onPreExecute != null) {
-      onPreExecute.call(request);
+      if (onPreExecute.getMaximumNumberOfParameters() > 1) {
+        onPreExecute.call(request, extractRequestBody(request.body()));
+      } else {
+        onPreExecute.call(request);
+      }
     }
     try (Response response = okHttpClient.newCall(request).execute()) {
       if (onPostExecute != null) {
@@ -301,6 +313,20 @@ public class HttpPoet {
     }
     MediaType mediaType = contentType != null ? MediaType.get(contentType.toString()) : null;
     return toRequestBody(composer.call(body), mediaType);
+  }
+
+  private byte[] extractRequestBody(RequestBody requestBody) {
+    if (requestBody == null || requestBody.isOneShot()) {
+      return null;
+    }
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    try (BufferedSink bufferedSink = Okio.buffer(Okio.sink(outputStream))) {
+      requestBody.writeTo(bufferedSink);
+      bufferedSink.flush();
+      return outputStream.toByteArray();
+    } catch (IOException e) {
+      return null;
+    }
   }
 
   private RequestBody toRequestBody(Object object, MediaType mediaType) throws IOException {
