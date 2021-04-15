@@ -19,8 +19,17 @@ public class BasicAuth implements Auth {
    * @param password the password
    */
   public BasicAuth(String username, String password) {
+    this(username + ":" + password);
+  }
+
+  /**
+   * Constructs a basic authentication with the given credentials in (user:password)
+   * memory. Only the Base64 encoded header is kept
+   * @param credentials the username
+   */
+  public BasicAuth(String credentials) {
     authHeader = String.format("Basic %s", Base64.getEncoder()
-        .encodeToString(String.format("%s:%s", username, password).getBytes(StandardCharsets.UTF_8)));
+        .encodeToString(credentials.getBytes(StandardCharsets.UTF_8)));
   }
 
   @Override
