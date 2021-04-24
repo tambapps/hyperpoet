@@ -238,7 +238,7 @@ public class HttpPoet {
     }
     try (Response response = okHttpClient.newCall(request).execute()) {
       if (onPostExecute != null) {
-        onPostExecute.call(request, response);
+        onPostExecute.call(response);
       }
       return responseHandler.call(response);
     }
@@ -254,7 +254,7 @@ public class HttpPoet {
     }
     try (Response response = okHttpClient.newCall(request).execute()) {
       if (onPostExecute != null) {
-        onPostExecute.call(request, response);
+        onPostExecute.call(response);
       }
       return handleResponse(response, additionalParameters);
     }
