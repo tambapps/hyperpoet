@@ -7,6 +7,7 @@
   <groupId>com.tambapps.http</groupId>
   <artifactId>hyperpoet</artifactId>
   <version>0.0.1</version>
+  <url>https://jitpack.io/#tambapps/hyperpoet/0.0.1</url>
 
   <build>
     <plugins>
