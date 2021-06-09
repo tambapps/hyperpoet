@@ -63,4 +63,26 @@ class UrlBuilderTest {
     builder.addParam("date", LocalDateTime.of(2020, 01,01, 01, 01))
     assertEquals("$BASE_URL?date=2020-01-01T01%3A01%3A00Z".toString(), builder.build())
   }
+
+  @Test
+  void testParamListRepeat() {
+    UrlBuilder builder = new UrlBuilder(BASE_URL)
+    builder.addParam('things', ['a', 'b', 'c'])
+    assertEquals("$BASE_URL?things=a&things=b&things=c".toString(), builder.build())
+  }
+
+
+  @Test
+  void testParamListComma() {
+    UrlBuilder builder = new UrlBuilder(BASE_URL, UrlBuilder.QueryParamListComposingType.COMMA)
+    builder.addParam('things', ['a', 'b', 'c'])
+    assertEquals("$BASE_URL?things=a,b,c".toString(), builder.buildWithoutEncoding())
+  }
+
+  @Test
+  void testParamListBrackets() {
+    UrlBuilder builder = new UrlBuilder(BASE_URL, UrlBuilder.QueryParamListComposingType.BRACKETS)
+    builder.addParam('things', ['a', 'b', 'c'])
+    assertEquals("$BASE_URL?things=[a,b,c]".toString(), builder.buildWithoutEncoding())
+  }
 }

@@ -49,6 +49,10 @@ public class UrlBuilder {
     this(url, QueryParamComposers.getMap());
   }
 
+  public UrlBuilder(String url, QueryParamListComposingType queryParamListComposingType) {
+    this(url, QueryParamComposers.getMap(), queryParamListComposingType);
+  }
+
   public UrlBuilder(String url, Map<Class<?>, Closure<?>> queryParamComposers) {
     this(url, queryParamComposers, QueryParamListComposingType.REPEAT);
   }
@@ -108,19 +112,15 @@ public class UrlBuilder {
   public UrlBuilder addParam(Object key, Collection<?> value) {
     switch (queryParamListComposingType) {
       case COMMA:
-        StringBuilder commaListBuilder = new StringBuilder();
-        for (Object o : value) {
-          commaListBuilder.append(composeParam(o));
-        }
-        queryParams.add(new QueryParam(key, commaListBuilder.toString()));
-        break;
       case BRACKETS:
         StringBuilder bracketsListBuilder = new StringBuilder();
-        bracketsListBuilder.append("[");
-        for (Object o : value) {
-          bracketsListBuilder.append(composeParam(o));
+        if (queryParamListComposingType == QueryParamListComposingType.BRACKETS) {
+          bracketsListBuilder.append('[');
         }
-        bracketsListBuilder.append("]");
+        bracketsListBuilder.append(value.stream().map(String::valueOf).collect(Collectors.joining(",")));
+        if (queryParamListComposingType == QueryParamListComposingType.BRACKETS) {
+          bracketsListBuilder.append(']');
+        }
         queryParams.add(new QueryParam(key, bracketsListBuilder.toString()));
         break;
       case REPEAT:
@@ -148,6 +148,13 @@ public class UrlBuilder {
       return url;
     }
     return url + "?" + queryParams.stream().map(QueryParam::encoded).collect(Collectors.joining("&"));
+  }
+
+  public String buildWithoutEncoding() {
+    if (queryParams.isEmpty()) {
+      return url;
+    }
+    return url + "?" + queryParams.stream().map(QueryParam::toString).collect(Collectors.joining("&"));
   }
 
   /**
