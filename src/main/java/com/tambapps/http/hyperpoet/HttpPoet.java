@@ -3,6 +3,7 @@ package com.tambapps.http.hyperpoet;
 import com.tambapps.http.hyperpoet.auth.Auth;
 import com.tambapps.http.hyperpoet.io.Composers;
 import com.tambapps.http.hyperpoet.io.Parsers;
+import com.tambapps.http.hyperpoet.io.QueryParamComposers;
 import com.tambapps.http.hyperpoet.util.UrlBuilder;
 import groovy.lang.Closure;
 import lombok.Getter;
@@ -38,6 +39,7 @@ public class HttpPoet {
   private final Map<String, String> headers = new HashMap<>();
   private final Map<ContentType, Closure<?>> composers = Composers.getMap();
   private final Map<ContentType, Closure<?>> parsers = Parsers.getMap();
+  private final Map<Class<?>, Closure<?>> queryParamComposers = QueryParamComposers.getMap();
   private Closure<?> errorResponseHandler = new MethodClosure(this, "handleErrorResponse");
   private Closure<?> onPreExecute;
   private Closure<?> onPostExecute;
@@ -347,7 +349,7 @@ public class HttpPoet {
 
   private Request.Builder request(String urlOrEndpoint, Map<?, ?> additionalParameters) {
     // url stuff
-    String url = new UrlBuilder(baseUrl).append(urlOrEndpoint)
+    String url = new UrlBuilder(baseUrl, queryParamComposers).append(urlOrEndpoint)
         .addParams(getOrDefault(additionalParameters, "params", Map.class, Collections.emptyMap()))
         .encoded();
     Request.Builder builder = new Request.Builder().url(url);

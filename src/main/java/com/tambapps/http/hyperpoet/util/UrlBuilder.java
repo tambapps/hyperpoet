@@ -1,10 +1,13 @@
 package com.tambapps.http.hyperpoet.util;
 
+import com.tambapps.http.hyperpoet.io.QueryParamComposers;
+import groovy.lang.Closure;
 import lombok.Getter;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -16,7 +19,10 @@ import java.util.stream.Collectors;
 @Getter
 public class UrlBuilder {
 
+  // TODO add enum listParamComposingType
+
   private String url;
+  private final Map<Class<?>, Closure<?>> queryParamComposers;
   private final List<QueryParam> queryParams = new ArrayList<>();
 
   public UrlBuilder() {
@@ -24,7 +30,12 @@ public class UrlBuilder {
   }
 
   public UrlBuilder(String url) {
+    this(url, QueryParamComposers.getMap());
+  }
+
+  public UrlBuilder(String url, Map<Class<?>, Closure<?>> queryParamComposers) {
     this.url = url != null ? extractQueryParams(url) : "";
+    this.queryParamComposers = queryParamComposers;
   }
 
   /**
@@ -65,7 +76,14 @@ public class UrlBuilder {
    * @return
    */
   public UrlBuilder addParam(Object key, Object value) {
-    queryParams.add(new QueryParam(String.valueOf(key), String.valueOf(value)));
+    String paramValue;
+    if (value != null) {
+      Closure<?> closure = queryParamComposers.get(value.getClass());
+      paramValue = closure != null ? String.valueOf(closure.call(value)) : String.valueOf(value);
+    } else {
+      paramValue = "null";
+    }
+    queryParams.add(new QueryParam(String.valueOf(key), paramValue));
     return this;
   }
 

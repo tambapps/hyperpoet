@@ -2,11 +2,14 @@ package com.tambapps.http.hyperpoet.util
 
 import org.junit.jupiter.api.Test
 
+import java.time.LocalDate
+import java.time.LocalDateTime
+
 import static org.junit.jupiter.api.Assertions.assertEquals
 
 class UrlBuilderTest {
 
-  private static final String BASE_URL = 'http://example.com'
+  private static final String BASE_URL = 'https://example.com'
 
   @Test
   void testSimpleUrl() {
@@ -44,5 +47,20 @@ class UrlBuilderTest {
     assertEquals(builder, new UrlBuilder(BASE_URL).addParam('array[4]', 5).addParam('tom&jerry', 'yes').addParam('pipe', '|'))
     assertEquals(builder, new UrlBuilder(BASE_URL).addParams(['array[4]': 5, 'tom&jerry': 'yes', 'pipe': '|']))
     assertEquals(url, builder.encoded())
+  }
+
+
+  @Test
+  void testLocalDateParam() {
+    UrlBuilder builder = new UrlBuilder(BASE_URL)
+    builder.addParam("date", LocalDate.of(2020, 01,01))
+    assertEquals("$BASE_URL?date=2020-01-01".toString(), builder.encoded())
+  }
+
+  @Test
+  void testLocalDateTimeParam() {
+    UrlBuilder builder = new UrlBuilder(BASE_URL)
+    builder.addParam("date", LocalDateTime.of(2020, 01,01, 01, 01))
+    assertEquals("$BASE_URL?date=2020-01-01T01%3A01%3A00Z".toString(), builder.encoded())
   }
 }
