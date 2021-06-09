@@ -100,7 +100,7 @@ public class UrlBuilder {
     if (value instanceof Collection) {
       return addParam(key, (Collection<?>) value);
     } else {
-      queryParams.add(new QueryParam(String.valueOf(key), composeParam(value)));
+      queryParams.add(new QueryParam(key, composeParam(value)));
     }
     return this;
   }
@@ -112,7 +112,7 @@ public class UrlBuilder {
         for (Object o : value) {
           commaListBuilder.append(composeParam(o));
         }
-        queryParams.add(new QueryParam(String.valueOf(key), commaListBuilder.toString()));
+        queryParams.add(new QueryParam(key, commaListBuilder.toString()));
         break;
       case BRACKETS:
         StringBuilder bracketsListBuilder = new StringBuilder();
@@ -121,11 +121,11 @@ public class UrlBuilder {
           bracketsListBuilder.append(composeParam(o));
         }
         bracketsListBuilder.append("]");
-        queryParams.add(new QueryParam(String.valueOf(key), bracketsListBuilder.toString()));
+        queryParams.add(new QueryParam(key, bracketsListBuilder.toString()));
         break;
       case REPEAT:
         for (Object o : value) {
-          queryParams.add(new QueryParam(String.valueOf(key), composeParam(o)));
+          queryParams.add(new QueryParam(key, composeParam(o)));
         }
     }
     return this;
@@ -143,12 +143,11 @@ public class UrlBuilder {
    * Returns the full URL represented by this builder, with encoded query parameters if any
    * @return the full URL represented by this builder, with encoded query parameters if any
    */
-  public String encoded() {
+  public String build() {
     if (queryParams.isEmpty()) {
       return url;
     }
     return url + "?" + queryParams.stream().map(QueryParam::encoded).collect(Collectors.joining("&"));
-
   }
 
   /**

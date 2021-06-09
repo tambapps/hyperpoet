@@ -353,7 +353,7 @@ public class HttpPoet {
     // url stuff
     String url = new UrlBuilder(baseUrl, queryParamComposers, queryParamListComposingType).append(urlOrEndpoint)
         .addParams(getOrDefault(additionalParameters, "params", Map.class, Collections.emptyMap()))
-        .encoded();
+        .build();
     Request.Builder builder = new Request.Builder().url(url);
     // headers stuff
     for (Map.Entry<String, String> entry : headers.entrySet()) {

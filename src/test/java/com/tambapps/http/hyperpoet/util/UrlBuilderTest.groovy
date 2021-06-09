@@ -25,7 +25,7 @@ class UrlBuilderTest {
     assertEquals(builder, new UrlBuilder(BASE_URL).addParam('so', 'true'))
     assertEquals(builder, new UrlBuilder(BASE_URL).addParams(so: true))
     assertEquals(url, builder.toString())
-    assertEquals(url, builder.encoded())
+    assertEquals(url, builder.build())
   }
 
   @Test
@@ -36,7 +36,7 @@ class UrlBuilderTest {
     assertEquals(builder, new UrlBuilder(BASE_URL).addParam('so', true).addParam('fi', false).addParam('a', 123))
     assertEquals(builder, new UrlBuilder(BASE_URL).addParams(so: true, fi: false, a: 123))
     assertEquals(url, builder.toString())
-    assertEquals(url, builder.encoded())
+    assertEquals(url, builder.build())
   }
 
   @Test
@@ -46,7 +46,7 @@ class UrlBuilderTest {
     assertEquals(builder, new UrlBuilder().append(url))
     assertEquals(builder, new UrlBuilder(BASE_URL).addParam('array[4]', 5).addParam('tom&jerry', 'yes').addParam('pipe', '|'))
     assertEquals(builder, new UrlBuilder(BASE_URL).addParams(['array[4]': 5, 'tom&jerry': 'yes', 'pipe': '|']))
-    assertEquals(url, builder.encoded())
+    assertEquals(url, builder.build())
   }
 
 
@@ -54,13 +54,13 @@ class UrlBuilderTest {
   void testLocalDateParam() {
     UrlBuilder builder = new UrlBuilder(BASE_URL)
     builder.addParam("date", LocalDate.of(2020, 01,01))
-    assertEquals("$BASE_URL?date=2020-01-01".toString(), builder.encoded())
+    assertEquals("$BASE_URL?date=2020-01-01".toString(), builder.build())
   }
 
   @Test
   void testLocalDateTimeParam() {
     UrlBuilder builder = new UrlBuilder(BASE_URL)
     builder.addParam("date", LocalDateTime.of(2020, 01,01, 01, 01))
-    assertEquals("$BASE_URL?date=2020-01-01T01%3A01%3A00Z".toString(), builder.encoded())
+    assertEquals("$BASE_URL?date=2020-01-01T01%3A01%3A00Z".toString(), builder.build())
   }
 }

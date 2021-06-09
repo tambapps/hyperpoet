@@ -1,5 +1,6 @@
 package com.tambapps.http.hyperpoet.util;
 
+import lombok.AllArgsConstructor;
 import lombok.Value;
 
 import java.io.UnsupportedEncodingException;
@@ -9,7 +10,12 @@ import java.net.URLEncoder;
  * Represents a single query parameter
  */
 @Value
+@AllArgsConstructor
 class QueryParam {
+
+  public QueryParam(Object key, String value) {
+    this(String.valueOf(key), value);
+  }
 
   String key;
   String value;
