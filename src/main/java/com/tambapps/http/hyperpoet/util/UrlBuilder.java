@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -19,11 +19,27 @@ import java.util.stream.Collectors;
 @Getter
 public class UrlBuilder {
 
-  // TODO add enum listParamComposingType
-
+  /**
+   * Enum representing the way to handle query param list,sets
+   */
+  public enum QueryParamListComposingType {
+    /**
+     * Use brackets and separate elements with a comma
+     */
+    BRACKETS,
+    /**
+     * separate elements with a comma
+     */
+    COMMA,
+    /**
+     * Repeat the parameter for each element of the list
+     */
+    REPEAT
+  }
   private String url;
   private final Map<Class<?>, Closure<?>> queryParamComposers;
   private final List<QueryParam> queryParams = new ArrayList<>();
+  private final QueryParamListComposingType queryParamListComposingType;
 
   public UrlBuilder() {
     this("");
@@ -34,8 +50,13 @@ public class UrlBuilder {
   }
 
   public UrlBuilder(String url, Map<Class<?>, Closure<?>> queryParamComposers) {
+    this(url, queryParamComposers, QueryParamListComposingType.REPEAT);
+  }
+
+  public UrlBuilder(String url, Map<Class<?>, Closure<?>> queryParamComposers, QueryParamListComposingType queryParamListComposingType) {
     this.url = url != null ? extractQueryParams(url) : "";
     this.queryParamComposers = queryParamComposers;
+    this.queryParamListComposingType = queryParamListComposingType;
   }
 
   /**
@@ -73,18 +94,49 @@ public class UrlBuilder {
    * Add a query param
    * @param key the name of the parameter
    * @param value its value
-   * @return
+   * @return this
    */
   public UrlBuilder addParam(Object key, Object value) {
-    String paramValue;
-    if (value != null) {
-      Closure<?> closure = queryParamComposers.get(value.getClass());
-      paramValue = closure != null ? String.valueOf(closure.call(value)) : String.valueOf(value);
+    if (value instanceof Collection) {
+      return addParam(key, (Collection<?>) value);
     } else {
-      paramValue = "null";
+      queryParams.add(new QueryParam(String.valueOf(key), composeParam(value)));
     }
-    queryParams.add(new QueryParam(String.valueOf(key), paramValue));
     return this;
+  }
+
+  public UrlBuilder addParam(Object key, Collection<?> value) {
+    switch (queryParamListComposingType) {
+      case COMMA:
+        StringBuilder commaListBuilder = new StringBuilder();
+        for (Object o : value) {
+          commaListBuilder.append(composeParam(o));
+        }
+        queryParams.add(new QueryParam(String.valueOf(key), commaListBuilder.toString()));
+        break;
+      case BRACKETS:
+        StringBuilder bracketsListBuilder = new StringBuilder();
+        bracketsListBuilder.append("[");
+        for (Object o : value) {
+          bracketsListBuilder.append(composeParam(o));
+        }
+        bracketsListBuilder.append("]");
+        queryParams.add(new QueryParam(String.valueOf(key), bracketsListBuilder.toString()));
+        break;
+      case REPEAT:
+        for (Object o : value) {
+          queryParams.add(new QueryParam(String.valueOf(key), composeParam(o)));
+        }
+    }
+    return this;
+  }
+
+  private String composeParam(Object value) {
+    if (value == null) {
+      return "null";
+    }
+    Closure<?> closure = queryParamComposers.get(value.getClass());
+    return closure != null ? String.valueOf(closure.call(value)) : String.valueOf(value);
   }
 
   /**

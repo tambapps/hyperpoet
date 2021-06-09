@@ -46,6 +46,8 @@ public class HttpPoet {
   private String baseUrl;
   private ContentType contentType;
   private Auth auth;
+  private UrlBuilder.QueryParamListComposingType queryParamListComposingType = UrlBuilder.QueryParamListComposingType.REPEAT;
+
 
   public HttpPoet() {
     this("");
@@ -349,7 +351,7 @@ public class HttpPoet {
 
   private Request.Builder request(String urlOrEndpoint, Map<?, ?> additionalParameters) {
     // url stuff
-    String url = new UrlBuilder(baseUrl, queryParamComposers).append(urlOrEndpoint)
+    String url = new UrlBuilder(baseUrl, queryParamComposers, queryParamListComposingType).append(urlOrEndpoint)
         .addParams(getOrDefault(additionalParameters, "params", Map.class, Collections.emptyMap()))
         .encoded();
     Request.Builder builder = new Request.Builder().url(url);
