@@ -42,6 +42,6 @@ And then add the dependency
   <dependency>
     <groupId>com.github.tambapps</groupId>
     <artifactId>hyperpoet</artifactId>
-    <version>1.0.0</version>
+    <version>v1.0.0</version>
   </dependency>
 ```
