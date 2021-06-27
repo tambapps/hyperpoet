@@ -16,18 +16,20 @@ public class InputStreamRequestBody extends RequestBody {
 
   private final Closure<?> inputStreamSupplier;
   private final MediaType mediaType;
+  private final boolean oneShot;
 
   public InputStreamRequestBody(Closure<?> inputStreamSupplier) {
-    this(inputStreamSupplier, (MediaType) null);
+    this(inputStreamSupplier, (MediaType) null, false);
   }
 
-  public InputStreamRequestBody(Closure<?> inputStreamSupplier, ContentType contentType) {
-    this(inputStreamSupplier, MediaType.get(contentType.toString()));
+  public InputStreamRequestBody(Closure<?> inputStreamSupplier, ContentType contentType, boolean oneShot) {
+    this(inputStreamSupplier, MediaType.get(contentType.toString()), oneShot);
   }
 
-  public InputStreamRequestBody(Closure<?> inputStreamSupplier, MediaType mediaType) {
+  public InputStreamRequestBody(Closure<?> inputStreamSupplier, MediaType mediaType, boolean oneShot) {
     this.inputStreamSupplier = inputStreamSupplier;
     this.mediaType = mediaType;
+    this.oneShot = oneShot;
   }
 
   @Nullable
@@ -41,5 +43,10 @@ public class InputStreamRequestBody extends RequestBody {
     try (InputStream inputStream = (InputStream) inputStreamSupplier.call()) {
       sink.writeAll(Okio.source(inputStream));
     }
+  }
+
+  @Override
+  public boolean isOneShot() {
+    return oneShot;
   }
 }
