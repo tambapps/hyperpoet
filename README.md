@@ -25,7 +25,7 @@ poet.post("/posts", body: postFile.text, contentType: new ContentType('text/csv'
 ```
 
 ## How to use
-This library is [hosted on Jitpack](https://jitpack.io/#tambapps/hyperpoet/0.0.1)
+This library is [hosted on Jitpack](https://jitpack.io/#tambapps/hyperpoet/1.0.0)
 
 You can import it to your project by adding the Jitpack repository
 ```xml
@@ -42,6 +42,6 @@ And then add the dependency
   <dependency>
     <groupId>com.github.tambapps</groupId>
     <artifactId>hyperpoet</artifactId>
-    <version>0.0.1</version>
+    <version>1.0.0</version>
   </dependency>
 ```

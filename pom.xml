@@ -6,8 +6,8 @@
 
   <groupId>com.tambapps.http</groupId>
   <artifactId>hyperpoet</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
-  <url>https://jitpack.io/#tambapps/hyperpoet/0.0.1</url>
+  <version>1.0.0</version>
+  <url>https://jitpack.io/#tambapps/hyperpoet/1.0.0</url>
 
   <build>
     <plugins>
@@ -62,7 +62,6 @@
     </plugins>
   </build>
 
-
   <dependencies>
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
@@ -85,7 +84,6 @@
       <version>1.18.20</version>
       <scope>provided</scope>
     </dependency>
-
 
     <dependency>
       <groupId>org.junit.jupiter</groupId>
