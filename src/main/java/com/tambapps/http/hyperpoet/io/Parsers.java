@@ -33,19 +33,31 @@ public class Parsers {
   }
 
   public static Object parseJsonResponseBody(ResponseBody body) throws IOException {
-    return new JsonSlurper().parseText(body.string());
+    String text = body.string();
+    if (text.isEmpty()) {
+      return "(No content)";
+    }
+    return new JsonSlurper().parseText(text);
   }
 
   public static Object parseXmlResponseBody(ResponseBody body) throws IOException {
+    String text = body.string();
+    if (text.isEmpty()) {
+      return "(No content)";
+    }
     try {
-      return new XmlSlurper().parseText(body.string());
+      return new XmlSlurper().parseText(text);
     } catch (SAXException | ParserConfigurationException e) {
       throw new IOException("An error occurred while attempting to load XML response body");
     }
   }
 
   public static String parseStringResponseBody(ResponseBody body) throws IOException {
-    return body.string();
+    String text = body.string();
+    if (text.isEmpty()) {
+      return "(No content)";
+    }
+    return text;
   }
 
   public static byte[] parseBytesResponseBody(ResponseBody body) throws IOException {
