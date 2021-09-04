@@ -1,9 +1,11 @@
 package com.tambapps.http.hyperpoet;
 
 import groovy.lang.Closure;
+import lombok.Getter;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import java.io.IOException;
@@ -16,6 +18,7 @@ public class AsyncHttpPoet extends HttpPoet {
 
   public static final int REQUEST_NOT_EXECUTED_CODE = 0;
 
+  @Getter
   private ExecutorService executor;
 
   public AsyncHttpPoet() {
@@ -41,17 +44,61 @@ public class AsyncHttpPoet extends HttpPoet {
     super(okHttpClient, baseUrl);
   }
 
-  @Override
-  public Object get(String urlOrEndpoint, Closure<?> responseHandler) throws IOException {
-    return super.get(urlOrEndpoint, responseHandler);
-  }
-
   public void getAsync(String urlOrEndpoint, Closure<?> responseHandler) {
     getAsync(Collections.emptyMap(), urlOrEndpoint, responseHandler);
   }
 
   public void getAsync(Map<?, ?> additionalParameters, String urlOrEndpoint, Closure<?> responseHandler) {
     Request request = request(urlOrEndpoint, additionalParameters).get().build();
+    doRequestAsync(request, responseHandler);
+  }
+
+  public void deleteAsync(String urlOrEndpoint, Closure<?> responseHandler) {
+    deleteAsync(Collections.emptyMap(), urlOrEndpoint, responseHandler);
+  }
+
+  public void deleteAsync(Map<?, ?> additionalParameters, String urlOrEndpoint, Closure<?> responseHandler) {
+    Request request = request(urlOrEndpoint, additionalParameters).delete().build();
+    doRequestAsync(request, responseHandler);
+  }
+
+  public void postAsync(String urlOrEndpoint, Closure<?> responseHandler) throws IOException {
+    postAsync(Collections.emptyMap(), urlOrEndpoint, responseHandler);
+  }
+
+  public void postAsync(Map<?, ?> additionalParameters, String urlOrEndpoint, Closure<?> responseHandler) throws IOException {
+    RequestBody requestBody = requestBody(additionalParameters);
+    Request request = request(urlOrEndpoint, additionalParameters).post(requestBody).build();
+    doRequestAsync(request, responseHandler);
+  }
+
+  public void patchAsync(String urlOrEndpoint, Closure<?> responseHandler) throws IOException {
+    patchAsync(Collections.emptyMap(), urlOrEndpoint, responseHandler);
+  }
+
+  public void patchAsync(Map<?, ?> additionalParameters, String urlOrEndpoint, Closure<?> responseHandler) throws IOException {
+    RequestBody requestBody = requestBody(additionalParameters);
+    Request request = request(urlOrEndpoint, additionalParameters).patch(requestBody).build();
+    doRequestAsync(request, responseHandler);
+  }
+
+  public void putAsync(String urlOrEndpoint, Closure<?> responseHandler) throws IOException {
+    putAsync(Collections.emptyMap(), urlOrEndpoint, responseHandler);
+  }
+
+  public void putAsync(Map<?, ?> additionalParameters, String urlOrEndpoint, Closure<?> responseHandler) throws IOException {
+    RequestBody requestBody = requestBody(additionalParameters);
+    Request request = request(urlOrEndpoint, additionalParameters).put(requestBody).build();
+    doRequestAsync(request, responseHandler);
+  }
+
+  public void methodAsync(String urlOrEndpoint, String method, Closure<?> responseHandler) throws IOException {
+    methodAsync(Collections.emptyMap(), urlOrEndpoint, method, responseHandler);
+  }
+
+  public void methodAsync(Map<?, ?> additionalParameters, String urlOrEndpoint, String method, Closure<?> responseHandler) throws IOException {
+    RequestBody requestBody = requestBody(additionalParameters);
+    Request request = request(urlOrEndpoint, additionalParameters).method(method, requestBody).build();
     doRequestAsync(request, responseHandler);
   }
 
@@ -71,5 +118,13 @@ public class AsyncHttpPoet extends HttpPoet {
         responseHandler.call(response);
       }
     });
+  }
+
+  public void shutDown() {
+    executor.shutdown();
+  }
+
+  public void shutDownNow() {
+    executor.shutdownNow();
   }
 }

@@ -303,7 +303,7 @@ public class HttpPoet {
     return (T) object;
   }
 
-  private RequestBody requestBody(Map<?, ?> additionalParameters) throws IOException {
+  protected RequestBody requestBody(Map<?, ?> additionalParameters) throws IOException {
     Object body = getOrDefault(additionalParameters, "body", Object.class, null);
     ContentType contentType = getOrDefault(additionalParameters, "contentType", ContentType.class,
         this.contentType);
