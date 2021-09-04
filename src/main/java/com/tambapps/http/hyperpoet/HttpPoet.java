@@ -231,7 +231,7 @@ public class HttpPoet {
     return headers.remove(key) != null;
   }
 
-  private Object doRequest(Request request, Closure<?> responseHandler) throws IOException {
+  protected Object doRequest(Request request, Closure<?> responseHandler) throws IOException {
     if (onPreExecute != null) {
       // TODO document it
       if (onPreExecute.getMaximumNumberOfParameters() > 1) {
@@ -349,7 +349,7 @@ public class HttpPoet {
     }
   }
 
-  private Request.Builder request(String urlOrEndpoint, Map<?, ?> additionalParameters) {
+  protected Request.Builder request(String urlOrEndpoint, Map<?, ?> additionalParameters) {
     // url stuff
     String url = new UrlBuilder(baseUrl, queryParamComposers, queryParamListComposingType).append(urlOrEndpoint)
         .addParams(getOrDefault(additionalParameters, "params", Map.class, Collections.emptyMap()))
