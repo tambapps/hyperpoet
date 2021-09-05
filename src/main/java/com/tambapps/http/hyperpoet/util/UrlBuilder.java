@@ -109,6 +109,13 @@ public class UrlBuilder {
     return this;
   }
 
+  /**
+   * Adds a multi-valued query-param, according to the this UrlBuilder's list query param composing type
+   *
+   * @param key the name of the parameter
+   * @param value its values
+   * @return this
+   */
   public UrlBuilder addParam(Object key, Collection<?> value) {
     switch (queryParamListComposingType) {
       case COMMA:
@@ -150,6 +157,10 @@ public class UrlBuilder {
     return url + "?" + queryParams.stream().map(QueryParam::encoded).collect(Collectors.joining("&"));
   }
 
+  /**
+   * Returns the full URL represented by this builder, without encoded query parameters
+   * @return the full URL represented by this builder, without encoded query parameters
+   */
   public String buildWithoutEncoding() {
     if (queryParams.isEmpty()) {
       return url;
