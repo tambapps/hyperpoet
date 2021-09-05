@@ -248,7 +248,7 @@ public class HttpPoet {
     }
   }
 
-  private Object doRequest(Request request, Map<?, ?> additionalParameters) throws IOException {
+  protected Object doRequest(Request request, Map<?, ?> additionalParameters) throws IOException {
     if (onPreExecute != null) {
       if (onPreExecute.getMaximumNumberOfParameters() > 1) {
         onPreExecute.call(request, extractRequestBody(request.body()));
