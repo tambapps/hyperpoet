@@ -15,17 +15,16 @@ import static org.junit.jupiter.api.Assertions.assertNull
 class AsyncHttpPoetTest {
 
   private AsyncHttpPoet client = new AsyncHttpPoet(url: "https://jsonplaceholder.typicode.com",
-      contentType: ContentType.JSON, acceptContentType: ContentType.JSON).with {
-    parsers[ContentType.HTML] = { ResponseBody body -> Jsoup.parse(body.string()) }
-    it
-  }
+      contentType: ContentType.JSON, acceptContentType: ContentType.JSON)
 
   private final CountDownLatch countDownLatch = new CountDownLatch(1)
 
   @Test
   void testGet() {
+    AtomicReference<Response> responseReference = new AtomicReference()
     AtomicReference reference = new AtomicReference()
-    client.getAsync("/todos/1") { todo ->
+    client.getAsync("/todos/1") { response, todo ->
+      responseReference.set(response)
       reference.set(todo)
       countDownLatch.countDown()
     }
@@ -37,31 +36,24 @@ class AsyncHttpPoetTest {
     assertNotNull(todo.userId)
     assertNotNull(todo.title)
     assertNotNull(todo.completed)
+    Response response = responseReference.get()
+    assertEquals(200, response.code())
   }
 
   @Test
   void testGetNotFound() {
+    AtomicReference<Response> responseReference = new AtomicReference()
     AtomicReference reference = new AtomicReference()
-    client.getAsync("/todos/123456789") { todo ->
+    client.getAsync("/todos/123456789") { response, todo ->
+      responseReference.set(response)
       reference.set(todo)
       countDownLatch.countDown()
     }
 
     countDownLatch.await()
     def todo = reference.get()
-    assertNull(todo.id)
-  }
-
-  @Test
-  void testGetNotFoundWithResponse() {
-    AtomicReference<Response> reference = new AtomicReference()
-    client.getAsync("/todos/123456789", includeResponse: true) { Response response ->
-      reference.set(response)
-      countDownLatch.countDown()
-    }
-
-    countDownLatch.await()
-    Response response = reference.get()
+    assertNull(todo)
+    Response response = responseReference.get()
     assertEquals(404, response.code())
   }
 }

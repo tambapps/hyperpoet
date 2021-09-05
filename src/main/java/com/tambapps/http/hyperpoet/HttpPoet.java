@@ -35,14 +35,14 @@ import java.util.function.Supplier;
 @Setter
 public class HttpPoet {
 
-  private final OkHttpClient okHttpClient;
+  protected final OkHttpClient okHttpClient;
   private final Map<String, String> headers = new HashMap<>();
   private final Map<ContentType, Closure<?>> composers = Composers.getMap();
   private final Map<ContentType, Closure<?>> parsers = Parsers.getMap();
   private final Map<Class<?>, Closure<?>> queryParamComposers = QueryParamComposers.getMap();
   private Closure<?> errorResponseHandler = new MethodClosure(this, "handleErrorResponse");
-  private Closure<?> onPreExecute;
-  private Closure<?> onPostExecute;
+  protected Closure<?> onPreExecute;
+  protected Closure<?> onPostExecute;
   private String baseUrl;
   private ContentType contentType;
   private Auth auth;
@@ -231,7 +231,7 @@ public class HttpPoet {
     return headers.remove(key) != null;
   }
 
-  protected Object doRequest(Request request, Closure<?> responseHandler) throws IOException {
+  private Object doRequest(Request request, Closure<?> responseHandler) throws IOException {
     if (onPreExecute != null) {
       // TODO document it
       if (onPreExecute.getMaximumNumberOfParameters() > 1) {
@@ -248,7 +248,7 @@ public class HttpPoet {
     }
   }
 
-  protected Object doRequest(Request request, Map<?, ?> additionalParameters) throws IOException {
+  private Object doRequest(Request request, Map<?, ?> additionalParameters) throws IOException {
     if (onPreExecute != null) {
       if (onPreExecute.getMaximumNumberOfParameters() > 1) {
         onPreExecute.call(request, extractRequestBody(request.body()));
@@ -268,6 +268,10 @@ public class HttpPoet {
     if (!response.isSuccessful()) {
       return errorResponseHandler.call(response);
     }
+    return parseResponseBody(response, additionalParameters);
+  }
+
+  protected Object parseResponseBody(Response response, Map<?, ?> additionalParameters) {
     ResponseBody body = response.body();
     if (body == null) {
       return null;
@@ -281,7 +285,7 @@ public class HttpPoet {
     return parser.call(body);
   }
 
-  private static <T> T getOrDefault(Map<?, ?> additionalParameters, String key, Class<T> clazz, T defaultValue) {
+  protected static <T> T getOrDefault(Map<?, ?> additionalParameters, String key, Class<T> clazz, T defaultValue) {
     Object object = additionalParameters.get(key);
     if (object == null) {
       return defaultValue;
@@ -319,7 +323,7 @@ public class HttpPoet {
     return toRequestBody(composer.call(body), mediaType);
   }
 
-  private byte[] extractRequestBody(RequestBody requestBody) {
+  protected byte[] extractRequestBody(RequestBody requestBody) {
     if (requestBody == null || requestBody.isOneShot()) {
       return null;
     }

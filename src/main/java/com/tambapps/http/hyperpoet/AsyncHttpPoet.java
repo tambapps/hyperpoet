@@ -22,7 +22,6 @@ public class AsyncHttpPoet extends HttpPoet {
   public static final int REQUEST_NOT_EXECUTED_CODE = 0;
 
   private ExecutorService executor;
-  private boolean includeResponse;
 
   public AsyncHttpPoet() {
     this("");
@@ -34,12 +33,7 @@ public class AsyncHttpPoet extends HttpPoet {
 
   public AsyncHttpPoet(Map<?, ?> properties) {
     super(properties);
-    if (properties.get("executor") instanceof ExecutorService) {
-      executor = (ExecutorService) properties.get("executor");
-    }
-    if (properties.get("includeResponse") instanceof Boolean) {
-      includeResponse = (Boolean) properties.get("includeResponse");
-    }
+    executor = getOrDefault(properties, "executor", ExecutorService.class, null);
   }
 
   public AsyncHttpPoet(String baseUrl) {
@@ -113,29 +107,39 @@ public class AsyncHttpPoet extends HttpPoet {
     if (executor == null) {
       executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
     }
-    boolean includeResponse = additionalParameters.get("includeResponse") instanceof Boolean ?
-        (Boolean) additionalParameters.get("includeResponse") : this.includeResponse;
 
     executor.submit(() -> {
       try {
-        if (includeResponse) {
-          doRequest(request, responseHandler);
-        } else {
-          responseHandler.call(doRequest(request, additionalParameters));
-        }
+        doRequest(request, responseHandler, additionalParameters);
       } catch (IOException e) {
-        if (includeResponse) {
-          // exception were thrown while executing request, let's respond with a fake response
-          Response response = new Response.Builder().code(REQUEST_NOT_EXECUTED_CODE).request(request)
-              .protocol(Protocol.HTTP_1_0)
-              .message(e.getMessage())
-              .build();
-          responseHandler.call(response);
-        } else {
-          responseHandler.call(new Object[] { null });
-        }
+        // exception were thrown while executing request, let's respond with a fake response
+        Response response = new Response.Builder().code(REQUEST_NOT_EXECUTED_CODE).request(request)
+            .protocol(Protocol.HTTP_1_0)
+            .message(e.getMessage())
+            .build();
+        responseHandler.call(response, null);
       }
     });
+  }
+
+  private void doRequest(Request request, Closure<?> responseHandler, Map<?, ?> additionalParameters) throws IOException {
+    if (onPreExecute != null) {
+      if (onPreExecute.getMaximumNumberOfParameters() > 1) {
+        onPreExecute.call(request, extractRequestBody(request.body()));
+      } else {
+        onPreExecute.call(request);
+      }
+    }
+    try (Response response = okHttpClient.newCall(request).execute()) {
+      if (onPostExecute != null) {
+        onPostExecute.call(response);
+      }
+      if (!response.isSuccessful()) {
+        responseHandler.call(response, null);
+      } else {
+        responseHandler.call(response, parseResponseBody(response, additionalParameters));
+      }
+    }
   }
 
   public void shutdown() {
