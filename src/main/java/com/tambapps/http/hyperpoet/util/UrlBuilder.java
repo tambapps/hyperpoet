@@ -22,7 +22,7 @@ public class UrlBuilder {
   /**
    * Enum representing the way to handle query param list,sets
    */
-  public enum QueryParamListComposingType {
+  public enum MultivaluedQueryParamComposingType {
     /**
      * Use brackets and separate elements with a comma
      */
@@ -39,7 +39,7 @@ public class UrlBuilder {
   private String url;
   private final Map<Class<?>, Closure<?>> queryParamComposers;
   private final List<QueryParam> queryParams = new ArrayList<>();
-  private final QueryParamListComposingType queryParamListComposingType;
+  private final MultivaluedQueryParamComposingType multivaluedQueryParamComposingType;
 
   public UrlBuilder() {
     this("");
@@ -49,18 +49,18 @@ public class UrlBuilder {
     this(url, QueryParamComposers.getMap());
   }
 
-  public UrlBuilder(String url, QueryParamListComposingType queryParamListComposingType) {
-    this(url, QueryParamComposers.getMap(), queryParamListComposingType);
+  public UrlBuilder(String url, MultivaluedQueryParamComposingType multivaluedQueryParamComposingType) {
+    this(url, QueryParamComposers.getMap(), multivaluedQueryParamComposingType);
   }
 
   public UrlBuilder(String url, Map<Class<?>, Closure<?>> queryParamComposers) {
-    this(url, queryParamComposers, QueryParamListComposingType.REPEAT);
+    this(url, queryParamComposers, MultivaluedQueryParamComposingType.REPEAT);
   }
 
-  public UrlBuilder(String url, Map<Class<?>, Closure<?>> queryParamComposers, QueryParamListComposingType queryParamListComposingType) {
+  public UrlBuilder(String url, Map<Class<?>, Closure<?>> queryParamComposers, MultivaluedQueryParamComposingType multivaluedQueryParamComposingType) {
     this.url = url != null ? extractQueryParams(url) : "";
     this.queryParamComposers = queryParamComposers;
-    this.queryParamListComposingType = queryParamListComposingType;
+    this.multivaluedQueryParamComposingType = multivaluedQueryParamComposingType;
   }
 
   /**
@@ -117,15 +117,15 @@ public class UrlBuilder {
    * @return this
    */
   public UrlBuilder addParam(Object key, Collection<?> value) {
-    switch (queryParamListComposingType) {
+    switch (multivaluedQueryParamComposingType) {
       case COMMA:
       case BRACKETS:
         StringBuilder bracketsListBuilder = new StringBuilder();
-        if (queryParamListComposingType == QueryParamListComposingType.BRACKETS) {
+        if (multivaluedQueryParamComposingType == MultivaluedQueryParamComposingType.BRACKETS) {
           bracketsListBuilder.append('[');
         }
         bracketsListBuilder.append(value.stream().map(String::valueOf).collect(Collectors.joining(",")));
-        if (queryParamListComposingType == QueryParamListComposingType.BRACKETS) {
+        if (multivaluedQueryParamComposingType == MultivaluedQueryParamComposingType.BRACKETS) {
           bracketsListBuilder.append(']');
         }
         queryParams.add(new QueryParam(key, bracketsListBuilder.toString()));
