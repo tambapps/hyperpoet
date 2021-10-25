@@ -4,7 +4,7 @@ import com.tambapps.http.hyperpoet.auth.Auth;
 import com.tambapps.http.hyperpoet.io.Composers;
 import com.tambapps.http.hyperpoet.io.Parsers;
 import com.tambapps.http.hyperpoet.io.PoeticJsonGenerator;
-import com.tambapps.http.hyperpoet.io.QueryParamComposer;
+import com.tambapps.http.hyperpoet.util.QueryParamComposer;
 import com.tambapps.http.hyperpoet.util.UrlBuilder;
 import groovy.lang.Closure;
 import lombok.Getter;

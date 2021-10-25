@@ -1,6 +1,5 @@
 package com.tambapps.http.hyperpoet.util;
 
-import com.tambapps.http.hyperpoet.io.QueryParamComposer;
 import groovy.lang.Closure;
 import lombok.Getter;
 

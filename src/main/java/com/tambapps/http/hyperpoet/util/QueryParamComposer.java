@@ -1,4 +1,4 @@
-package com.tambapps.http.hyperpoet.io;
+package com.tambapps.http.hyperpoet.util;
 
 import com.tambapps.http.hyperpoet.util.QueryParam;
 import com.tambapps.http.hyperpoet.util.UrlBuilder;
