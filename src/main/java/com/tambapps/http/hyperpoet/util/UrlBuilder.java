@@ -37,6 +37,7 @@ public class UrlBuilder {
      */
     REPEAT
   }
+
   private String url;
   private final List<QueryParam> queryParams = new ArrayList<>();
   private final QueryParamComposer queryParamComposer;
@@ -50,16 +51,16 @@ public class UrlBuilder {
   }
 
   public UrlBuilder(String url, MultivaluedQueryParamComposingType multivaluedQueryParamComposingType) {
-    this(url, new HashMap<>(), multivaluedQueryParamComposingType);
+    this(url, new QueryParamComposer(new HashMap<>(), multivaluedQueryParamComposingType));
   }
 
-  public UrlBuilder(String url, Map<Class<?>, Closure<?>> queryParamComposers) {
-    this(url, queryParamComposers, MultivaluedQueryParamComposingType.REPEAT);
+  public UrlBuilder(String url, Map<Class<?>, Closure<?>> queryParamConverters) {
+    this(url, new QueryParamComposer(queryParamConverters, MultivaluedQueryParamComposingType.REPEAT));
   }
 
-  public UrlBuilder(String url, Map<Class<?>, Closure<?>> queryParamConverters, MultivaluedQueryParamComposingType multivaluedQueryParamComposingType) {
+  public UrlBuilder(String url, QueryParamComposer queryParamComposer) {
     this.url = url != null ? extractQueryParams(url) : "";
-    this.queryParamComposer = new QueryParamComposer(queryParamConverters, multivaluedQueryParamComposingType);
+    this.queryParamComposer = queryParamComposer;
   }
 
   /**

@@ -5,6 +5,7 @@ import com.tambapps.http.hyperpoet.util.UrlBuilder;
 import groovy.lang.Closure;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,6 +20,22 @@ public class QueryParamComposer {
 
   private final Map<Class<?>, Closure<?>> converters;
   private final UrlBuilder.MultivaluedQueryParamComposingType multivaluedQueryParamComposingType;
+
+  public List<QueryParam> compose(Object value) {
+    if (value instanceof Map) {
+      return compose((Map) value);
+    } else {
+      return compose(DefaultGroovyMethods.getProperties(value));
+    }
+  }
+
+  public List<QueryParam> compose(Map<?, ?> value) {
+    return value.entrySet()
+        .stream()
+        .map(e -> compose(String.valueOf(e.getKey()), e.getValue()))
+        .flatMap(Collection::stream)
+        .collect(Collectors.toList());
+  }
 
   public List<QueryParam> compose(String name, Object value) {
     if (value instanceof Collection) {

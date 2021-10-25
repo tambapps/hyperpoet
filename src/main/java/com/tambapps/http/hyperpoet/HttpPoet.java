@@ -4,6 +4,7 @@ import com.tambapps.http.hyperpoet.auth.Auth;
 import com.tambapps.http.hyperpoet.io.Composers;
 import com.tambapps.http.hyperpoet.io.Parsers;
 import com.tambapps.http.hyperpoet.io.PoeticJsonGenerator;
+import com.tambapps.http.hyperpoet.io.QueryParamComposer;
 import com.tambapps.http.hyperpoet.util.UrlBuilder;
 import groovy.lang.Closure;
 import lombok.Getter;
@@ -41,20 +42,20 @@ public class HttpPoet {
   protected final OkHttpClient okHttpClient;
   private final Map<String, String> headers = new HashMap<>();
   private final PoeticJsonGenerator jsonGenerator = new PoeticJsonGenerator();
-  private final Map<ContentType, Closure<?>> composers = Composers.getMap(jsonGenerator);
+  private final Map<Class<?>, Closure<?>> queryParamConverters = new HashMap<>();
+  // TODO document it
+  private UrlBuilder.MultivaluedQueryParamComposingType multivaluedQueryParamComposingType =
+      UrlBuilder.MultivaluedQueryParamComposingType.REPEAT;
+  private final QueryParamComposer queryParamComposer = new QueryParamComposer(queryParamConverters, multivaluedQueryParamComposingType);
+  private final Map<ContentType, Closure<?>> composers = Composers.getMap(jsonGenerator, queryParamComposer);
   private final Map<ContentType, Closure<?>> parsers = Parsers.getMap();
   // TODO document it
-  private final Map<Class<?>, Closure<?>> queryParamConverters = new HashMap<>();
   private Closure<?> errorResponseHandler = new MethodClosure(this, "handleErrorResponse");
   protected Closure<?> onPreExecute;
   protected Closure<?> onPostExecute;
   private String baseUrl;
   private ContentType contentType;
   private Auth auth;
-  // TODO document it
-  private UrlBuilder.MultivaluedQueryParamComposingType multivaluedQueryParamComposingType =
-      UrlBuilder.MultivaluedQueryParamComposingType.REPEAT;
-
 
   public HttpPoet() {
     this("");
@@ -588,7 +589,7 @@ public class HttpPoet {
   protected Request.Builder request(String urlOrEndpoint, Map<?, ?> additionalParameters) {
     // url stuff
     String url =
-        new UrlBuilder(baseUrl, queryParamConverters, multivaluedQueryParamComposingType).append(
+        new UrlBuilder(baseUrl, queryParamComposer).append(
                 urlOrEndpoint)
             .addParams(
                 getOrDefault(additionalParameters, "params", Map.class, Collections.emptyMap()))

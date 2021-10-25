@@ -27,13 +27,14 @@ public final class Composers {
 
   private Composers() {}
 
-  public static Map<ContentType, Closure<?>> getMap(JsonGenerator jsonGenerator) {
+  public static Map<ContentType, Closure<?>> getMap(JsonGenerator jsonGenerator, QueryParamComposer queryParamComposer) {
     Map<ContentType, Closure<?>> map = new HashMap<>();
     map.put(ContentType.JSON, new MethodClosure(jsonGenerator, "toJson"));
     map.put(ContentType.XML, new MethodClosure(Composers.class, "composeXmlBody"));
     map.put(ContentType.TEXT, new MethodClosure(Composers.class, "composeStringBody"));
     map.put(ContentType.HTML, new MethodClosure(Composers.class, "composeStringBody"));
     map.put(ContentType.BINARY, new MethodClosure(Composers.class, "composeBytesBody"));
+    map.put(ContentType.URL_ENCODED, new MethodClosure(queryParamComposer, "compose"));
     // default composer (when no content type was found)
     map.put(null, new MethodClosure(Composers.class, "composeStringBody"));
     return map;
