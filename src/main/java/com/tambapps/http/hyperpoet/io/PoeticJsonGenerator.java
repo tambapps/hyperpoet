@@ -14,11 +14,6 @@ public class PoeticJsonGenerator extends DefaultJsonGenerator {
     converters.add(new TypeConverter(clazz, closure));
   }
 
-  @Override
-  protected Converter findConverter(Class<?> type) {
-    return super.findConverter(type);
-  }
-
   @AllArgsConstructor
   private static class TypeConverter implements Converter {
 

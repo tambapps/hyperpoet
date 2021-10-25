@@ -5,6 +5,7 @@ import com.tambapps.http.hyperpoet.io.Composers;
 import com.tambapps.http.hyperpoet.io.Parsers;
 import com.tambapps.http.hyperpoet.io.PoeticJsonGenerator;
 import com.tambapps.http.hyperpoet.io.QueryParamComposers;
+import com.tambapps.http.hyperpoet.io.converter.TypeConverter;
 import com.tambapps.http.hyperpoet.util.UrlBuilder;
 import groovy.json.JsonGenerator;
 import groovy.lang.Closure;
@@ -25,6 +26,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +45,7 @@ public class HttpPoet {
 
   protected final OkHttpClient okHttpClient;
   private final Map<String, String> headers = new HashMap<>();
-  private final JsonGenerator jsonGenerator = new PoeticJsonGenerator();
+  private final PoeticJsonGenerator jsonGenerator = new PoeticJsonGenerator();
   private final Map<ContentType, Closure<?>> composers = Composers.getMap(jsonGenerator);
   private final Map<ContentType, Closure<?>> parsers = Parsers.getMap();
   private final Map<Class<?>, Closure<?>> queryParamComposers = QueryParamComposers.getMap();
@@ -82,6 +86,9 @@ public class HttpPoet {
     }
     this.contentType = getOrDefault(properties, "contentType", ContentType.class, null);
     this.auth = getOrDefault(properties, "auth", Auth.class, auth);
+
+    jsonGenerator.addConverter(LocalDateTime.class, new MethodClosure(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ"), "format"));
+    jsonGenerator.addConverter(LocalDate.class, new MethodClosure(DateTimeFormatter.ofPattern("yyyy-MM-dd"), "format"));
   }
 
   public HttpPoet(String baseUrl) {
