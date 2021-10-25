@@ -4,10 +4,7 @@ import com.tambapps.http.hyperpoet.auth.Auth;
 import com.tambapps.http.hyperpoet.io.Composers;
 import com.tambapps.http.hyperpoet.io.Parsers;
 import com.tambapps.http.hyperpoet.io.PoeticJsonGenerator;
-import com.tambapps.http.hyperpoet.io.QueryParamComposers;
-import com.tambapps.http.hyperpoet.io.converter.TypeConverter;
 import com.tambapps.http.hyperpoet.util.UrlBuilder;
-import groovy.json.JsonGenerator;
 import groovy.lang.Closure;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,8 +31,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-// TODO handle how dates are serialized
-
 /**
  * The HTTP client
  */
@@ -48,7 +43,8 @@ public class HttpPoet {
   private final PoeticJsonGenerator jsonGenerator = new PoeticJsonGenerator();
   private final Map<ContentType, Closure<?>> composers = Composers.getMap(jsonGenerator);
   private final Map<ContentType, Closure<?>> parsers = Parsers.getMap();
-  private final Map<Class<?>, Closure<?>> queryParamComposers = QueryParamComposers.getMap();
+  // TODO document it
+  private final Map<Class<?>, Closure<?>> queryParamConverters = new HashMap<>();
   private Closure<?> errorResponseHandler = new MethodClosure(this, "handleErrorResponse");
   protected Closure<?> onPreExecute;
   protected Closure<?> onPostExecute;
@@ -87,8 +83,12 @@ public class HttpPoet {
     this.contentType = getOrDefault(properties, "contentType", ContentType.class, null);
     this.auth = getOrDefault(properties, "auth", Auth.class, auth);
 
-    jsonGenerator.addConverter(LocalDateTime.class, new MethodClosure(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ"), "format"));
-    jsonGenerator.addConverter(LocalDate.class, new MethodClosure(DateTimeFormatter.ofPattern("yyyy-MM-dd"), "format"));
+    Closure<?> localDateTimeFormatter = new MethodClosure(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"), "format");
+    Closure<?> dateTimeFormatter = new MethodClosure(DateTimeFormatter.ofPattern("yyyy-MM-dd"), "format");
+    jsonGenerator.addConverter(LocalDateTime.class, localDateTimeFormatter);
+    jsonGenerator.addConverter(LocalDate.class, dateTimeFormatter);
+    queryParamConverters.put(LocalDateTime.class, localDateTimeFormatter);
+    queryParamConverters.put(LocalDate.class, dateTimeFormatter);
   }
 
   public HttpPoet(String baseUrl) {
@@ -588,7 +588,7 @@ public class HttpPoet {
   protected Request.Builder request(String urlOrEndpoint, Map<?, ?> additionalParameters) {
     // url stuff
     String url =
-        new UrlBuilder(baseUrl, queryParamComposers, multivaluedQueryParamComposingType).append(
+        new UrlBuilder(baseUrl, queryParamConverters, multivaluedQueryParamComposingType).append(
                 urlOrEndpoint)
             .addParams(
                 getOrDefault(additionalParameters, "params", Map.class, Collections.emptyMap()))

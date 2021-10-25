@@ -2,16 +2,22 @@ package com.tambapps.http.hyperpoet.io;
 
 import com.tambapps.http.hyperpoet.util.QueryParam;
 import com.tambapps.http.hyperpoet.util.UrlBuilder;
+import groovy.lang.Closure;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
+@Getter
 public class QueryParamComposer {
+
+  private final Map<Class<?>, Closure<?>> converters;
   private final UrlBuilder.MultivaluedQueryParamComposingType multivaluedQueryParamComposingType;
 
   public List<QueryParam> compose(String name, Object value) {
@@ -50,7 +56,14 @@ public class QueryParamComposer {
     if (value == null) {
       return "null";
     }
-    // TODO handle custom composers
-    return String.valueOf(value);
+    Closure<?> converter = findConverter(value.getClass());
+    return converter != null ? String.valueOf(converter.call(value)) : String.valueOf(value);
+  }
+
+  private Closure<?> findConverter(Class<?> clazz) {
+    return converters.entrySet()
+        .stream()
+        .filter(e -> e.getKey().isAssignableFrom(clazz))
+        .map(Map.Entry::getValue).findFirst().orElse(null);
   }
 }

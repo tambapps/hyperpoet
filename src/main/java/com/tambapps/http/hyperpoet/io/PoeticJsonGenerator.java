@@ -14,6 +14,24 @@ public class PoeticJsonGenerator extends DefaultJsonGenerator {
     converters.add(new TypeConverter(clazz, closure));
   }
 
+  public Closure<?> getAt(Class<?> clazz) {
+    for (Converter converter : converters) {
+      if (!(converter instanceof TypeConverter)) {
+        continue;
+      }
+      TypeConverter typeConverter = (TypeConverter) converter;
+      if (typeConverter.handles(clazz)) {
+        return typeConverter.closure;
+      }
+    }
+    return null;
+  }
+
+  // TODO document it
+  public void putAt(Class<?> clazz, Closure<?> closure) {
+    addConverter(clazz, closure);
+  }
+
   @AllArgsConstructor
   private static class TypeConverter implements Converter {
 

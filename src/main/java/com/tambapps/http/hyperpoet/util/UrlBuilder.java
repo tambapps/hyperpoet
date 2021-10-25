@@ -1,7 +1,6 @@
 package com.tambapps.http.hyperpoet.util;
 
 import com.tambapps.http.hyperpoet.io.QueryParamComposer;
-import com.tambapps.http.hyperpoet.io.QueryParamComposers;
 import groovy.lang.Closure;
 import lombok.Getter;
 
@@ -9,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,7 +38,6 @@ public class UrlBuilder {
     REPEAT
   }
   private String url;
-  private final Map<Class<?>, Closure<?>> queryParamComposers;
   private final List<QueryParam> queryParams = new ArrayList<>();
   private final QueryParamComposer queryParamComposer;
 
@@ -47,21 +46,20 @@ public class UrlBuilder {
   }
 
   public UrlBuilder(String url) {
-    this(url, QueryParamComposers.getMap());
+    this(url, new HashMap<>());
   }
 
   public UrlBuilder(String url, MultivaluedQueryParamComposingType multivaluedQueryParamComposingType) {
-    this(url, QueryParamComposers.getMap(), multivaluedQueryParamComposingType);
+    this(url, new HashMap<>(), multivaluedQueryParamComposingType);
   }
 
   public UrlBuilder(String url, Map<Class<?>, Closure<?>> queryParamComposers) {
     this(url, queryParamComposers, MultivaluedQueryParamComposingType.REPEAT);
   }
 
-  public UrlBuilder(String url, Map<Class<?>, Closure<?>> queryParamComposers, MultivaluedQueryParamComposingType multivaluedQueryParamComposingType) {
+  public UrlBuilder(String url, Map<Class<?>, Closure<?>> queryParamConverters, MultivaluedQueryParamComposingType multivaluedQueryParamComposingType) {
     this.url = url != null ? extractQueryParams(url) : "";
-    this.queryParamComposers = queryParamComposers;
-    this.queryParamComposer = new QueryParamComposer(multivaluedQueryParamComposingType);
+    this.queryParamComposer = new QueryParamComposer(queryParamConverters, multivaluedQueryParamComposingType);
   }
 
   /**
