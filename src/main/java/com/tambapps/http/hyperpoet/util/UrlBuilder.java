@@ -1,5 +1,6 @@
 package com.tambapps.http.hyperpoet.util;
 
+import com.tambapps.http.hyperpoet.io.QueryParamComposer;
 import com.tambapps.http.hyperpoet.io.QueryParamComposers;
 import groovy.lang.Closure;
 import lombok.Getter;
@@ -39,7 +40,7 @@ public class UrlBuilder {
   private String url;
   private final Map<Class<?>, Closure<?>> queryParamComposers;
   private final List<QueryParam> queryParams = new ArrayList<>();
-  private final MultivaluedQueryParamComposingType multivaluedQueryParamComposingType;
+  private final QueryParamComposer queryParamComposer;
 
   public UrlBuilder() {
     this("");
@@ -60,7 +61,7 @@ public class UrlBuilder {
   public UrlBuilder(String url, Map<Class<?>, Closure<?>> queryParamComposers, MultivaluedQueryParamComposingType multivaluedQueryParamComposingType) {
     this.url = url != null ? extractQueryParams(url) : "";
     this.queryParamComposers = queryParamComposers;
-    this.multivaluedQueryParamComposingType = multivaluedQueryParamComposingType;
+    this.queryParamComposer = new QueryParamComposer(multivaluedQueryParamComposingType);
   }
 
   /**
@@ -101,11 +102,7 @@ public class UrlBuilder {
    * @return this
    */
   public UrlBuilder addParam(Object key, Object value) {
-    if (value instanceof Collection) {
-      return addParam(key, (Collection<?>) value);
-    } else {
-      queryParams.add(new QueryParam(key, composeParam(value)));
-    }
+    queryParams.addAll(queryParamComposer.compose(String.valueOf(key), value));
     return this;
   }
 
@@ -117,33 +114,8 @@ public class UrlBuilder {
    * @return this
    */
   public UrlBuilder addParam(Object key, Collection<?> value) {
-    switch (multivaluedQueryParamComposingType) {
-      case COMMA:
-      case BRACKETS:
-        StringBuilder bracketsListBuilder = new StringBuilder();
-        if (multivaluedQueryParamComposingType == MultivaluedQueryParamComposingType.BRACKETS) {
-          bracketsListBuilder.append('[');
-        }
-        bracketsListBuilder.append(value.stream().map(String::valueOf).collect(Collectors.joining(",")));
-        if (multivaluedQueryParamComposingType == MultivaluedQueryParamComposingType.BRACKETS) {
-          bracketsListBuilder.append(']');
-        }
-        queryParams.add(new QueryParam(key, bracketsListBuilder.toString()));
-        break;
-      case REPEAT:
-        for (Object o : value) {
-          queryParams.add(new QueryParam(key, composeParam(o)));
-        }
-    }
+    queryParams.addAll(queryParamComposer.compose(String.valueOf(key), value));
     return this;
-  }
-
-  private String composeParam(Object value) {
-    if (value == null) {
-      return "null";
-    }
-    Closure<?> closure = queryParamComposers.get(value.getClass());
-    return closure != null ? String.valueOf(closure.call(value)) : String.valueOf(value);
   }
 
   /**

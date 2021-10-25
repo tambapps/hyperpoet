@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+// TODO handle how dates are serialized
+
 /**
  * The HTTP client
  */
