@@ -1,7 +1,5 @@
 package com.tambapps.http.hyperpoet.util;
 
-import com.tambapps.http.hyperpoet.util.QueryParam;
-import com.tambapps.http.hyperpoet.util.UrlBuilder;
 import groovy.lang.Closure;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,6 +30,7 @@ public class QueryParamComposer {
   public List<QueryParam> compose(Map<?, ?> value) {
     return value.entrySet()
         .stream()
+        .filter(e -> !"class".equals(e.getKey()))
         .map(e -> compose(String.valueOf(e.getKey()), e.getValue()))
         .flatMap(Collection::stream)
         .collect(Collectors.toList());
