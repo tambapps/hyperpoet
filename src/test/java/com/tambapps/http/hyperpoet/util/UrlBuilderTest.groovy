@@ -4,12 +4,17 @@ import org.junit.jupiter.api.Test
 
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 import static org.junit.jupiter.api.Assertions.assertEquals
 
 class UrlBuilderTest {
 
   private static final String BASE_URL = 'https://example.com'
+
+  private static final DateTimeFormatter LOCAL_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+  private static final DateTimeFormatter LOCAL_DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
 
   @Test
   void testSimpleUrl() {
@@ -53,6 +58,7 @@ class UrlBuilderTest {
   @Test
   void testLocalDateParam() {
     UrlBuilder builder = new UrlBuilder(BASE_URL)
+    builder.queryParamComposer.converters[LocalDate] = LOCAL_DATE_FORMATTER.&format
     builder.addParam("date", LocalDate.of(2020, 01,01))
     assertEquals("$BASE_URL?date=2020-01-01".toString(), builder.build())
   }
@@ -60,6 +66,7 @@ class UrlBuilderTest {
   @Test
   void testLocalDateTimeParam() {
     UrlBuilder builder = new UrlBuilder(BASE_URL)
+    builder.queryParamComposer.converters[LocalDateTime] = LOCAL_DATETIME_FORMATTER.&format
     builder.addParam("date", LocalDateTime.of(2020, 01,01, 01, 01))
     assertEquals("$BASE_URL?date=2020-01-01T01%3A01%3A00Z".toString(), builder.build())
   }
