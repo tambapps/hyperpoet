@@ -1,6 +1,7 @@
 package com.tambapps.http.hyperpoet.io;
 
 import com.tambapps.http.hyperpoet.ContentType;
+import groovy.json.JsonGenerator;
 import groovy.json.JsonOutput;
 import groovy.lang.Closure;
 import groovy.util.Node;
@@ -26,9 +27,9 @@ public final class Composers {
 
   private Composers() {}
 
-  public static Map<ContentType, Closure<?>> getMap() {
+  public static Map<ContentType, Closure<?>> getMap(JsonGenerator jsonGenerator) {
     Map<ContentType, Closure<?>> map = new HashMap<>();
-    map.put(ContentType.JSON, new MethodClosure(Composers.class, "composeJsonBody"));
+    map.put(ContentType.JSON, new MethodClosure(jsonGenerator, "toJson"));
     map.put(ContentType.XML, new MethodClosure(Composers.class, "composeXmlBody"));
     map.put(ContentType.TEXT, new MethodClosure(Composers.class, "composeStringBody"));
     map.put(ContentType.HTML, new MethodClosure(Composers.class, "composeStringBody"));

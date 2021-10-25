@@ -3,8 +3,10 @@ package com.tambapps.http.hyperpoet;
 import com.tambapps.http.hyperpoet.auth.Auth;
 import com.tambapps.http.hyperpoet.io.Composers;
 import com.tambapps.http.hyperpoet.io.Parsers;
+import com.tambapps.http.hyperpoet.io.PoeticJsonGenerator;
 import com.tambapps.http.hyperpoet.io.QueryParamComposers;
 import com.tambapps.http.hyperpoet.util.UrlBuilder;
+import groovy.json.JsonGenerator;
 import groovy.lang.Closure;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,7 +41,8 @@ public class HttpPoet {
 
   protected final OkHttpClient okHttpClient;
   private final Map<String, String> headers = new HashMap<>();
-  private final Map<ContentType, Closure<?>> composers = Composers.getMap();
+  private final JsonGenerator jsonGenerator = new PoeticJsonGenerator();
+  private final Map<ContentType, Closure<?>> composers = Composers.getMap(jsonGenerator);
   private final Map<ContentType, Closure<?>> parsers = Parsers.getMap();
   private final Map<Class<?>, Closure<?>> queryParamComposers = QueryParamComposers.getMap();
   private Closure<?> errorResponseHandler = new MethodClosure(this, "handleErrorResponse");

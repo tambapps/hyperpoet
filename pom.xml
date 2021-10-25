@@ -70,6 +70,11 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.groovy</groupId>
+      <artifactId>groovy</artifactId>
+      <version>${groovy.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-json</artifactId>
       <version>${groovy.version}</version>
     </dependency>
@@ -91,14 +96,6 @@
       <version>5.1.0</version>
       <scope>test</scope>
     </dependency>
-    <!-- to test good integration with Groovy -->
-    <dependency>
-      <groupId>org.codehaus.groovy</groupId>
-      <artifactId>groovy-all</artifactId>
-      <version>${groovy.version}</version>
-      <scope>test</scope>
-      <!-- <type>pom</type>  required JUST since Groovy 2.5.0 -->
-    </dependency>
     <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
     <dependency>
       <groupId>org.jsoup</groupId>
@@ -109,7 +106,7 @@
   </dependencies>
 
   <properties>
-    <groovy.version>2.4.20</groovy.version>
+    <groovy.version>3.0.4</groovy.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 </project>
