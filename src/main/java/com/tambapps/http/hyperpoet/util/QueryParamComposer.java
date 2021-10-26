@@ -23,14 +23,16 @@ public class QueryParamComposer {
     if (value instanceof Map) {
       return compose((Map) value);
     } else {
-      return compose(DefaultGroovyMethods.getProperties(value));
+      Map<?, ?> map = DefaultGroovyMethods.getProperties(value);
+      // groovy creates a property for the class. we don't want that
+      map.remove("class");
+      return compose(map);
     }
   }
 
   public List<QueryParam> compose(Map<?, ?> value) {
     return value.entrySet()
         .stream()
-        .filter(e -> !"class".equals(e.getKey()))
         .map(e -> compose(String.valueOf(e.getKey()), e.getValue()))
         .flatMap(Collection::stream)
         .collect(Collectors.toList());
