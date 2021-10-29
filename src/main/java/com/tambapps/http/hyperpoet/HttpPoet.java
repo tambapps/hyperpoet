@@ -19,11 +19,16 @@ import okio.BufferedSink;
 import okio.Okio;
 import org.codehaus.groovy.runtime.IOGroovyMethods;
 import org.codehaus.groovy.runtime.MethodClosure;
+import org.codehaus.groovy.runtime.ResourceGroovyMethods;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -544,7 +549,17 @@ public class HttpPoet {
     ContentType contentType = getOrDefault(additionalParameters, "contentType", ContentType.class,
         this.contentType);
     if (body == null) {
-      return RequestBody.create(null, new byte[] {});
+      return null;
+    }
+    // some "smart" conversions
+    if (body instanceof File) {
+      body = ResourceGroovyMethods.getText((File) body);
+    } else if (body instanceof Path) {
+      body = ResourceGroovyMethods.getText(((Path) body).toFile());
+    } else if (body instanceof InputStream) {
+      body = IOGroovyMethods.getText((InputStream) body);
+    } else if (body instanceof Reader) {
+      body = IOGroovyMethods.getText((Reader) body);
     }
     Closure<?> composer = getOrDefault(additionalParameters, "composer", Closure.class,
         composers.get(contentType));
