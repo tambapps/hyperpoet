@@ -552,22 +552,26 @@ public class HttpPoet {
       return null;
     }
     // some "smart" conversions
+    Object composedBody;
     if (body instanceof File) {
-      body = ResourceGroovyMethods.getText((File) body);
+      composedBody = ResourceGroovyMethods.getBytes((File) body);
     } else if (body instanceof Path) {
-      body = ResourceGroovyMethods.getText(((Path) body).toFile());
-    } else if (body instanceof InputStream) {
-      body = IOGroovyMethods.getText((InputStream) body);
+      composedBody = ResourceGroovyMethods.getBytes(((Path) body).toFile());
     } else if (body instanceof Reader) {
-      body = IOGroovyMethods.getText((Reader) body);
-    }
-    Closure<?> composer = getOrDefault(additionalParameters, "composer", Closure.class,
-        composers.get(contentType));
-    if (composer == null) {
-      throw new IllegalStateException("No composer was found for content type " + contentType);
+      composedBody = IOGroovyMethods.getText((Reader) body);
+    } else {
+      Closure<?> composer = getOrDefault(additionalParameters, "composer", Closure.class,
+          composers.get(contentType));
+      if (composer == null && (!(body instanceof RequestBody)
+          && !(body instanceof String)
+          && !(body instanceof InputStream)
+          && !(body instanceof byte[]))) {
+        throw new IllegalStateException("No composer was found for content type " + contentType);
+      }
+      composedBody = composer != null ? composer.call(body) : body;
     }
     MediaType mediaType = contentType != null ? MediaType.get(contentType.toString()) : null;
-    return toRequestBody(composer.call(body), mediaType);
+    return toRequestBody(composedBody, mediaType);
   }
 
   protected byte[] extractRequestBody(RequestBody requestBody) {
