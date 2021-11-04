@@ -1,4 +1,4 @@
-package com.tambapps.http.hyperpoet.io;
+package com.tambapps.http.hyperpoet.io.composer;
 
 import com.tambapps.http.hyperpoet.ContentType;
 import com.tambapps.http.hyperpoet.util.QueryParamComposer;

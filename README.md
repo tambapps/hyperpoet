@@ -10,8 +10,7 @@ You can check out the doc [here](https://github.com/tambapps/hyperpoet/wiki)
 ```groovy
 import com.tambapps.http.hyperpoet.HttpPoet
 import com.tambapps.http.hyperpoet.ContentType
-import com.tambapps.http.hyperpoet.io.Composers
-import com.tambapps.http.hyperpoet.io.Composers
+import com.tambapps.http.hyperpoet.io.composer.Composers
 
 poet = new HttpPoet(url: API_URL, contentType: ContentType.JSON, acceptContentType: ContentType.JSON)
 def data = poet.get("/posts", query: [author: 'someone@gmail.com'])
