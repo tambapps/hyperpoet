@@ -4,9 +4,9 @@ import groovy.json.DefaultJsonGenerator;
 import groovy.lang.Closure;
 import lombok.AllArgsConstructor;
 
-public class PoeticJsonGenerator extends DefaultJsonGenerator {
+public class CustomJsonGenerator extends DefaultJsonGenerator {
 
-  public PoeticJsonGenerator() {
+  public CustomJsonGenerator() {
     super(new Options());
   }
 

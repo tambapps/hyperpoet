@@ -3,7 +3,7 @@ package com.tambapps.http.hyperpoet;
 import com.tambapps.http.hyperpoet.auth.Auth;
 import com.tambapps.http.hyperpoet.io.Composers;
 import com.tambapps.http.hyperpoet.io.Parsers;
-import com.tambapps.http.hyperpoet.io.PoeticJsonGenerator;
+import com.tambapps.http.hyperpoet.io.CustomJsonGenerator;
 import com.tambapps.http.hyperpoet.util.QueryParamComposer;
 import com.tambapps.http.hyperpoet.util.UrlBuilder;
 import groovy.lang.Closure;
@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -46,7 +45,7 @@ public class HttpPoet {
 
   protected final OkHttpClient okHttpClient;
   private final Map<String, String> headers = new HashMap<>();
-  private final PoeticJsonGenerator jsonGenerator = new PoeticJsonGenerator();
+  private final CustomJsonGenerator jsonGenerator = new CustomJsonGenerator();
   private final Map<Class<?>, Closure<?>> queryParamConverters = new HashMap<>();
   // TODO document it
   private UrlBuilder.MultivaluedQueryParamComposingType multivaluedQueryParamComposingType =
@@ -476,7 +475,7 @@ public class HttpPoet {
     }
   }
 
-  private Object doRequest(Request request, Map<?, ?> additionalParameters) throws IOException {
+  protected Object doRequest(Request request, Map<?, ?> additionalParameters) throws IOException {
     if (onPreExecute != null) {
       if (onPreExecute.getMaximumNumberOfParameters() > 1) {
         onPreExecute.call(request, extractRequestBody(request.body()));
