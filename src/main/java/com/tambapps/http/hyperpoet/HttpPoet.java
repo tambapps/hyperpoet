@@ -9,6 +9,7 @@ import com.tambapps.http.hyperpoet.util.UrlBuilder;
 import groovy.lang.Closure;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -54,7 +55,7 @@ public class HttpPoet {
   private final Map<ContentType, Closure<?>> composers = Composers.getMap(jsonGenerator, queryParamComposer);
   private final Map<ContentType, Closure<?>> parsers = Parsers.getMap();
   // TODO document it
-  private Closure<?> errorResponseHandler = new MethodClosure(this, "handleErrorResponse");
+  private Closure<?> errorResponseHandler = null;
   protected Closure<?> onPreExecute;
   protected Closure<?> onPostExecute;
   private String baseUrl;
@@ -493,7 +494,7 @@ public class HttpPoet {
 
   private Object handleResponse(Response response, Map<?, ?> additionalParameters) {
     if (!response.isSuccessful()) {
-      return errorResponseHandler.call(response);
+      return errorResponseHandler != null ? errorResponseHandler.call(response) : handleErrorResponse(response);
     }
     return parseResponseBody(response, additionalParameters);
   }
@@ -636,7 +637,8 @@ public class HttpPoet {
   }
 
   // used by method closure
-  protected Object handleErrorResponse(Response response) throws IOException {
+  @SneakyThrows
+  protected Object handleErrorResponse(Response response) {
     throw new ErrorResponseException(response);
   }
 
