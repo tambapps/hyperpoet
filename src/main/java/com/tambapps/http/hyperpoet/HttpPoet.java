@@ -2,8 +2,8 @@ package com.tambapps.http.hyperpoet;
 
 import com.tambapps.http.hyperpoet.auth.Auth;
 import com.tambapps.http.hyperpoet.io.Composers;
-import com.tambapps.http.hyperpoet.io.Parsers;
-import com.tambapps.http.hyperpoet.io.CustomJsonGenerator;
+import com.tambapps.http.hyperpoet.io.parser.Parsers;
+import com.tambapps.http.hyperpoet.json.CustomJsonGenerator;
 import com.tambapps.http.hyperpoet.util.QueryParamComposer;
 import com.tambapps.http.hyperpoet.util.UrlBuilder;
 import groovy.lang.Closure;

@@ -1,5 +1,6 @@
 package com.tambapps.http.hyperpoet
 
+import com.tambapps.http.hyperpoet.io.parser.PrettyPrintJsonParserClosure
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
@@ -19,6 +20,7 @@ class HttpPoetJsonTest {
         assertNotNull(body)
         println("Body: " + new String(body))
       }
+      parsers[ContentType.JSON] = new PrettyPrintJsonParserClosure()
     }
     onPostExecute = { Response response ->
       println(response.code())

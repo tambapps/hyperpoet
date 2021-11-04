@@ -1,4 +1,4 @@
-package com.tambapps.http.hyperpoet.io;
+package com.tambapps.http.hyperpoet.io.parser;
 
 import com.tambapps.http.hyperpoet.ContentType;
 import groovy.json.JsonSlurper;
@@ -18,11 +18,13 @@ import java.util.Map;
  */
 public class Parsers {
 
+  private static final JsonSlurper JSON_SLURPER = new JsonSlurper();
+
   private Parsers() {}
 
   public static Map<ContentType, Closure<?>> getMap() {
     Map<ContentType, Closure<?>> map = new HashMap<>();
-    map.put(ContentType.JSON, new MethodClosure(Parsers.class, "parseJsonResponseBody"));
+    map.put(ContentType.JSON, new JsonParserClosure());
     map.put(ContentType.XML, new MethodClosure(Parsers.class, "parseXmlResponseBody"));
     map.put(ContentType.TEXT, new MethodClosure(Parsers.class, "parseStringResponseBody"));
     map.put(ContentType.HTML, new MethodClosure(Parsers.class, "parseStringResponseBody"));
@@ -30,14 +32,6 @@ public class Parsers {
     // default parser (when no content type was found)
     map.put(null, new MethodClosure(Parsers.class, "parseStringResponseBody"));
     return map;
-  }
-
-  public static Object parseJsonResponseBody(ResponseBody body) throws IOException {
-    String text = body.string();
-    if (text.isEmpty()) {
-      return "(No content)";
-    }
-    return new JsonSlurper().parseText(text);
   }
 
   public static Object parseXmlResponseBody(ResponseBody body) throws IOException {
