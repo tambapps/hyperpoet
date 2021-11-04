@@ -510,10 +510,10 @@ public class HttpPoet {
     Closure<?> parser = getOrDefault(additionalParameters, "parser", Closure.class,
         parsers.get(responseContentType));
     if (parser == null) {
-      throw new IllegalStateException(
-          "No parser was found for content type " + responseContentType);
+      return Parsers.parseStringResponseBody(body);
+    } else {
+      return parser.call(body);
     }
-    return parser.call(body);
   }
 
   protected static <T> T getOrDefault(Map<?, ?> additionalParameters, String key, Class<T> clazz,

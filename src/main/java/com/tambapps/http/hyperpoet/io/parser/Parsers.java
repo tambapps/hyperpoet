@@ -1,9 +1,9 @@
 package com.tambapps.http.hyperpoet.io.parser;
 
 import com.tambapps.http.hyperpoet.ContentType;
-import groovy.json.JsonSlurper;
 import groovy.lang.Closure;
-import groovy.util.XmlSlurper;
+import groovy.xml.XmlSlurper;
+import lombok.SneakyThrows;
 import okhttp3.ResponseBody;
 import org.codehaus.groovy.runtime.MethodClosure;
 import org.xml.sax.SAXException;
@@ -17,8 +17,6 @@ import java.util.Map;
  * Utility class holding several common parsers. A parser can return any kind of objects
  */
 public class Parsers {
-
-  private static final JsonSlurper JSON_SLURPER = new JsonSlurper();
 
   private Parsers() {}
 
@@ -46,7 +44,8 @@ public class Parsers {
     }
   }
 
-  public static String parseStringResponseBody(ResponseBody body) throws IOException {
+  @SneakyThrows
+  public static String parseStringResponseBody(ResponseBody body) {
     String text = body.string();
     if (text.isEmpty()) {
       return "(No content)";
