@@ -40,6 +40,39 @@ class HttpPoetJsonTest {
   }
 
   @Test
+  void testPatch() {
+    def todo = client.patch("/todos/1", body: [title: 'new title'])
+
+    println(todo)
+    assertNotNull(todo.id)
+    assertNotNull(todo.userId)
+    assertNotNull(todo.title)
+    assertNotNull(todo.completed)
+  }
+
+  @Test
+  void testPatch_usingMethod() {
+    def todo = client.modifyTodos(1, body: [title: 'new title'])
+
+    println(todo)
+    assertNotNull(todo.id)
+    assertNotNull(todo.userId)
+    assertNotNull(todo.title)
+    assertNotNull(todo.completed)
+  }
+
+  @Test
+  void testGet_usingMethod() {
+    def todo = client.getTodos(1)
+
+    println(todo)
+    assertNotNull(todo.id)
+    assertNotNull(todo.userId)
+    assertNotNull(todo.title)
+    assertNotNull(todo.completed)
+  }
+
+  @Test
   void testGet_notFound() {
     def responseException = assertThrows(ErrorResponseException) {
       client.get("/todos/123456789")
@@ -61,6 +94,17 @@ class HttpPoetJsonTest {
   @Test
   void testPost() {
     def post = client.post("/posts", body: [title: 'foo', body: 'bar', userId: 1])
+
+    // it seems that the API response has changed? these fields doesn't exist annymore
+    //assertEquals('foo', post.title)
+    //assertEquals('bar', post.body)
+    //assertEquals(1, post.userId)
+    assertEquals(101, post.id)
+  }
+
+  @Test
+  void testPost_usingMethod() {
+    def post = client.createPost(body: [title: 'foo', body: 'bar', userId: 1])
 
     // it seems that the API response has changed? these fields doesn't exist annymore
     //assertEquals('foo', post.title)
