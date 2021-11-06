@@ -66,6 +66,7 @@ public class HttpPoet extends GroovyObjectSupport {
   protected Closure<?> onPostExecute;
   private String baseUrl;
   private ContentType contentType;
+  private ContentType acceptContentType;
   @Getter(AccessLevel.NONE)
   private PoeticInvoker poeticInvoker = new OperationPoeticInvoker();
 
@@ -88,11 +89,8 @@ public class HttpPoet extends GroovyObjectSupport {
         getOrDefault(properties, "errorResponseHandler", Closure.class, this.errorResponseHandler);
     this.onPreExecute = getOrDefault(properties, "onPreExecute", Closure.class, null);
     this.onPostExecute = getOrDefault(properties, "onPostExecute", Closure.class, null);
-    ContentType acceptContentType =
+    acceptContentType =
         getOrDefault(properties, "acceptContentType", ContentType.class, null);
-    if (acceptContentType != null) {
-      acceptContentType(acceptContentType);
-    }
     this.contentType = getOrDefault(properties, "contentType", ContentType.class, null);
 
     Closure<?> localDateTimeFormatter = new MethodClosure(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"), "format");
@@ -461,15 +459,6 @@ public class HttpPoet extends GroovyObjectSupport {
   }
 
   /**
-   * Set the Content-Type header
-   *
-   * @param contentType the content type
-   */
-  public void acceptContentType(ContentType contentType) {
-    headers.put("Accept", contentType.toString());
-  }
-
-  /**
    * Removes a header
    *
    * @param key the name of the header
@@ -526,7 +515,7 @@ public class HttpPoet extends GroovyObjectSupport {
     }
     String contentTypeHeader = response.header("Content-Type");
     ContentType responseContentType =
-        contentTypeHeader != null ? ContentType.from(contentTypeHeader) : null;
+        contentTypeHeader != null ? ContentType.from(contentTypeHeader) : acceptContentType;
     Closure<?> parser = getOrDefault(additionalParameters, "parser", Closure.class,
         parsers.get(responseContentType));
     if (parser == null) {
@@ -647,9 +636,9 @@ public class HttpPoet extends GroovyObjectSupport {
       builder.header(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
     }
     ContentType acceptContentType =
-        getOrDefault(additionalParameters, "acceptContentType", ContentType.class, null);
+        getOrDefault(additionalParameters, "acceptContentType", ContentType.class, this.acceptContentType);
     if (acceptContentType != null) {
-      builder.header("Accept", contentType.toString());
+      builder.header("Accept", acceptContentType.toString());
     }
     return builder;
   }
