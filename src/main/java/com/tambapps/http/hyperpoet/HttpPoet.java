@@ -568,6 +568,9 @@ public class HttpPoet extends GroovyObjectSupport {
     if (body == null) {
       return null;
     }
+    if (body instanceof Closure) {
+      body = ((Closure) body).call();
+    }
     // some "smart" conversions
     Object composedBody;
     if (body instanceof File) {
