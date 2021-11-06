@@ -80,14 +80,14 @@ class UrlBuilderTest {
 
   @Test
   void testParamListComma() {
-    UrlBuilder builder = new UrlBuilder(BASE_URL, UrlBuilder.MultivaluedQueryParamComposingType.COMMA)
+    UrlBuilder builder = new UrlBuilder(BASE_URL, MultivaluedQueryParamComposingType.COMMA)
     builder.addParam('things', ['a', 'b', 'c'])
     assertEquals("$BASE_URL?things=a,b,c".toString(), builder.buildWithoutEncoding())
   }
 
   @Test
   void testParamListBrackets() {
-    UrlBuilder builder = new UrlBuilder(BASE_URL, UrlBuilder.MultivaluedQueryParamComposingType.BRACKETS)
+    UrlBuilder builder = new UrlBuilder(BASE_URL, MultivaluedQueryParamComposingType.BRACKETS)
     builder.addParam('things', ['a', 'b', 'c'])
     assertEquals("$BASE_URL?things=[a,b,c]".toString(), builder.buildWithoutEncoding())
   }

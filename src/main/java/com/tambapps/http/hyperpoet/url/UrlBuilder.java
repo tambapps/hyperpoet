@@ -19,24 +19,6 @@ import java.util.stream.Collectors;
 @Getter
 public class UrlBuilder {
 
-  /**
-   * Enum representing the way to handle query param list,sets
-   */
-  public enum MultivaluedQueryParamComposingType {
-    /**
-     * Use brackets and separate elements with a comma
-     */
-    BRACKETS,
-    /**
-     * separate elements with a comma
-     */
-    COMMA,
-    /**
-     * Repeat the parameter for each element of the list
-     */
-    REPEAT
-  }
-
   private String url;
   private final List<QueryParam> queryParams = new ArrayList<>();
   private final QueryParamComposer queryParamComposer;

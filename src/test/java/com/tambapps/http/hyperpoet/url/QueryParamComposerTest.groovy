@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 
 class QueryParamComposerTest {
 
-    private final QueryParamComposer composer = new QueryParamComposer([:], UrlBuilder.MultivaluedQueryParamComposingType.REPEAT)
+    private final QueryParamComposer composer = new QueryParamComposer([:], MultivaluedQueryParamComposingType.REPEAT)
     @Test
     void testMap() {
         def map = [a:1, b:"2", c:"trois", d: [2, 2]]

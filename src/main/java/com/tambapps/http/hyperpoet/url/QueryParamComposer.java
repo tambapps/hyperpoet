@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class QueryParamComposer {
 
   private final Map<Class<?>, Closure<?>> converters;
-  private final UrlBuilder.MultivaluedQueryParamComposingType multivaluedQueryParamComposingType;
+  private final MultivaluedQueryParamComposingType multivaluedQueryParamComposingType;
 
   public List<QueryParam> compose(Object value) {
     if (value instanceof Map) {
@@ -52,11 +52,11 @@ public class QueryParamComposer {
       case COMMA:
       case BRACKETS:
         StringBuilder bracketsListBuilder = new StringBuilder();
-        if (multivaluedQueryParamComposingType == UrlBuilder.MultivaluedQueryParamComposingType.BRACKETS) {
+        if (multivaluedQueryParamComposingType == MultivaluedQueryParamComposingType.BRACKETS) {
           bracketsListBuilder.append('[');
         }
         bracketsListBuilder.append(collection.stream().map(String::valueOf).collect(Collectors.joining(",")));
-        if (multivaluedQueryParamComposingType == UrlBuilder.MultivaluedQueryParamComposingType.BRACKETS) {
+        if (multivaluedQueryParamComposingType == MultivaluedQueryParamComposingType.BRACKETS) {
           bracketsListBuilder.append(']');
         }
         queryParams.add(new QueryParam(name, bracketsListBuilder.toString()));

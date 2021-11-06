@@ -5,6 +5,7 @@ import com.tambapps.http.hyperpoet.invoke.PoeticInvoker;
 import com.tambapps.http.hyperpoet.io.composer.Composers;
 import com.tambapps.http.hyperpoet.io.parser.Parsers;
 import com.tambapps.http.hyperpoet.io.json.CustomJsonGenerator;
+import com.tambapps.http.hyperpoet.url.MultivaluedQueryParamComposingType;
 import com.tambapps.http.hyperpoet.url.QueryParamComposer;
 import com.tambapps.http.hyperpoet.url.UrlBuilder;
 import groovy.lang.Closure;
@@ -54,8 +55,8 @@ public class HttpPoet extends GroovyObjectSupport {
   private final CustomJsonGenerator jsonGenerator = new CustomJsonGenerator();
   private final Map<Class<?>, Closure<?>> queryParamConverters = new HashMap<>();
   // TODO document it
-  private UrlBuilder.MultivaluedQueryParamComposingType multivaluedQueryParamComposingType =
-      UrlBuilder.MultivaluedQueryParamComposingType.REPEAT;
+  private MultivaluedQueryParamComposingType multivaluedQueryParamComposingType =
+      MultivaluedQueryParamComposingType.REPEAT;
   private final QueryParamComposer queryParamComposer = new QueryParamComposer(queryParamConverters, multivaluedQueryParamComposingType);
   private final Map<ContentType, Closure<?>> composers = Composers.getMap(jsonGenerator, queryParamComposer);
   private final Map<ContentType, Closure<?>> parsers = Parsers.getMap();
