@@ -1,6 +1,5 @@
 package com.tambapps.http.hyperpoet;
 
-import com.tambapps.http.hyperpoet.auth.Auth;
 import com.tambapps.http.hyperpoet.io.composer.Composers;
 import com.tambapps.http.hyperpoet.io.parser.Parsers;
 import com.tambapps.http.hyperpoet.json.CustomJsonGenerator;
@@ -10,6 +9,7 @@ import com.tambapps.http.hyperpoet.util.UrlBuilder;
 import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MissingMethodException;
+import groovy.lang.Tuple2;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -67,7 +67,6 @@ public class HttpPoet extends GroovyObjectSupport {
   protected Closure<?> onPostExecute;
   private String baseUrl;
   private ContentType contentType;
-  private Auth auth;
 
   public HttpPoet() {
     this("");
@@ -94,7 +93,6 @@ public class HttpPoet extends GroovyObjectSupport {
       acceptContentType(acceptContentType);
     }
     this.contentType = getOrDefault(properties, "contentType", ContentType.class, null);
-    this.auth = getOrDefault(properties, "auth", Auth.class, auth);
 
     Closure<?> localDateTimeFormatter = new MethodClosure(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"), "format");
     Closure<?> dateTimeFormatter = new MethodClosure(DateTimeFormatter.ofPattern("yyyy-MM-dd"), "format");
@@ -457,6 +455,10 @@ public class HttpPoet extends GroovyObjectSupport {
     headers.put(String.valueOf(key), String.valueOf(value));
   }
 
+  public void putHeader(Tuple2<String, String> header) {
+    putHeader(header.getV1(), header.getV2());
+  }
+
   /**
    * Set the Content-Type header
    *
@@ -647,11 +649,6 @@ public class HttpPoet extends GroovyObjectSupport {
         getOrDefault(additionalParameters, "acceptContentType", ContentType.class, null);
     if (acceptContentType != null) {
       builder.header("Accept", contentType.toString());
-    }
-    // auth stuff
-    Auth auth = getOrDefault(additionalParameters, "auth", Auth.class, this.auth);
-    if (auth != null) {
-      auth.apply(builder);
     }
     return builder;
   }
