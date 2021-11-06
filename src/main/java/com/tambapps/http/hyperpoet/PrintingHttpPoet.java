@@ -26,7 +26,7 @@ public class PrintingHttpPoet extends HttpPoet {
 
   public PrintingHttpPoet(OkHttpClient okHttpClient, String baseUrl) {
     super(okHttpClient, baseUrl);
-    onPostExecute = new MethodClosure(this, "doOnPostExecute");
+    init();
   }
 
   public PrintingHttpPoet() {

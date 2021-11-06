@@ -702,7 +702,7 @@ public class HttpPoet extends GroovyObjectSupport {
         throw e;
     }
 
-    String endpoint = "/" + fields.stream().skip(1).collect(Collectors.joining("/"));
+    String endpoint = "/" + fields.stream().skip(1).collect(Collectors.joining("-"));
     if (!fields.get(fields.size() - 1).endsWith("s") && (method == HttpMethod.POST || method == HttpMethod.DELETE)) {
       // endpoints for creating and deleting objects use the plural
       endpoint += "s";
