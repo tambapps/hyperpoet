@@ -7,7 +7,30 @@
   <groupId>com.tambapps.http</groupId>
   <artifactId>hyperpoet</artifactId>
   <version>1.1.0</version>
+  <packaging>jar</packaging>
+
+  <name>HyperPoet - Groovy-friendly HTTP client</name>
+  <description>HyperPoet is an easy-to-use HTTP client made for Groovy</description>
   <url>https://jitpack.io/#tambapps/hyperpoet/1.1.0</url>
+  <inceptionYear>2021</inceptionYear>
+
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/tambapps/hyperpoet/issues</url>
+  </issueManagement>
+  <scm>
+    <url>https://github.com/tambapps/hyperpoet</url>
+    <connection>scm:git:https://github.com/tambapps/hyperpoet.git</connection>
+  </scm>
+  <organization>
+    <name>Tambapps</name>
+    <url>https://github.com/tambapps/</url>
+  </organization>
+
+  <properties>
+    <groovy.version>3.0.4</groovy.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 
   <build>
     <plugins>
@@ -105,8 +128,22 @@
     </dependency>
   </dependencies>
 
-  <properties>
-    <groovy.version>3.0.4</groovy.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+  <developers>
+    <developer>
+      <id>nfonkoua</id>
+      <name>Nelson Fonkoua</name>
+      <email>tambapps@gmail.com</email>
+      <roles>
+        <role>Lead Developer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+  </developers>
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://raw.githubusercontent.com/tambapps/hyperpoet/main/LICENSE</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 </project>
