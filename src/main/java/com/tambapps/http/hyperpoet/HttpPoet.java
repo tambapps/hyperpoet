@@ -60,7 +60,6 @@ public class HttpPoet extends GroovyObjectSupport {
   private final QueryParamComposer queryParamComposer = new QueryParamComposer(queryParamConverters, multivaluedQueryParamComposingType);
   private final Map<ContentType, Closure<?>> composers = Composers.getMap(jsonGenerator, queryParamComposer);
   private final Map<ContentType, Closure<?>> parsers = Parsers.getMap();
-  // TODO document it
   private Closure<?> errorResponseHandler = null;
   protected Closure<?> onPreExecute;
   protected Closure<?> onPostExecute;
@@ -470,7 +469,6 @@ public class HttpPoet extends GroovyObjectSupport {
 
   private Object doRequest(Request request, Closure<?> responseHandler) throws IOException {
     if (onPreExecute != null) {
-      // TODO document it
       if (onPreExecute.getMaximumNumberOfParameters() > 1) {
         onPreExecute.call(request, extractRequestBody(request.body()));
       } else {
