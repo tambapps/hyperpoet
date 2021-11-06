@@ -1,4 +1,4 @@
-package com.tambapps.http.hyperpoet.json;
+package com.tambapps.http.hyperpoet.io.json;
 
 import static com.tambapps.http.hyperpoet.util.Ansi.BLUE_SKY;
 import static com.tambapps.http.hyperpoet.util.Ansi.GREEN;

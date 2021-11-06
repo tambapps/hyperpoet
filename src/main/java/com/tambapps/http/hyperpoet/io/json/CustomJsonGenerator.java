@@ -1,4 +1,4 @@
-package com.tambapps.http.hyperpoet.json;
+package com.tambapps.http.hyperpoet.io.json;
 
 import groovy.json.DefaultJsonGenerator;
 import groovy.lang.Closure;

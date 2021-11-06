@@ -3,7 +3,7 @@ package com.tambapps.http.hyperpoet.io.parser;
 import static com.tambapps.http.hyperpoet.util.Ansi.print;
 import static com.tambapps.http.hyperpoet.util.Ansi.println;
 
-import com.tambapps.http.hyperpoet.json.PrettyJsonGenerator;
+import com.tambapps.http.hyperpoet.io.json.PrettyJsonGenerator;
 import groovy.json.JsonSlurper;
 import lombok.AllArgsConstructor;
 import okhttp3.ResponseBody;

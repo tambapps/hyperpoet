@@ -1,4 +1,4 @@
-package com.tambapps.http.hyperpoet.util
+package com.tambapps.http.hyperpoet.url
 
 import org.junit.jupiter.api.Test
 

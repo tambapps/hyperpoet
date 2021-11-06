@@ -1,7 +1,7 @@
 package com.tambapps.http.hyperpoet.io.composer;
 
 import com.tambapps.http.hyperpoet.ContentType;
-import com.tambapps.http.hyperpoet.util.QueryParamComposer;
+import com.tambapps.http.hyperpoet.url.QueryParamComposer;
 import groovy.json.JsonGenerator;
 import groovy.json.JsonOutput;
 import groovy.lang.Closure;

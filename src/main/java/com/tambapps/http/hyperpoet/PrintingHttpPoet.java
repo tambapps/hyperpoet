@@ -6,7 +6,7 @@ import static com.tambapps.http.hyperpoet.util.Ansi.print;
 import static com.tambapps.http.hyperpoet.util.Ansi.println;
 
 import com.tambapps.http.hyperpoet.io.parser.PrettyPrintJsonParserClosure;
-import com.tambapps.http.hyperpoet.json.PrettyJsonGenerator;
+import com.tambapps.http.hyperpoet.io.json.PrettyJsonGenerator;
 import groovy.json.JsonSlurper;
 import lombok.SneakyThrows;
 import okhttp3.OkHttpClient;

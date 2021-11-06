@@ -2,10 +2,9 @@ package com.tambapps.http.hyperpoet;
 
 import com.tambapps.http.hyperpoet.io.composer.Composers;
 import com.tambapps.http.hyperpoet.io.parser.Parsers;
-import com.tambapps.http.hyperpoet.json.CustomJsonGenerator;
-import com.tambapps.http.hyperpoet.util.HttpMethod;
-import com.tambapps.http.hyperpoet.util.QueryParamComposer;
-import com.tambapps.http.hyperpoet.util.UrlBuilder;
+import com.tambapps.http.hyperpoet.io.json.CustomJsonGenerator;
+import com.tambapps.http.hyperpoet.url.QueryParamComposer;
+import com.tambapps.http.hyperpoet.url.UrlBuilder;
 import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MissingMethodException;
