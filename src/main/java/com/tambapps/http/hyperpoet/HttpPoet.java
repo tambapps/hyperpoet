@@ -1,5 +1,7 @@
 package com.tambapps.http.hyperpoet;
 
+import com.tambapps.http.hyperpoet.invoke.OperationPoeticInvoker;
+import com.tambapps.http.hyperpoet.invoke.PoeticInvoker;
 import com.tambapps.http.hyperpoet.io.composer.Composers;
 import com.tambapps.http.hyperpoet.io.parser.Parsers;
 import com.tambapps.http.hyperpoet.io.json.CustomJsonGenerator;
@@ -9,6 +11,7 @@ import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MissingMethodException;
 import groovy.lang.Tuple2;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -34,14 +37,10 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * The HTTP client
@@ -66,6 +65,8 @@ public class HttpPoet extends GroovyObjectSupport {
   protected Closure<?> onPostExecute;
   private String baseUrl;
   private ContentType contentType;
+  @Getter(AccessLevel.NONE)
+  private PoeticInvoker poeticInvoker = new OperationPoeticInvoker();
 
   public HttpPoet() {
     this("");
@@ -659,69 +660,12 @@ public class HttpPoet extends GroovyObjectSupport {
   }
 
   @Override
+  @SneakyThrows
   public Object invokeMethod(String name, Object args) {
     try {
       return super.invokeMethod(name, args);
     } catch (MissingMethodException e) {
-      return methodMissing(name, (args instanceof Object[]) ? (Object[]) args : new Object[] {args}, e);
-    }
-  }
-
-  // TODO document it
-  // groovy way for calls like poet.getTodos()
-  @SneakyThrows
-  public Object methodMissing(String name, Object[] args, MissingMethodException e) {
-    // split words by upper case, including separators in words
-    List<String> fields = Arrays.stream(name.split("(?=\\p{Upper})", -1))
-        .map(s -> s.toLowerCase(Locale.ENGLISH))
-        .collect(Collectors.toList());
-    if (fields.size() < 2) {
-      throw e;
-    }
-    HttpMethod method;
-    switch (fields.get(0)) {
-      case "get":
-        method = HttpMethod.GET;
-        break;
-      case "modify":
-      case "patch":
-        method = HttpMethod.PATCH;
-        break;
-      case "put":
-        method = HttpMethod.PUT;
-        break;
-      case "create":
-      case "post":
-        method = HttpMethod.POST;
-        break;
-      case "delete":
-        method = HttpMethod.DELETE;
-        break;
-      default:
-        throw e;
-    }
-
-    String endpoint = "/" + fields.stream().skip(1).collect(Collectors.joining("-"));
-    if (!fields.get(fields.size() - 1).endsWith("s") && (method == HttpMethod.POST || method == HttpMethod.DELETE)) {
-      // endpoints for creating and deleting objects use the plural
-      endpoint += "s";
-    }
-    switch (args.length) {
-      case 0:
-        return method(endpoint, method);
-      case 1:
-        if (args[0] instanceof Map) {
-          return method((Map) args[0], endpoint, method);
-        } else {
-          return method(endpoint + "/" + args[0], method);
-        }
-      case 2:
-        if (!(args[0] instanceof Map)) {
-          throw new IllegalArgumentException("You should provide path variable and additional parameters");
-        }
-        return method((Map) args[0], endpoint + "/" + args[1], method);
-      default:
-        throw new IllegalArgumentException("Too many arguments");
+      return poeticInvoker.invokeOrThrow(this, name, (args instanceof Object[]) ? (Object[]) args : new Object[] {args}, e);
     }
   }
 }
