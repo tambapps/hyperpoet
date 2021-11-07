@@ -3,6 +3,7 @@ package com.tambapps.http.hyperpoet.url;
 import groovy.lang.Closure;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 
 import java.util.ArrayList;
@@ -14,10 +15,19 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Getter
+@Setter
 public class QueryParamComposer {
 
   private final Map<Class<?>, Closure<?>> converters;
-  private final MultivaluedQueryParamComposingType multivaluedQueryParamComposingType;
+  private MultivaluedQueryParamComposingType multivaluedQueryParamComposingType;
+
+  public Closure<?> getAt(Class<?> clazz) {
+    return converters.get(clazz);
+  }
+
+  public void putAt(Class<?> clazz, Closure<?> closure) {
+    converters.put(clazz, closure);
+  }
 
   public List<QueryParam> compose(Object value) {
     if (value instanceof Map) {

@@ -54,10 +54,7 @@ public class HttpPoet extends GroovyObjectSupport {
   private final Map<String, String> headers = new HashMap<>();
   private final CustomJsonGenerator jsonGenerator = new CustomJsonGenerator();
   private final Map<Class<?>, Closure<?>> queryParamConverters = new HashMap<>();
-  // TODO document it
-  private MultivaluedQueryParamComposingType multivaluedQueryParamComposingType =
-      MultivaluedQueryParamComposingType.REPEAT;
-  private final QueryParamComposer queryParamComposer = new QueryParamComposer(queryParamConverters, multivaluedQueryParamComposingType);
+  private final QueryParamComposer queryParamComposer = new QueryParamComposer(queryParamConverters, MultivaluedQueryParamComposingType.REPEAT);
   private final Map<ContentType, Closure<?>> composers = Composers.getMap(jsonGenerator, queryParamComposer);
   private final Map<ContentType, Closure<?>> parsers = Parsers.getMap();
   private Closure<?> errorResponseHandler = null;
@@ -662,5 +659,14 @@ public class HttpPoet extends GroovyObjectSupport {
     } catch (MissingMethodException e) {
       return poeticInvoker.invokeOrThrow(this, name, (args instanceof Object[]) ? (Object[]) args : new Object[] {args}, e);
     }
+  }
+
+  public MultivaluedQueryParamComposingType getMultivaluedQueryParamComposingType() {
+    return queryParamComposer.getMultivaluedQueryParamComposingType();
+  }
+
+  public void setMultivaluedQueryParamComposingType(
+      MultivaluedQueryParamComposingType multivaluedQueryParamComposingType) {
+    queryParamComposer.setMultivaluedQueryParamComposingType(multivaluedQueryParamComposingType);
   }
 }
