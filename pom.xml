@@ -16,7 +16,7 @@
   <inceptionYear>2021</inceptionYear>
 
   <properties>
-    <groovy.version>3.0.8</groovy.version>
+    <groovy.version>3.0.4</groovy.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -29,14 +29,17 @@
     <dependency>
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-json</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-xml</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
