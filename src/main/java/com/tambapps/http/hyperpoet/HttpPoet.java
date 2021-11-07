@@ -118,6 +118,7 @@ public class HttpPoet extends GroovyObjectSupport {
    * Performs a request with the given method name and return the parsed result
    *
    * @param urlOrEndpoint the url or endpoint
+   * @param method the HTTP method
    * @return the result returned by the response handler
    * @throws IOException in case of I/O error
    */
@@ -135,6 +136,7 @@ public class HttpPoet extends GroovyObjectSupport {
    *
    * @param additionalParameters the additional parameters
    * @param urlOrEndpoint        the url or endpoint
+   * @param method        the HTTP method
    * @return the result returned by the response handler
    * @throws IOException in case of I/O error
    */
@@ -150,9 +152,11 @@ public class HttpPoet extends GroovyObjectSupport {
    * Performs a request with the provided method name and response handler
    *
    * @param urlOrEndpoint   the url or endpoint
+   * @param method   the HTTP method
    * @param responseHandler the response handler
    * @return the result returned by the response handler
    * @throws IOException in case of I/O error
+   *
    */
   public Object method(String urlOrEndpoint, String method, Closure<?> responseHandler)
       throws IOException {
@@ -164,6 +168,7 @@ public class HttpPoet extends GroovyObjectSupport {
    *
    * @param additionalParameters the additional parameters
    * @param urlOrEndpoint        the url or endpoint
+   * @param method        the HTTP method
    * @param responseHandler      the response handler
    * @return the result returned by the response handler
    * @throws IOException in case of I/O error
@@ -409,6 +414,7 @@ public class HttpPoet extends GroovyObjectSupport {
    * @param additionalParameters additional parameters
    * @param urlOrEndpoint        the url or endpoint
    * @return the response data
+   * @throws IOException in case of I/O errors
    */
   public Object get(Map<?, ?> additionalParameters, String urlOrEndpoint) throws IOException {
     Request request = request(urlOrEndpoint, additionalParameters).get().build();
@@ -435,6 +441,7 @@ public class HttpPoet extends GroovyObjectSupport {
    * @param urlOrEndpoint        the url or endpoint
    * @param responseHandler      the response handler
    * @return the value returned by the responseHandler
+   * @throws IOException in case of I/O errors
    */
   public Object get(Map<?, ?> additionalParameters, String urlOrEndpoint,
       Closure<?> responseHandler)
