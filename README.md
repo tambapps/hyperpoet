@@ -2,8 +2,7 @@
 
 Hyperpoet is a Groovy-friendly HTTP client written in Java 8. It is backed by OkHttp and was inspired from
 [httpbuilder](https://github.com/jgritman/httpbuilder) library. 
-Its purpose is to perform HTTP requests with the less code possible. 
-
+Its purpose is to perform HTTP requests with the less code possible.
 
 You can check out the full doc [here](https://github.com/tambapps/hyperpoet/wiki)
 
@@ -27,23 +26,17 @@ try {
 ```
 
 ## How to use
-This library is [hosted on Jitpack](https://jitpack.io/#tambapps/hyperpoet/1.0.0)
+The library is in Maven central.
 
-You can import it to your project by adding the Jitpack repository
-```xml
-  <repositories>
-    <repository>
-      <id>jitpack.io</id>
-      <url>https://jitpack.io</url>
-    </repository>
-  </repositories>
-```
+You can import it to your project with Maven
 
-And then add the dependency
 ```xml
   <dependency>
-    <groupId>com.github.tambapps</groupId>
+    <groupId>com.tambapps.http</groupId>
     <artifactId>hyperpoet</artifactId>
-    <version>v1.1.0</version>
+    <version>1.1.0</version>
   </dependency>
 ```
+
+Or see [this link](https://search.maven.org/artifact/com.tambapps.http/hyperpoet/1.1.0/jar)
+for other dependency management tools.
