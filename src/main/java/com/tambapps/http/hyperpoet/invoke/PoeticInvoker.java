@@ -5,9 +5,8 @@ import groovy.lang.MissingMethodException;
 
 import java.io.IOException;
 
-// TODO document about it
 /**
- * Interface used to convert method call to an http poet request call
+ * Interface used to convert method call to a http poet request call
  */
 public interface PoeticInvoker {
 
