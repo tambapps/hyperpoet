@@ -4,7 +4,12 @@ Hyperpoet is a Groovy-friendly HTTP client written in Java 8. It is backed by Ok
 [httpbuilder](https://github.com/jgritman/httpbuilder) library. 
 Its purpose is to perform HTTP requests with the less code possible.
 
-You can check out the full doc [here](https://github.com/tambapps/hyperpoet/wiki)
+Check out the full doc [here](https://github.com/tambapps/hyperpoet/wiki)
+
+
+You can also use the printing version to perform beautiful HTTP requests, with [groovysh](https://groovy-lang.org/groovysh.html)
+
+![PrintingHttpPoet](https://github.com/tambapps/hyperpoet/blob/main/examples/printinghttppoet.png?raw=true)
 
 ## Example
 
