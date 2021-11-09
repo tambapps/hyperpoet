@@ -34,9 +34,9 @@ You can import it to your project with Maven
   <dependency>
     <groupId>com.tambapps.http</groupId>
     <artifactId>hyperpoet</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
   </dependency>
 ```
 
-Or see [this link](https://search.maven.org/artifact/com.tambapps.http/hyperpoet/1.1.0/jar)
+Or see [this link](https://search.maven.org/artifact/com.tambapps.http/hyperpoet/1.1.1/jar)
 for other dependency management tools.
