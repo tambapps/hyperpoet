@@ -1,6 +1,8 @@
 package com.tambapps.http.hyperpoet.url;
 
 import groovy.lang.Closure;
+import groovy.transform.stc.ClosureParams;
+import groovy.transform.stc.FirstParam;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,7 +27,8 @@ public class QueryParamComposer {
     return converters.get(clazz);
   }
 
-  public void putAt(Class<?> clazz, Closure<?> closure) {
+  public <T> void putAt(Class<T> clazz,
+      @ClosureParams(FirstParam.FirstGenericType.class) Closure<String> closure) {
     converters.put(clazz, closure);
   }
 

@@ -8,6 +8,8 @@ import static com.tambapps.http.hyperpoet.util.Ansi.println;
 import com.tambapps.http.hyperpoet.io.parser.PrettyPrintJsonParserClosure;
 import com.tambapps.http.hyperpoet.io.json.PrettyJsonGenerator;
 import groovy.json.JsonSlurper;
+import groovy.lang.Closure;
+import groovy.transform.NamedParam;
 import lombok.SneakyThrows;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -38,7 +40,16 @@ public class PrintingHttpPoet extends HttpPoet {
     init();
   }
 
-  public PrintingHttpPoet(Map<?, ?> properties) {
+  public PrintingHttpPoet(
+      @NamedParam(value = "okHttpClient", type = OkHttpClient.class)
+      @NamedParam(value = "url", type = String.class)
+      @NamedParam(value = "headers", type = Map.class)
+      @NamedParam(value = "errorResponseHandler", type = Closure.class)
+      @NamedParam(value = "onPreExecute", type = Closure.class)
+      @NamedParam(value = "onPostExecute", type = Closure.class)
+      @NamedParam(value = "acceptContentType", type = Closure.class)
+      @NamedParam(value = "contentType", type = Closure.class)
+      Map<?, ?> properties) {
     super(properties);
     init();
   }
