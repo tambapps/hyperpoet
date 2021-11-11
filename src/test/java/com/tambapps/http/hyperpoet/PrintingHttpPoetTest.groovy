@@ -13,6 +13,11 @@ class PrintingHttpPoetTest {
   }
 
   @Test
+  void testGet_queryParameters() {
+    client.get("/todos/1", params: [list: [1, 2, 3, 4], foo: 'tom&jerry', b: 2])
+  }
+
+  @Test
   void testGet_notFound() {
     client.get("/todos/123456789")
   }

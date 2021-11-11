@@ -11,6 +11,7 @@ import groovy.json.JsonSlurper;
 import groovy.lang.Closure;
 import groovy.transform.NamedParam;
 import lombok.SneakyThrows;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -18,8 +19,11 @@ import okhttp3.ResponseBody;
 import org.codehaus.groovy.runtime.MethodClosure;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class PrintingHttpPoet extends HttpPoet {
 
@@ -111,8 +115,23 @@ public class PrintingHttpPoet extends HttpPoet {
   @Override
   protected Object doRequest(Request request, Map<?, ?> additionalParameters)
       throws IOException {
-    print(request.method().toUpperCase(Locale.ENGLISH));
-    print(BLUE_SKY, " /" + String.join("/", request.url().pathSegments()));
+    print(request.method().toUpperCase(Locale.ENGLISH) + " ");
+    StringBuilder pathBuilder = new StringBuilder("/");
+    HttpUrl url = request.url();
+    pathBuilder.append(String.join("/", url.pathSegments()));
+    int querySize = url.querySize();
+    if (querySize > 0) {
+      pathBuilder.append("?");
+      for (int i = 0; i < querySize; i++) {
+        pathBuilder.append(URLDecoder.decode(url.queryParameterName(i), "UTF-8"))
+            .append("=")
+            .append(URLDecoder.decode(String.valueOf(url.queryParameterValue(i)), "UTF-8"));
+        if (i < querySize - 1) {
+          pathBuilder.append("&");
+        }
+      }
+    }
+    print(BLUE_SKY, pathBuilder);
     println();
     if (request.body() != null && !request.body().isOneShot()) {
       print(prettyJsonGenerator.toJson(jsonSlurper.parseText(new String(extractRequestBody(request.body())))));
