@@ -134,7 +134,15 @@ public class PrintingHttpPoet extends HttpPoet {
     print(BLUE_SKY, pathBuilder);
     println();
     if (request.body() != null && !request.body().isOneShot()) {
-      print(prettyJsonGenerator.toJson(jsonSlurper.parseText(new String(extractRequestBody(request.body())))));
+      Object contentType = additionalParameters.get("contentType");
+      if (contentType == ContentType.JSON || (contentType == null && this.getContentType() == ContentType.JSON)) {
+        String s = new String(extractRequestBody(request.body()));
+        if (!s.trim().isEmpty()) {
+          print(prettyJsonGenerator.toJson(jsonSlurper.parseText(new String(extractRequestBody(request.body())))));
+        }
+      } else {
+        print(new String(extractRequestBody(request.body())));
+      }
       println();
     }
     println();
