@@ -639,9 +639,7 @@ public class HttpPoet extends GroovyObjectSupport {
     if (body == null) {
       return null;
     }
-    String contentTypeHeader = response.header("Content-Type");
-    ContentType responseContentType =
-        contentTypeHeader != null ? ContentType.from(contentTypeHeader) : acceptContentType;
+    ContentType responseContentType = getOrDefaultSupply(additionalParameters, "acceptContentType", ContentType.class, () -> getResponseContentType(response));
     Closure<?> parser = getOrDefault(additionalParameters, "parser", Closure.class,
         parsers.get(responseContentType));
     if (parser == null) {
@@ -649,6 +647,11 @@ public class HttpPoet extends GroovyObjectSupport {
     } else {
       return parser.call(body);
     }
+  }
+
+  protected ContentType getResponseContentType(Response response) {
+    String contentTypeHeader = response.header("Content-Type");
+    return contentTypeHeader != null ? ContentType.from(contentTypeHeader) : acceptContentType;
   }
 
   protected static <T> T getOrDefault(Map<?, ?> additionalParameters, String key, Class<T> clazz,

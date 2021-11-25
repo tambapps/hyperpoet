@@ -7,6 +7,7 @@ import static com.tambapps.http.hyperpoet.util.Ansi.println;
 
 import com.tambapps.http.hyperpoet.io.parser.PrettyPrintJsonParserClosure;
 import com.tambapps.http.hyperpoet.io.json.PrettyJsonGenerator;
+import groovy.json.JsonException;
 import groovy.json.JsonSlurper;
 import groovy.lang.Closure;
 import groovy.transform.NamedParam;
@@ -85,10 +86,17 @@ public class PrintingHttpPoet extends HttpPoet {
     if (text.isEmpty()) {
       return "(No content)";
     }
-    Object object = jsonSlurper.parseText(text);
-    print(prettyJsonGenerator.toJson(object));
-    println();
-    return object;
+    try {
+      Object object = jsonSlurper.parseText(text);
+      print(prettyJsonGenerator.toJson(object));
+      return object;
+    } catch (JsonException e) {
+      // may not be json
+      print(text);
+      return null;
+    } finally {
+      println();
+    }
   }
 
   // used by method closure
