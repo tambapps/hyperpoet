@@ -21,7 +21,7 @@ import java.net.URLDecoder;
 import java.util.Locale;
 import java.util.Map;
 
-// TODO document how to add printers
+// TODO document how to add printers, and parameters not to print request/response body
 public class PrintingHttpPoet extends HttpPoet {
 
   private final Map<ContentType, Closure<?>> printers = PoeticPrinters.getMap();
@@ -57,13 +57,13 @@ public class PrintingHttpPoet extends HttpPoet {
       Map<?, ?> additionalParameters, ContentType responseContentType) {
     // cache response so we can print it and then reuse it for whatever the user will want to do
     CachedResponseBody cachedResponseBody = CachedResponseBody.fromResponseBody(body);
-    printResponse(response, cachedResponseBody, responseContentType);
+    printResponse(response, cachedResponseBody, responseContentType, additionalParameters);
     return super.parseResponseBody(response, cachedResponseBody, additionalParameters,
         responseContentType);
   }
 
   private void printResponse(Response response, ResponseBody body,
-      ContentType responseContentType) throws IOException {
+      ContentType responseContentType, Map<?, ?> additionalParameters) throws IOException {
     print("Response: ");
     String responseText = String.valueOf(response.code());
     String message = response.message();
@@ -73,7 +73,7 @@ public class PrintingHttpPoet extends HttpPoet {
     print(response.isSuccessful() ? BLUE_SKY : RED, responseText);
     println();
     byte[] bytes = body.bytes();
-    printBytes(responseContentType, bytes);
+    printBytes(responseContentType, bytes, getOrDefault(additionalParameters, "printResponseBody", Boolean.class, true));
   }
 
   @Override
@@ -104,20 +104,22 @@ public class PrintingHttpPoet extends HttpPoet {
         ContentType contentType = getOrDefault(additionalParameters, "contentType", ContentType.class,
             getContentType());
         byte[] bytes = extractRequestBody(request.body());
-        printBytes(contentType, bytes);
+        printBytes(contentType, bytes, getOrDefault(additionalParameters, "printRequestBody", Boolean.class, true));
       }
     }
     println();
     return super.doRequest(request, additionalParameters);
   }
 
-  private void printBytes(ContentType contentType, byte[] bytes) {
+  private void printBytes(ContentType contentType, byte[] bytes, boolean print) {
     if (bytes.length == 0) {
       println("(No content)");
-    } else {
+    } else if (print) {
       Closure<?> printer = printers.get(contentType);
       if (printer != null) {
         printer.call(bytes);
+      } else {
+        println(new String(bytes));
       }
     }
   }

@@ -38,4 +38,14 @@ class PrintingHttpPoetTest {
     println(p)
   }
 
+  @Test
+  void testPost_doNotPrintResponseBody() {
+    def p = client.post("/posts", body: [title: 'foo', body: 'bar', userId: 1], printResponseBody: false)
+  }
+
+  @Test
+  void testPost_doNotPrintRequestBody() {
+    def p = client.post("/posts", body: [title: 'foo', body: 'bar', userId: 1], printRequestBody: false)
+  }
+
 }
