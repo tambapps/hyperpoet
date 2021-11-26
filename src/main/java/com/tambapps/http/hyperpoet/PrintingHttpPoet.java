@@ -75,7 +75,7 @@ public class PrintingHttpPoet extends HttpPoet {
     println();
     byte[] bytes = body.bytes();
     if (bytes.length == 0) {
-      print("(No content)");
+      println("(No content)");
     } else {
       jsonPrinter.printBytes(bytes);
     }

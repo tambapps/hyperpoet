@@ -1,6 +1,6 @@
 package com.tambapps.http.hyperpoet.io.poeticprinter;
 
-import static com.tambapps.http.hyperpoet.util.Ansi.print;
+import static com.tambapps.http.hyperpoet.util.Ansi.println;
 
 import com.tambapps.http.hyperpoet.io.json.PrettyJsonGenerator;
 import groovy.json.JsonSlurper;
@@ -13,7 +13,7 @@ public class JsonPoeticPrinter implements PoeticPrinter {
   @Override
   public void printBytes(byte[] bytes) {
     Object object = jsonSlurper.parseText(new String(bytes));
-    print(prettyJsonGenerator.toJson(object));
+    println(prettyJsonGenerator.toJson(object));
   }
 
 }

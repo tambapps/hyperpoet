@@ -34,7 +34,8 @@ class PrintingHttpPoetTest {
 
   @Test
   void testPost() {
-    client.post("/posts", body: [title: 'foo', body: 'bar', userId: 1])
+    def p = client.post("/posts", body: [title: 'foo', body: 'bar', userId: 1])
+    println(p)
   }
 
 }
