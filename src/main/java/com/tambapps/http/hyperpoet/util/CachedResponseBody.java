@@ -12,7 +12,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 
-// TODO use it in printing http response
 @AllArgsConstructor
 public class CachedResponseBody extends ResponseBody {
 
