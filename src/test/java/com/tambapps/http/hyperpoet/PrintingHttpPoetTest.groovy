@@ -8,6 +8,11 @@ class PrintingHttpPoetTest {
       contentType: ContentType.JSON, acceptContentType: ContentType.JSON)
 
   @Test
+  void testGetAll() {
+    client.get("/todos")
+  }
+
+  @Test
   void testGet() {
     client.get("/todos/1")
   }

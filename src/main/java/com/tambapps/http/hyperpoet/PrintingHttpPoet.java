@@ -5,10 +5,9 @@ import static com.tambapps.http.hyperpoet.util.Ansi.RED;
 import static com.tambapps.http.hyperpoet.util.Ansi.print;
 import static com.tambapps.http.hyperpoet.util.Ansi.println;
 
-import com.tambapps.http.hyperpoet.io.parser.PrettyPrintJsonParserClosure;
-import com.tambapps.http.hyperpoet.io.json.PrettyJsonGenerator;
-import groovy.json.JsonException;
-import groovy.json.JsonSlurper;
+import com.tambapps.http.hyperpoet.io.poeticprinter.JsonPoeticPrinter;
+import com.tambapps.http.hyperpoet.io.poeticprinter.PoeticPrinter;
+import com.tambapps.http.hyperpoet.util.CachedResponseBody;
 import groovy.lang.Closure;
 import groovy.transform.NamedParam;
 import lombok.SneakyThrows;
@@ -17,32 +16,24 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import org.codehaus.groovy.runtime.MethodClosure;
 
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
+// TODO store printers per content type
 public class PrintingHttpPoet extends HttpPoet {
 
-  private final JsonSlurper jsonSlurper = new JsonSlurper();
-  private final PrettyJsonGenerator prettyJsonGenerator = new PrettyJsonGenerator();
+  private final PoeticPrinter jsonPrinter = new JsonPoeticPrinter();
 
   public PrintingHttpPoet(OkHttpClient okHttpClient, String baseUrl) {
     super(okHttpClient, baseUrl);
-    init();
-  }
-
-  public PrintingHttpPoet() {
-    init();
   }
 
   public PrintingHttpPoet(OkHttpClient client) {
     super(client);
-    init();
   }
 
   public PrintingHttpPoet(
@@ -56,51 +47,24 @@ public class PrintingHttpPoet extends HttpPoet {
       @NamedParam(value = "contentType", type = Closure.class)
       Map<?, ?> properties) {
     super(properties);
-    init();
   }
 
   public PrintingHttpPoet(String baseUrl) {
     super(baseUrl);
-    init();
   }
 
-  private void init() {
-    onPostExecute = new MethodClosure(this, "doOnPostExecute");
-    getParsers().put(ContentType.JSON, new PrettyPrintJsonParserClosure(jsonSlurper, prettyJsonGenerator));
+  @SneakyThrows
+  @Override
+  protected Object parseResponseBody(Response response, ResponseBody body,
+      Map<?, ?> additionalParameters) {
+    // TODO check if printer for given contenttype exists and cache response ONLY IF ONE EXISTS
+    // cache response so we can print it and then reuse it for whatever the user will want to do
+    CachedResponseBody cachedResponseBody = CachedResponseBody.fromResponseBody(body);
+    printResponse(response, cachedResponseBody);
+    return super.parseResponseBody(response, cachedResponseBody, additionalParameters);
   }
 
-  // used by method closure
-  private Object parseJsonResponseBody(ResponseBody body) throws IOException {
-    String text = body.string();
-    if (text.isEmpty()) {
-      return "(No content)";
-    }
-    Object object = jsonSlurper.parseText(text);
-    print(prettyJsonGenerator.toJson(object));
-    println();
-    return object;
-  }
-
-  private Object parseAndPrintJson(ResponseBody body) throws IOException {
-    String text = body.string();
-    if (text.isEmpty()) {
-      return "(No content)";
-    }
-    try {
-      Object object = jsonSlurper.parseText(text);
-      print(prettyJsonGenerator.toJson(object));
-      return object;
-    } catch (JsonException e) {
-      // may not be json
-      print(text);
-      return null;
-    } finally {
-      println();
-    }
-  }
-
-  // used by method closure
-  private void doOnPostExecute(Response response) {
+  private void printResponse(Response response, ResponseBody body) throws IOException {
     print("Response: ");
     String responseText = String.valueOf(response.code());
     String message = response.message();
@@ -109,15 +73,12 @@ public class PrintingHttpPoet extends HttpPoet {
     }
     print(response.isSuccessful() ? BLUE_SKY : RED, responseText);
     println();
-  }
-
-  @SneakyThrows
-  @Override
-  protected Object handleErrorResponse(Response response) {
-    if (response.body() == null) {
-      return null;
+    byte[] bytes = body.bytes();
+    if (bytes.length == 0) {
+      print("(No content)");
+    } else {
+      jsonPrinter.printBytes(bytes);
     }
-    return parseAndPrintJson(response.body());
   }
 
   @Override
@@ -141,17 +102,22 @@ public class PrintingHttpPoet extends HttpPoet {
     }
     print(BLUE_SKY, pathBuilder);
     println();
-    if (request.body() != null && !request.body().isOneShot()) {
-      Object contentType = additionalParameters.get("contentType");
-      if (contentType == ContentType.JSON || (contentType == null && this.getContentType() == ContentType.JSON)) {
-        String s = new String(extractRequestBody(request.body()));
-        if (!s.trim().isEmpty()) {
-          print(prettyJsonGenerator.toJson(jsonSlurper.parseText(new String(extractRequestBody(request.body())))));
-        }
+    if (request.body() != null) {
+      if (request.body().isOneShot()) {
+        print("Request is one shot. Cannot print it");
       } else {
-        print(new String(extractRequestBody(request.body())));
+        Object contentType = additionalParameters.get("contentType");
+        if (contentType == ContentType.JSON || (contentType == null && this.getContentType() == ContentType.JSON)) {
+          String s = new String(extractRequestBody(request.body()));
+          if (!s.trim().isEmpty()) {
+            // TODO extract printer per content type
+            jsonPrinter.printBytes(s.getBytes(StandardCharsets.UTF_8));
+          }
+        } else {
+          print(new String(extractRequestBody(request.body())));
+        }
+        println();
       }
-      println();
     }
     println();
     return super.doRequest(request, additionalParameters);

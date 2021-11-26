@@ -631,14 +631,15 @@ public class HttpPoet extends GroovyObjectSupport {
     if (!response.isSuccessful()) {
       return errorResponseHandler != null ? errorResponseHandler.call(response) : handleErrorResponse(response);
     }
-    return parseResponseBody(response, additionalParameters);
-  }
-
-  protected Object parseResponseBody(Response response, Map<?, ?> additionalParameters) {
     ResponseBody body = response.body();
     if (body == null) {
       return null;
     }
+    return parseResponseBody(response, body, additionalParameters);
+  }
+
+  // overriden by printingHttpPoet to cache response body
+  protected Object parseResponseBody(Response response, ResponseBody body, Map<?, ?> additionalParameters) {
     ContentType responseContentType = getOrDefaultSupply(additionalParameters, "acceptContentType", ContentType.class, () -> getResponseContentType(response));
     Closure<?> parser = getOrDefault(additionalParameters, "parser", Closure.class,
         parsers.get(responseContentType));
