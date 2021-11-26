@@ -14,7 +14,6 @@ import groovy.lang.MissingMethodException;
 import groovy.lang.Tuple2;
 import groovy.transform.NamedParam;
 import groovy.transform.stc.ClosureParams;
-import groovy.transform.stc.FirstParam;
 import groovy.transform.stc.SimpleType;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -635,12 +634,14 @@ public class HttpPoet extends GroovyObjectSupport {
     if (body == null) {
       return null;
     }
-    return parseResponseBody(response, body, additionalParameters);
+    ContentType responseContentType =
+        getOrDefaultSupply(additionalParameters, "acceptContentType", ContentType.class, () -> getResponseContentType(response));
+    return parseResponseBody(response, body, additionalParameters, responseContentType);
   }
 
   // overriden by printingHttpPoet to cache response body
-  protected Object parseResponseBody(Response response, ResponseBody body, Map<?, ?> additionalParameters) {
-    ContentType responseContentType = getOrDefaultSupply(additionalParameters, "acceptContentType", ContentType.class, () -> getResponseContentType(response));
+  protected Object parseResponseBody(Response response, ResponseBody body,
+      Map<?, ?> additionalParameters, ContentType responseContentType) {
     Closure<?> parser = getOrDefault(additionalParameters, "parser", Closure.class,
         parsers.get(responseContentType));
     if (parser == null) {

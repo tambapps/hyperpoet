@@ -5,8 +5,7 @@ import static com.tambapps.http.hyperpoet.util.Ansi.RED;
 import static com.tambapps.http.hyperpoet.util.Ansi.print;
 import static com.tambapps.http.hyperpoet.util.Ansi.println;
 
-import com.tambapps.http.hyperpoet.io.poeticprinter.JsonPoeticPrinter;
-import com.tambapps.http.hyperpoet.io.poeticprinter.PoeticPrinter;
+import com.tambapps.http.hyperpoet.io.poeticprinter.PoeticPrinters;
 import com.tambapps.http.hyperpoet.util.CachedResponseBody;
 import groovy.lang.Closure;
 import groovy.transform.NamedParam;
@@ -19,14 +18,13 @@ import okhttp3.ResponseBody;
 
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Map;
 
-// TODO store printers per content type
+// TODO document how to add printers
 public class PrintingHttpPoet extends HttpPoet {
 
-  private final PoeticPrinter jsonPrinter = new JsonPoeticPrinter();
+  private final Map<ContentType, Closure<?>> printers = PoeticPrinters.getMap();
 
   public PrintingHttpPoet(OkHttpClient okHttpClient, String baseUrl) {
     super(okHttpClient, baseUrl);
@@ -56,15 +54,16 @@ public class PrintingHttpPoet extends HttpPoet {
   @SneakyThrows
   @Override
   protected Object parseResponseBody(Response response, ResponseBody body,
-      Map<?, ?> additionalParameters) {
-    // TODO check if printer for given contenttype exists and cache response ONLY IF ONE EXISTS
+      Map<?, ?> additionalParameters, ContentType responseContentType) {
     // cache response so we can print it and then reuse it for whatever the user will want to do
     CachedResponseBody cachedResponseBody = CachedResponseBody.fromResponseBody(body);
-    printResponse(response, cachedResponseBody);
-    return super.parseResponseBody(response, cachedResponseBody, additionalParameters);
+    printResponse(response, cachedResponseBody, responseContentType);
+    return super.parseResponseBody(response, cachedResponseBody, additionalParameters,
+        responseContentType);
   }
 
-  private void printResponse(Response response, ResponseBody body) throws IOException {
+  private void printResponse(Response response, ResponseBody body,
+      ContentType responseContentType) throws IOException {
     print("Response: ");
     String responseText = String.valueOf(response.code());
     String message = response.message();
@@ -74,11 +73,7 @@ public class PrintingHttpPoet extends HttpPoet {
     print(response.isSuccessful() ? BLUE_SKY : RED, responseText);
     println();
     byte[] bytes = body.bytes();
-    if (bytes.length == 0) {
-      println("(No content)");
-    } else {
-      jsonPrinter.printBytes(bytes);
-    }
+    printBytes(responseContentType, bytes);
   }
 
   @Override
@@ -106,21 +101,24 @@ public class PrintingHttpPoet extends HttpPoet {
       if (request.body().isOneShot()) {
         print("Request is one shot. Cannot print it");
       } else {
-        Object contentType = additionalParameters.get("contentType");
-        if (contentType == ContentType.JSON || (contentType == null && this.getContentType() == ContentType.JSON)) {
-          String s = new String(extractRequestBody(request.body()));
-          if (!s.trim().isEmpty()) {
-            // TODO extract printer per content type
-            jsonPrinter.printBytes(s.getBytes(StandardCharsets.UTF_8));
-          }
-        } else {
-          print(new String(extractRequestBody(request.body())));
-        }
-        println();
+        ContentType contentType = getOrDefault(additionalParameters, "contentType", ContentType.class,
+            getContentType());
+        byte[] bytes = extractRequestBody(request.body());
+        printBytes(contentType, bytes);
       }
     }
     println();
     return super.doRequest(request, additionalParameters);
   }
 
+  private void printBytes(ContentType contentType, byte[] bytes) {
+    if (bytes.length == 0) {
+      println("(No content)");
+    } else {
+      Closure<?> printer = printers.get(contentType);
+      if (printer != null) {
+        printer.call(bytes);
+      }
+    }
+  }
 }
