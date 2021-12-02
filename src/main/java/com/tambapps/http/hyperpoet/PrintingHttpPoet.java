@@ -18,6 +18,7 @@ import okhttp3.ResponseBody;
 
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 
@@ -60,6 +61,11 @@ public class PrintingHttpPoet extends HttpPoet {
     printResponse(response, cachedResponseBody, responseContentType, additionalParameters);
     return super.parseResponseBody(response, cachedResponseBody, additionalParameters,
         responseContentType);
+  }
+
+  @Override
+  protected Object defaultHandleErrorResponse(Response response) {
+    return parseResponse(response, Collections.emptyMap());
   }
 
   private void printResponse(Response response, ResponseBody body,
