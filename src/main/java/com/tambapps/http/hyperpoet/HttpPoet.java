@@ -14,7 +14,6 @@ import groovy.lang.Tuple2;
 import groovy.transform.NamedParam;
 import groovy.transform.stc.ClosureParams;
 import groovy.transform.stc.SimpleType;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
