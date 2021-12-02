@@ -27,7 +27,6 @@ public class CustomJsonGenerator extends DefaultJsonGenerator {
     return null;
   }
 
-  // TODO document it
   public void putAt(Class<?> clazz, Closure<?> closure) {
     addConverter(clazz, closure);
   }
