@@ -805,14 +805,22 @@ public class HttpPoet extends GroovyObjectSupport {
   }
 
   public void addInterceptor(@ClosureParams(value = SimpleType.class, options = "okhttp3.Interceptor.Chain") Closure<Response> interceptor) {
+    addInterceptor(interceptor::call);
+  }
+
+  public void addInterceptor(Interceptor interceptor) {
     this.okHttpClient = okHttpClient.newBuilder()
-        .addInterceptor((interceptor::call))
+        .addInterceptor(interceptor)
         .build();
   }
 
   public void addNetworkInterceptor(@ClosureParams(value = SimpleType.class, options = "okhttp3.Interceptor.Chain") Closure<Response> interceptor) {
+    addNetworkInterceptor(interceptor::call);
+  }
+
+  public void addNetworkInterceptor(Interceptor interceptor) {
     this.okHttpClient = okHttpClient.newBuilder()
-        .addNetworkInterceptor((interceptor::call))
+        .addNetworkInterceptor(interceptor)
         .build();
   }
 }
