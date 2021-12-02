@@ -1,6 +1,5 @@
 package com.tambapps.http.hyperpoet;
 
-import com.tambapps.http.hyperpoet.invoke.OperationPoeticInvoker;
 import com.tambapps.http.hyperpoet.invoke.PoeticInvoker;
 import com.tambapps.http.hyperpoet.io.composer.Composers;
 import com.tambapps.http.hyperpoet.io.parser.Parsers;
@@ -67,8 +66,7 @@ public class HttpPoet extends GroovyObjectSupport {
   private String baseUrl;
   private ContentType contentType;
   private ContentType acceptContentType;
-  @Getter(AccessLevel.NONE)
-  private PoeticInvoker poeticInvoker = new OperationPoeticInvoker();
+  private PoeticInvoker poeticInvoker = null;
 
   public HttpPoet() {
     this("");
@@ -791,6 +789,9 @@ public class HttpPoet extends GroovyObjectSupport {
     try {
       return super.invokeMethod(name, args);
     } catch (MissingMethodException e) {
+      if (poeticInvoker == null) {
+        throw e;
+      }
       return poeticInvoker.invokeOrThrow(this, name, (args instanceof Object[]) ? (Object[]) args : new Object[] {args}, e);
     }
   }
