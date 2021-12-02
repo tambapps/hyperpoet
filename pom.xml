@@ -7,7 +7,7 @@
 
   <groupId>com.tambapps.http</groupId>
   <artifactId>hyperpoet</artifactId>
-  <version>1.1.2-SNAPSHOT</version>
+  <version>1.2.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>HyperPoet - Groovy-friendly HTTP client</name>
