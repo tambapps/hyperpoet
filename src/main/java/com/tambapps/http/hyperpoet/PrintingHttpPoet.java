@@ -57,6 +57,11 @@ public class PrintingHttpPoet extends HttpPoet {
   @Override
   protected Object parseResponseBody(Response response, ResponseBody body,
       Map<?, ?> additionalParameters, ContentType responseContentType) {
+    boolean print = getOrDefault(additionalParameters, "print", Boolean.class, true);
+    if (!print) {
+      return super.parseResponseBody(response, body, additionalParameters,
+          responseContentType);
+    }
     // cache response so we can print it and then reuse it for whatever the user will want to do
     CachedResponseBody cachedResponseBody = CachedResponseBody.fromResponseBody(body);
     printResponse(response, cachedResponseBody, responseContentType, additionalParameters);
@@ -86,6 +91,10 @@ public class PrintingHttpPoet extends HttpPoet {
   @Override
   protected Object doRequest(Request request, Map<?, ?> additionalParameters)
       throws IOException {
+    boolean print = getOrDefault(additionalParameters, "print", Boolean.class, true);
+    if (!print) {
+      return super.doRequest(request, additionalParameters);
+    }
     print(request.method().toUpperCase(Locale.ENGLISH) + " ");
     StringBuilder pathBuilder = new StringBuilder("/");
     HttpUrl url = request.url();
