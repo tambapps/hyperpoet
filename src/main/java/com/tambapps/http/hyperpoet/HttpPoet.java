@@ -19,6 +19,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -53,7 +54,7 @@ import java.util.function.Supplier;
 @Setter
 public class HttpPoet extends GroovyObjectSupport {
 
-  protected final OkHttpClient okHttpClient;
+  private OkHttpClient okHttpClient;
   private final Map<String, String> headers = new HashMap<>();
   private final CustomJsonGenerator jsonGenerator = new CustomJsonGenerator();
   private final Map<Class<?>, Closure<?>> queryParamConverters = new HashMap<>();
@@ -801,5 +802,17 @@ public class HttpPoet extends GroovyObjectSupport {
   public void setMultivaluedQueryParamComposingType(
       MultivaluedQueryParamComposingType multivaluedQueryParamComposingType) {
     queryParamComposer.setMultivaluedQueryParamComposingType(multivaluedQueryParamComposingType);
+  }
+
+  public void addInterceptor(@ClosureParams(value = SimpleType.class, options = "okhttp3.Interceptor.Chain") Closure<Response> interceptor) {
+    this.okHttpClient = okHttpClient.newBuilder()
+        .addInterceptor((interceptor::call))
+        .build();
+  }
+
+  public void addNetworkInterceptor(@ClosureParams(value = SimpleType.class, options = "okhttp3.Interceptor.Chain") Closure<Response> interceptor) {
+    this.okHttpClient = okHttpClient.newBuilder()
+        .addNetworkInterceptor((interceptor::call))
+        .build();
   }
 }
