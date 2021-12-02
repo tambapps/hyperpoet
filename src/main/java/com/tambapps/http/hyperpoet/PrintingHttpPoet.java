@@ -9,6 +9,7 @@ import com.tambapps.http.hyperpoet.io.poeticprinter.PoeticPrinters;
 import com.tambapps.http.hyperpoet.util.CachedResponseBody;
 import groovy.lang.Closure;
 import groovy.transform.NamedParam;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -22,7 +23,7 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 
-// TODO document how to add printers, and parameters not to print request/response body
+@Getter
 public class PrintingHttpPoet extends HttpPoet {
 
   private final Map<ContentType, Closure<?>> printers = PoeticPrinters.getMap();
