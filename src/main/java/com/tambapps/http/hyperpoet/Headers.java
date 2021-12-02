@@ -7,7 +7,7 @@ import java.util.Base64;
 
 public final class Headers {
 
-  public static String AUTHORIZATION_HEADER = "Authorization";
+  public static String AUTHORIZATION = "Authorization";
 
   private Headers() {}
 
@@ -25,7 +25,7 @@ public final class Headers {
   }
 
   public static Tuple2<String, String> authorization(String value) {
-    return new Tuple2<>(AUTHORIZATION_HEADER, value);
+    return new Tuple2<>(AUTHORIZATION, value);
   }
 
 

@@ -46,7 +46,7 @@ public class JwtAuthInterceptor implements Interceptor {
 
     Request request = chain.request()
         .newBuilder()
-        .header(Headers.AUTHORIZATION_HEADER, "Bearer " + token)
+        .header(Headers.AUTHORIZATION, "Bearer " + token)
         .build();
     return chain.proceed(request);
   }
