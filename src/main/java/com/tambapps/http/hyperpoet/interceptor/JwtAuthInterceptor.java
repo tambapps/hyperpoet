@@ -56,6 +56,9 @@ public class JwtAuthInterceptor implements Interceptor {
   }
 
   private ExpirableToken fromString(String token) throws IOException {
+    if (token == null) {
+      throw new IOException("Token is null");
+    }
     return new ExpirableToken(token, parseExpClaim(token));
   }
 
