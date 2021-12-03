@@ -1,5 +1,8 @@
 package com.tambapps.http.hyperpoet;
 
+import static com.tambapps.http.hyperpoet.util.ParametersUtils.getOrDefault;
+import static com.tambapps.http.hyperpoet.util.ParametersUtils.getOrDefaultSupply;
+
 import com.tambapps.http.hyperpoet.invoke.PoeticInvoker;
 import com.tambapps.http.hyperpoet.io.composer.Composers;
 import com.tambapps.http.hyperpoet.io.parser.Parsers;
@@ -656,34 +659,6 @@ public class HttpPoet extends GroovyObjectSupport {
   protected ContentType getResponseContentType(Response response) {
     String contentTypeHeader = response.header("Content-Type");
     return contentTypeHeader != null ? ContentType.from(contentTypeHeader) : acceptContentType;
-  }
-
-  protected static <T> T getOrDefault(Map<?, ?> additionalParameters, String key, Class<T> clazz,
-      T defaultValue) {
-    Object object = additionalParameters.get(key);
-    if (object == null) {
-      return defaultValue;
-    }
-    if (!clazz.isAssignableFrom(object.getClass())) {
-      throw new IllegalArgumentException(
-          String.format("Unexpected type for parameter '%s', expected type %s", key,
-              clazz.getSimpleName()));
-    }
-    return (T) object;
-  }
-
-  private static <T> T getOrDefaultSupply(Map<?, ?> additionalParameters, String key,
-      Class<T> clazz, Supplier<T> defaultValueSupplier) {
-    Object object = additionalParameters.get(key);
-    if (object == null) {
-      return defaultValueSupplier.get();
-    }
-    if (!clazz.isAssignableFrom(object.getClass())) {
-      throw new IllegalArgumentException(
-          String.format("Unexpected type for parameter '%s', expected type %s", key,
-              clazz.getSimpleName()));
-    }
-    return (T) object;
   }
 
   protected RequestBody requestBody(Map<?, ?> additionalParameters) throws IOException {

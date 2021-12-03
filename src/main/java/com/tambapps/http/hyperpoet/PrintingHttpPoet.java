@@ -4,6 +4,7 @@ import static com.tambapps.http.hyperpoet.util.Ansi.BLUE_SKY;
 import static com.tambapps.http.hyperpoet.util.Ansi.RED;
 import static com.tambapps.http.hyperpoet.util.Ansi.print;
 import static com.tambapps.http.hyperpoet.util.Ansi.println;
+import static com.tambapps.http.hyperpoet.util.ParametersUtils.getOrDefault;
 
 import com.tambapps.http.hyperpoet.io.poeticprinter.PoeticPrinters;
 import com.tambapps.http.hyperpoet.util.CachedResponseBody;
