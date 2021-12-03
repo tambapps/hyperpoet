@@ -661,7 +661,7 @@ public class HttpPoet extends GroovyObjectSupport {
     return contentTypeHeader != null ? ContentType.from(contentTypeHeader) : acceptContentType;
   }
 
-  protected RequestBody requestBody(Map<?, ?> additionalParameters) throws IOException {
+  public RequestBody requestBody(Map<?, ?> additionalParameters) throws IOException {
     Object body = getOrDefault(additionalParameters, "body", Object.class, null);
     ContentType contentType = getOrDefault(additionalParameters, "contentType", ContentType.class,
         this.contentType);
@@ -725,7 +725,7 @@ public class HttpPoet extends GroovyObjectSupport {
     }
   }
 
-  protected Request.Builder request(String urlOrEndpoint, Map<?, ?> additionalParameters) {
+  public Request.Builder request(String urlOrEndpoint, Map<?, ?> additionalParameters) {
     // url stuff
     String url =
         new UrlBuilder(baseUrl, queryParamComposer).append(

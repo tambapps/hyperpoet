@@ -1,16 +1,14 @@
 package com.tambapps.http.hyperpoet.invoke
 
-import com.tambapps.http.hyperpoet.HttpMethod
 import com.tambapps.http.hyperpoet.HttpPoet
+import com.tambapps.http.hyperpoet.PrintingHttpPoet
 import groovy.transform.CompileStatic
 import lombok.SneakyThrows
 
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertThrows
-import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.times
-import static org.mockito.Mockito.verify
+import static org.junit.jupiter.api.Assertions.assertTrue
 
 @CompileStatic
 class OpenApiSpecPoeticInvokerTest {
@@ -24,8 +22,7 @@ class OpenApiSpecPoeticInvokerTest {
       throw new RuntimeException(e)
     }
   }
-  private final HttpPoet poet = mock(HttpPoet.class)
-
+  private final HttpPoet poet = new PrintingHttpPoet("https://jsonplaceholder.typicode.com")
 
   @Test
   void testNotFoundOperation() throws IOException {
@@ -34,31 +31,28 @@ class OpenApiSpecPoeticInvokerTest {
 
   @Test
   void testGetPosts() throws IOException {
-    invoke("getPosts")
-    verify(poet, times(1)).method(Collections.emptyMap(), "/posts", HttpMethod.GET)
+    def posts = invoke("getPosts")
+    assertTrue(posts instanceof List)
   }
 
   @Test
   void testGetPost() throws IOException {
     invoke("getPost", 1)
-    verify(poet, times(1)).method(Collections.emptyMap(), "/posts/1", HttpMethod.GET)
   }
 
 
   @Test
   void testGetTodos() throws IOException {
     invoke("getTodos")
-    verify(poet, times(1)).method(Collections.emptyMap(), "/todos", HttpMethod.GET)
   }
 
   @Test
   void testGetTodo() throws IOException {
     invoke("getTodo", 1)
-    verify(poet, times(1)).method(Collections.emptyMap(), "/todos/1", HttpMethod.GET)
   }
 
   @SneakyThrows
-  private void invoke(String operationId, Object... args) {
-    invoker.invokeOrThrow(poet, operationId, args, new MissingMethodException(operationId, HttpPoet.class, args));
+  private Object invoke(String operationId, Object... args) {
+    return invoker.invokeOrThrow(poet, operationId, args, new MissingMethodException(operationId, HttpPoet.class, args));
   }
 }
