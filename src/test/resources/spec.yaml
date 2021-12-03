@@ -1,0 +1,111 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: JSON Placeholder API
+  description: See https://jsonplaceholder.typicode.com/
+paths:
+  /posts:
+    get:
+      description: Returns all posts
+      tags: ["Posts"]
+      operationId: "getPosts"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PostsList"
+
+  /posts/{id}:
+    get:
+      description: Returns a post by id
+      tags: ["Posts"]
+      operationId: "getPost"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The post id.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Successful response
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Post"
+        "404":
+          description: Post not found
+  /todos:
+    get:
+      description: Returns all todos
+      tags: ["Todo"]
+      operationId: "getTodos"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            "application/json":
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Todo"
+  /todos/{id}:
+    get:
+      description: Returns a todo by id
+      tags: ["Todo"]
+      operationId: "getTodo"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The todo id.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Successful response
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Post"
+        "404":
+          description: Post not found
+
+components:
+  schemas:
+    PostsList:
+      "type": "array"
+      "items":
+        $ref: "#/components/schemas/Post"
+    Post:
+      "type": "object"
+      "required":
+        - "id"
+        - "userId"
+        - "title"
+        - "completed"
+      "properties":
+        id:
+          type: "integer"
+        userId:
+          type: "integer"
+        title:
+          type: "string"
+        completed:
+          type: "string"
+    Todo:
+      type: object
+      properties:
+        id:
+          type: number
+        userId:
+          type: number
+        title:
+          type: string
+        completed:
+          type: boolean
