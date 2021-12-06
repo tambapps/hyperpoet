@@ -20,9 +20,13 @@ import lombok.Value;
 import okhttp3.HttpUrl;
 import okio.BufferedSink;
 import okio.Okio;
+import org.codehaus.groovy.runtime.IOGroovyMethods;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,6 +43,14 @@ public class OpenApiSpecPoeticInvoker implements PoeticInvoker {
 
   private final Map<String, EndpointOperation> endpointOperationMap;
   private final OpenApiInteractionValidator validator;
+
+  public static OpenApiSpecPoeticInvoker fromSpec(File file) throws IOException {
+    return fromSpec(new FileInputStream(file));
+  }
+
+  public static OpenApiSpecPoeticInvoker fromSpec(InputStream inputStream) throws IOException {
+    return fromSpec(IOGroovyMethods.getText(inputStream));
+  }
 
   public static OpenApiSpecPoeticInvoker fromSpec(String spec) throws IOException {
     ParseOptions parseOptions = new ParseOptions();
