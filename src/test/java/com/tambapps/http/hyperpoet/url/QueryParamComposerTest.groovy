@@ -19,6 +19,12 @@ class QueryParamComposerTest {
         assertEquals([new QueryParam("a", "1"), new QueryParam("b", "2"), new QueryParam("c", "trois"), new QueryParam("d", "2"), new QueryParam("d", "2")].sort(), composer.compose(foo).sort())
     }
 
+    @Test
+    void testComposeToString() {
+        def map = [email:"me+myself@i.com"]
+
+        assertEquals("email=me%2Bmyself%40i.com", composer.composeToString(map))
+    }
     class Foo {
         def a = 1
         def b = "2"

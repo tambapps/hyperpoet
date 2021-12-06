@@ -46,7 +46,7 @@ public class QueryParamComposer {
   // used by method closure, see Composers
   public String composeToString(Object value) {
     List<QueryParam> queryParams = compose(value);
-    return queryParams.stream().map(QueryParam::toString).collect(Collectors.joining("&"));
+    return queryParams.stream().map(QueryParam::encoded).collect(Collectors.joining("&"));
   }
 
   public List<QueryParam> compose(Map<?, ?> value) {
