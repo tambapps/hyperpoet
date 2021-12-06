@@ -1,18 +1,16 @@
 package com.tambapps.http.hyperpoet.invoke;
 
-import static com.tambapps.http.hyperpoet.util.ParametersUtils.getOrDefault;
-
 import com.atlassian.oai.validator.OpenApiInteractionValidator;
 import com.atlassian.oai.validator.model.Request;
 import com.atlassian.oai.validator.model.SimpleRequest;
 import com.atlassian.oai.validator.report.ValidationReport;
 import com.tambapps.http.hyperpoet.HttpMethod;
 import com.tambapps.http.hyperpoet.HttpPoet;
-import com.tambapps.http.hyperpoet.url.UrlBuilder;
 import groovy.lang.MissingMethodException;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
@@ -28,10 +26,16 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public class OpenApiSpecPoeticInvoker implements PoeticInvoker {
+
+  private static final Pattern PATH_VARIABLE_PATTERN = Pattern.compile("\\{\\w+}");
 
   private final Map<String, EndpointOperation> endpointOperationMap;
   private final OpenApiInteractionValidator validator;
@@ -45,7 +49,11 @@ public class OpenApiSpecPoeticInvoker implements PoeticInvoker {
     if (result.getMessages() != null && !result.getMessages().isEmpty()) {
       throw new IOException("Error while parsing spec: " + String.join(", ", result.getMessages()));
     }
-    return fromSpec(result.getOpenAPI(), OpenApiInteractionValidator.createFor(result.getOpenAPI()).build());
+    return fromSpec(result.getOpenAPI());
+  }
+
+  public static OpenApiSpecPoeticInvoker fromSpec(OpenAPI openAPI) {
+    return fromSpec(openAPI, OpenApiInteractionValidator.createFor(openAPI).build());
   }
 
   public static OpenApiSpecPoeticInvoker fromSpec(OpenAPI openAPI, OpenApiInteractionValidator validator) {
@@ -77,10 +85,11 @@ public class OpenApiSpecPoeticInvoker implements PoeticInvoker {
     }
     Map<?, ?> additionalParams = getAdditionalParams(args);
 
-    Request request = toRequest(poet, op, args, additionalParams);
+    String resolvedPath = resolvePath(op, args);
+    Request request = toRequest(poet, op, resolvedPath, args, additionalParams);
     ValidationReport validationReport = validator.validateRequest(request);
     if (!validationReport.hasErrors()) {
-      return poet.method(additionalParams, op.getPath(), op.getMethod());
+      return poet.method(additionalParams, resolvedPath, op.getMethod());
     }
 
     StringBuilder messageBuilder = new StringBuilder();
@@ -91,11 +100,10 @@ public class OpenApiSpecPoeticInvoker implements PoeticInvoker {
   }
 
   @SneakyThrows
-  private Request toRequest(HttpPoet poet, EndpointOperation op, Object[] args,
+  private Request toRequest(HttpPoet poet, EndpointOperation op, String resolvedPath,
+      Object[] args,
       Map<?, ?> additionalParams) {
-    String path = op.getPath(); // TODO resolve eventual path variables
-
-    okhttp3.Request.Builder okBuilder = poet.request(new UrlBuilder(poet.getBaseUrl()).append(path).toString(), additionalParams);
+    okhttp3.Request.Builder okBuilder = poet.request(resolvedPath, additionalParams);
     switch (op.getMethod()) {
       case GET:
         okBuilder.get();
@@ -116,7 +124,7 @@ public class OpenApiSpecPoeticInvoker implements PoeticInvoker {
 
     okhttp3.Request okHttpRequest = okBuilder.build();
     HttpUrl url = okHttpRequest.url();
-    SimpleRequest.Builder builder = new SimpleRequest.Builder(Request.Method.valueOf(op.getMethod().toString()), op.getPath());
+    SimpleRequest.Builder builder = new SimpleRequest.Builder(Request.Method.valueOf(op.getMethod().toString()), resolvedPath);
     for (int i = 0; i < url.querySize(); i++) {
       builder.withQueryParam(url.queryParameterName(i), url.queryParameterValue(i));
     }
@@ -129,6 +137,37 @@ public class OpenApiSpecPoeticInvoker implements PoeticInvoker {
     }
 
     return builder.build();
+  }
+
+  private String resolvePath(EndpointOperation op, Object[] args) {
+    String path = op.getPath();
+    List<Parameter> pathParameters = op.getOperation().getParameters() != null ?
+        op.getOperation().getParameters().stream().filter(p -> "path".equals(p.getIn()))
+            .collect(Collectors.toList()) : Collections.emptyList();
+    if (pathParameters.isEmpty()) {
+      return path;
+    }
+    StringBuffer buffer = new StringBuffer();
+    Matcher matcher = PATH_VARIABLE_PATTERN.matcher(path);
+    int i = 0;
+    List<Object> pathVariables = Arrays.stream(args)
+        // ignore additionalParameters
+        .filter(o -> !(o instanceof Map))
+        .collect(Collectors.toList());
+
+    while (matcher.find()) {
+      if (i >= pathVariables.size()) {
+        throw new IllegalArgumentException(String.format("Path variable '%s' (%s) is missing", pathParameters.get(i).getName(), pathParameters.get(i).getSchema().getType()));
+      }
+      String r = String.valueOf(pathVariables.get(i));
+      matcher.appendReplacement(buffer, r);
+      i++;
+    }
+    if (i != pathParameters.size()) {
+      throw new IllegalArgumentException("There's too much arguments");
+    }
+    matcher.appendTail(buffer);
+    return buffer.toString();
   }
 
   private Map<?, ?> getAdditionalParams(Object[] args) {

@@ -12,21 +12,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue
 
 @CompileStatic
 class OpenApiSpecPoeticInvokerTest {
-  private static final OpenApiSpecPoeticInvoker invoker
-  static {
-    try {
-      invoker = OpenApiSpecPoeticInvoker.fromSpec(
-              OpenApiSpecPoeticInvokerTest.class.getResourceAsStream("/spec.yaml").text
-      )
-    } catch (IOException e) {
-      throw new RuntimeException(e)
-    }
-  }
+  private static final OpenApiSpecPoeticInvoker INVOKER = OpenApiSpecPoeticInvoker.fromSpec(
+          OpenApiSpecPoeticInvokerTest.class.getResourceAsStream("/spec.yaml").text
+  )
   private final HttpPoet poet = new PrintingHttpPoet("https://jsonplaceholder.typicode.com")
 
   @Test
   void testNotFoundOperation() throws IOException {
-    assertThrows(MissingMethodException, () -> invoke("getNothing"))
+    assertThrows(MissingMethodException) {
+      invoke("getNothing")
+    }
   }
 
   @Test
@@ -38,6 +33,13 @@ class OpenApiSpecPoeticInvokerTest {
   @Test
   void testGetPost() throws IOException {
     invoke("getPost", 1)
+  }
+
+  @Test
+  void testGetPost_missingPathVariable() throws IOException {
+    assertThrows(IllegalArgumentException) {
+      invoke("getPost")
+    }
   }
 
 
@@ -53,6 +55,6 @@ class OpenApiSpecPoeticInvokerTest {
 
   @SneakyThrows
   private Object invoke(String operationId, Object... args) {
-    return invoker.invokeOrThrow(poet, operationId, args, new MissingMethodException(operationId, HttpPoet.class, args));
+    return INVOKER.invokeOrThrow(poet, operationId, args, new MissingMethodException(operationId, HttpPoet.class, args));
   }
 }
