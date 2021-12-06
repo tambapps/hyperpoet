@@ -71,7 +71,8 @@ public class OpenApiSpecPoeticInvoker implements PoeticInvoker {
     return new OpenApiSpecPoeticInvoker(Collections.unmodifiableMap(endpointOperationMap), validator);
   }
 
-  private static void addOperation(Map<String, EndpointOperation> endpointOperationMap, String path, Operation operation, HttpMethod method) {
+  private static void addOperation(Map<String, EndpointOperation> endpointOperationMap, String path,
+      Operation operation, HttpMethod method) {
     if (operation == null) return;
     endpointOperationMap.put(operation.getOperationId(), new EndpointOperation(path, method, operation));
   }
@@ -86,22 +87,20 @@ public class OpenApiSpecPoeticInvoker implements PoeticInvoker {
     Map<?, ?> additionalParams = getAdditionalParams(args);
 
     String resolvedPath = resolvePath(op, args);
-    Request request = toRequest(poet, op, resolvedPath, args, additionalParams);
+    Request request = toRequest(poet, op, resolvedPath, additionalParams);
     ValidationReport validationReport = validator.validateRequest(request);
-    if (!validationReport.hasErrors()) {
-      return poet.method(additionalParams, resolvedPath, op.getMethod());
+    if (validationReport.hasErrors()) {
+      StringBuilder messageBuilder = new StringBuilder();
+      for (ValidationReport.Message message : validationReport.getMessages()) {
+        messageBuilder.append(message.getMessage()).append("\n");
+      }
+      throw new IllegalArgumentException(messageBuilder.toString());
     }
-
-    StringBuilder messageBuilder = new StringBuilder();
-    for (ValidationReport.Message message : validationReport.getMessages()) {
-      messageBuilder.append(message.getMessage()).append("\n");
-    }
-    throw new IllegalArgumentException(messageBuilder.toString());
+    return poet.method(additionalParams, resolvedPath, op.getMethod());
   }
 
   @SneakyThrows
   private Request toRequest(HttpPoet poet, EndpointOperation op, String resolvedPath,
-      Object[] args,
       Map<?, ?> additionalParams) {
     okhttp3.Request.Builder okBuilder = poet.request(resolvedPath, additionalParams);
     switch (op.getMethod()) {
@@ -157,7 +156,8 @@ public class OpenApiSpecPoeticInvoker implements PoeticInvoker {
 
     while (matcher.find()) {
       if (i >= pathVariables.size()) {
-        throw new IllegalArgumentException(String.format("Path variable '%s' (%s) is missing", pathParameters.get(i).getName(), pathParameters.get(i).getSchema().getType()));
+        throw new IllegalArgumentException(String.format("Path variable '%s' (%s) is missing",
+            pathParameters.get(i).getName(), pathParameters.get(i).getSchema().getType()));
       }
       String r = String.valueOf(pathVariables.get(i));
       matcher.appendReplacement(buffer, r);
