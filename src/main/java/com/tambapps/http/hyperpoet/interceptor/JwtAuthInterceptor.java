@@ -4,6 +4,7 @@ import com.tambapps.http.hyperpoet.Headers;
 import com.tambapps.http.hyperpoet.HttpPoet;
 import groovy.json.JsonSlurper;
 import groovy.lang.Closure;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import okhttp3.Interceptor;
@@ -26,10 +27,15 @@ import java.util.concurrent.atomic.AtomicReference;
 @RequiredArgsConstructor
 public class JwtAuthInterceptor implements Interceptor {
 
+  @Getter
+  private final HttpPoet poet;
   private final Closure<String> tokenRefresher;
-  private final HttpPoet poet = new HttpPoet();
   private final AtomicReference<ExpirableToken> tokenReference = new AtomicReference<>();
   private final JsonSlurper slurper = new JsonSlurper();
+
+  public JwtAuthInterceptor(Closure<String> tokenRefresher) {
+    this(new HttpPoet(), tokenRefresher);
+  }
 
   @NotNull
   @Override
