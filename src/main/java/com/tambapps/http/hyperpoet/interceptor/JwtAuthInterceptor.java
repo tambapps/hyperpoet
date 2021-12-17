@@ -43,10 +43,7 @@ public class JwtAuthInterceptor implements Interceptor {
     ExpirableToken token = tokenReference.get();
     if (isTokenExpired(token)) {
       synchronized (this) {
-        tokenRefresher.setDelegate(this);
-        String tokenString = tokenRefresher.call(poet);
-        token = fromString(tokenString);
-        tokenReference.set(token);
+        token = refreshToken();
       }
     }
 
@@ -55,6 +52,18 @@ public class JwtAuthInterceptor implements Interceptor {
         .header(Headers.AUTHORIZATION, "Bearer " + token)
         .build();
     return chain.proceed(request);
+  }
+
+  public ExpirableToken refreshToken() throws IOException {
+    tokenRefresher.setDelegate(this);
+    String tokenString = tokenRefresher.call(poet);
+    ExpirableToken token = fromString(tokenString);
+    tokenReference.set(token);
+    return token;
+  }
+
+  public ExpirableToken getToken() {
+    return tokenReference.get();
   }
 
   private boolean isTokenExpired(ExpirableToken token) {
@@ -90,7 +99,7 @@ public class JwtAuthInterceptor implements Interceptor {
   }
 
   @Value
-  private static class ExpirableToken {
+  public static class ExpirableToken {
     String token;
     LocalDateTime expiresAt;
 

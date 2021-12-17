@@ -45,8 +45,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 /**
  * The HTTP client
@@ -797,5 +797,13 @@ public class HttpPoet extends GroovyObjectSupport {
     this.okHttpClient = okHttpClient.newBuilder()
         .addNetworkInterceptor(interceptor)
         .build();
+  }
+
+  public List<Interceptor> getInterceptors() {
+    return okHttpClient.interceptors();
+  }
+
+  public List<Interceptor> getNetworkInterceptors() {
+    return okHttpClient.networkInterceptors();
   }
 }
