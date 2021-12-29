@@ -94,6 +94,9 @@ public class OpenApiSpecPoeticInvoker implements PoeticInvoker {
       MissingMethodException e) throws IOException {
     EndpointOperation op = endpointOperationMap.get(methodName);
     if (op == null) {
+      if ("listOperations".equals(methodName)) {
+        return endpointOperationMap.keySet();
+      }
       throw e;
     }
     Map<?, ?> additionalParams = getAdditionalParams(args);

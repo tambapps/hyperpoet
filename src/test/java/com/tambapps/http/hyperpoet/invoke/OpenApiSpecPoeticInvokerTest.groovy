@@ -7,6 +7,7 @@ import lombok.SneakyThrows
 
 import org.junit.jupiter.api.Test
 
+import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertThrows
 import static org.junit.jupiter.api.Assertions.assertTrue
 
@@ -51,6 +52,11 @@ class OpenApiSpecPoeticInvokerTest {
   @Test
   void testGetTodo() throws IOException {
     invoke("getTodo", 1)
+  }
+
+  @Test
+  void testListOperations() {
+    assertEquals(["getTodo", "getTodos", "getPosts", "getPost"].toSet(), invoke("listOperations"))
   }
 
   @SneakyThrows
