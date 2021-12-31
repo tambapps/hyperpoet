@@ -1,34 +1,41 @@
 package com.tambapps.http.hyperpoet;
 
+import kotlin.Pair;
 import lombok.Getter;
-import okhttp3.Headers;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Exception thrown when an error response is received
  */
+@Getter
 public class ErrorResponseException extends IOException {
 
-  @Getter
-  private final Response response;
+  private final int code;
+  private final byte[] body;
+  private final Map<String, String> headers;
 
-  public ErrorResponseException(Response response) {
-    super(String.format("%d - %s", response.code(), response.message()));
-    this.response = response;
+  private ErrorResponseException(String method, String url, int code, byte[] body, Map<String, String> headers) {
+    super(String.format("endpoint %s %s response %d", method, url, code));
+    this.code = code;
+    this.body = body;
+    this.headers = headers;
   }
 
-  public int getCode() {
-    return response.code();
+  public static ErrorResponseException from(Response response) throws IOException {
+    Map<String, String> headers = new HashMap<>();
+    for (Pair<? extends String, ? extends String> header : response.headers()) {
+      headers.put(header.getFirst(), header.getSecond());
+    }
+    return new ErrorResponseException(response.request().method(), response.request().url().toString(),
+        response.code(), response.body() != null ? response.body().bytes() : null, headers);
   }
 
-  public ResponseBody getBody() {
-    return response.body();
+  public String getBodyAsText() {
+    return new String(body);
   }
 
-  public Headers getHeaders() {
-    return response.headers();
-  }
 }

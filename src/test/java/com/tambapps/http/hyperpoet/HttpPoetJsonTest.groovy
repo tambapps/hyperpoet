@@ -77,7 +77,7 @@ class HttpPoetJsonTest {
     def responseException = assertThrows(ErrorResponseException) {
       client.get("/todos/123456789")
     }
-    assertEquals(404, responseException.response.code())
+    assertEquals(404, responseException.code)
   }
 
   @Test

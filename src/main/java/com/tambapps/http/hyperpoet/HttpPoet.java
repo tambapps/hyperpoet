@@ -754,7 +754,9 @@ public class HttpPoet extends GroovyObjectSupport {
   // used by method closure
   @SneakyThrows
   protected Object defaultHandleErrorResponse(Response response) {
-    throw new ErrorResponseException(response);
+    ErrorResponseException exception = ErrorResponseException.from(response);
+    response.close();
+    throw exception;
   }
 
   @Override
