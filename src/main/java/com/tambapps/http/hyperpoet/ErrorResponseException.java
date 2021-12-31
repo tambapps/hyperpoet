@@ -2,6 +2,7 @@ package com.tambapps.http.hyperpoet;
 
 import kotlin.Pair;
 import lombok.Getter;
+import okhttp3.Headers;
 import okhttp3.Response;
 
 import java.io.IOException;
@@ -27,8 +28,9 @@ public class ErrorResponseException extends IOException {
 
   public static ErrorResponseException from(Response response) throws IOException {
     Map<String, String> headers = new HashMap<>();
-    for (Pair<? extends String, ? extends String> header : response.headers()) {
-      headers.put(header.getFirst(), header.getSecond());
+    Headers okHeaders = response.headers();
+    for (String name : okHeaders.names()) {
+      headers.put(name, okHeaders.get(name));
     }
     return new ErrorResponseException(response.request().method(), response.request().url().toString(),
         response.code(), response.body() != null ? response.body().bytes() : null, headers);
