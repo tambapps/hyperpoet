@@ -1,5 +1,8 @@
 package com.tambapps.http.hyperpoet;
 
+import groovy.lang.Closure;
+import groovy.transform.stc.ClosureParams;
+import groovy.transform.stc.SimpleType;
 import kotlin.Pair;
 import lombok.Getter;
 import okhttp3.Headers;
@@ -8,6 +11,8 @@ import okhttp3.Response;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Exception thrown when an error response is received
@@ -40,4 +45,7 @@ public class ErrorResponseException extends IOException {
     return new String(body);
   }
 
+  public <T> T getBody(Function<byte[], T> converter) {
+    return converter.apply(body);
+  }
 }
