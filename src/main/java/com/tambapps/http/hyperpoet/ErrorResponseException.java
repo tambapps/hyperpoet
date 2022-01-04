@@ -13,7 +13,7 @@ import java.util.function.Function;
  * Exception thrown when an error response is received
  */
 @Getter
-public class ErrorResponseException extends IOException {
+public class ErrorResponseException extends RuntimeException {
 
   private final int code;
   private final byte[] body;

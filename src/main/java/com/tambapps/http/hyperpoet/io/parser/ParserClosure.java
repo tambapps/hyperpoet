@@ -11,6 +11,6 @@ public abstract class ParserClosure extends Closure<Object> {
     super(null);
   }
 
-  abstract Object doCall(ResponseBody body) throws IOException;
+  protected abstract Object doCall(ResponseBody body) throws IOException;
 
 }

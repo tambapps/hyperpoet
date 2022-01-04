@@ -1,5 +1,6 @@
 package com.tambapps.http.hyperpoet;
 
+import com.tambapps.http.hyperpoet.util.CachedResponseBody;
 import groovy.lang.Closure;
 import lombok.Getter;
 import okhttp3.Request;
@@ -34,9 +35,10 @@ public class ProblemResponseException extends ErrorResponseException {
     String problemType = null;
     String problemDetail = null;
     if (responseBody != null) {
+      responseBody = CachedResponseBody.fromResponseBody(responseBody);
       bytes = responseBody.bytes();
       try {
-        Map<?, ?> json = (Map<?, ?>) parser.call(response);
+        Map<?, ?> json = (Map<?, ?>) parser.call(responseBody);
         problemType = String.valueOf(json.get("type"));
         problemDetail = String.valueOf(json.get("detail"));
         message = String.format("endpoint %s %s responded %d with problem type %s: %s", request.method(), request.url().encodedPath(), response.code(), problemType, problemDetail);
