@@ -1,9 +1,5 @@
 package com.tambapps.http.hyperpoet;
 
-import groovy.lang.Closure;
-import groovy.transform.stc.ClosureParams;
-import groovy.transform.stc.SimpleType;
-import kotlin.Pair;
 import lombok.Getter;
 import okhttp3.Headers;
 import okhttp3.Response;
@@ -11,7 +7,6 @@ import okhttp3.Response;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -24,21 +19,15 @@ public class ErrorResponseException extends IOException {
   private final byte[] body;
   private final Map<String, String> headers;
 
-  private ErrorResponseException(String method, String url, int code, byte[] body, Map<String, String> headers) {
-    super(String.format("endpoint %s %s response %d", method, url, code));
+  protected ErrorResponseException(String method, String url, int code, byte[] body, Map<String, String> headers) {
+    this(code, body, headers, String.format("endpoint %s %s response %d", method, url, code));
+  }
+
+  protected ErrorResponseException(int code, byte[] body, Map<String, String> headers, String message) {
+    super(message);
     this.code = code;
     this.body = body;
     this.headers = headers;
-  }
-
-  public static ErrorResponseException from(Response response) throws IOException {
-    Map<String, String> headers = new HashMap<>();
-    Headers okHeaders = response.headers();
-    for (String name : okHeaders.names()) {
-      headers.put(name, okHeaders.get(name));
-    }
-    return new ErrorResponseException(response.request().method(), response.request().url().toString(),
-        response.code(), response.body() != null ? response.body().bytes() : null, headers);
   }
 
   public String getBodyAsText() {
@@ -47,5 +36,19 @@ public class ErrorResponseException extends IOException {
 
   public <T> T getBody(Function<byte[], T> converter) {
     return converter.apply(body);
+  }
+
+  public static ErrorResponseException from(Response response) throws IOException {
+    return new ErrorResponseException(response.request().method(), response.request().url().toString(),
+        response.code(), response.body() != null ? response.body().bytes() : null, getHeaders(response));
+  }
+
+  protected static Map<String, String> getHeaders(Response response) {
+    Map<String, String> headers = new HashMap<>();
+    Headers okHeaders = response.headers();
+    for (String name : okHeaders.names()) {
+      headers.put(name, okHeaders.get(name));
+    }
+    return headers;
   }
 }
