@@ -16,6 +16,9 @@ import java.io.IOException;
 public class CachedResponseBody extends ResponseBody {
 
   public static CachedResponseBody fromResponseBody(ResponseBody responseBody) throws IOException {
+    if (responseBody instanceof CachedResponseBody) {
+      return (CachedResponseBody) responseBody;
+    }
     long contentLength = responseBody.contentLength();
     MediaType contentType = responseBody.contentType();
     return new CachedResponseBody(contentLength, contentType, responseBody.bytes());
