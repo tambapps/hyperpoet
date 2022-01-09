@@ -2,7 +2,6 @@ package com.tambapps.http.hyperpoet;
 
 import com.tambapps.http.hyperpoet.util.CachedResponseBody;
 import groovy.lang.Closure;
-import lombok.Getter;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -50,7 +49,7 @@ public class ProblemResponseException extends ErrorResponseException {
   }
 
   public static ProblemResponseException from(Response response, Closure<?> parser) throws IOException {
-    CachedResponseBody responseBody = CachedResponseBody.fromResponseBody(response.body());
+    CachedResponseBody responseBody = CachedResponseBody.from(response.body());
     Map<String, Object> members = new HashMap<>();
     Request request = response.request();
     String errorMessage = String.format("endpoint %s %s responded %d", request.method(), request.url().encodedPath(), response.code());

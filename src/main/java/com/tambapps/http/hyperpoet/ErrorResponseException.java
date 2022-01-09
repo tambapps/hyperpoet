@@ -59,7 +59,7 @@ public class ErrorResponseException extends RuntimeException {
 
   public static ErrorResponseException from(Response response) throws IOException {
     return new ErrorResponseException(response.request().method(), response.request().url().toString(),
-        response.code(), response.body() != null ? CachedResponseBody.fromResponseBody(response.body()) : null, getHeaders(response));
+        response.code(), response.body() != null ? CachedResponseBody.from(response.body()) : null, getHeaders(response));
   }
 
   protected static Map<String, String> getHeaders(Response response) {

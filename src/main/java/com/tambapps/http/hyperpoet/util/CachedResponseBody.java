@@ -15,8 +15,7 @@ import java.io.IOException;
 @AllArgsConstructor
 public class CachedResponseBody extends ResponseBody {
 
-  // TODO rename from
-  public static CachedResponseBody fromResponseBody(ResponseBody responseBody) throws IOException {
+  public static CachedResponseBody from(ResponseBody responseBody) throws IOException {
     if (responseBody == null) {
       return new CachedResponseBody(0L, null, new byte[0]);
     } else if (responseBody instanceof CachedResponseBody) {
