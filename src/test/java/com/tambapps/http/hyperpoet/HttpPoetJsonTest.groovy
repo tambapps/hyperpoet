@@ -24,7 +24,7 @@ class HttpPoetJsonTest {
     onPostExecute = { Response response ->
       println(response.code())
     }
-    poeticInvoker = new OperationPoeticInvoker()
+    poeticInvoker = new OperationPoeticInvoker(true)
     it
   }
 

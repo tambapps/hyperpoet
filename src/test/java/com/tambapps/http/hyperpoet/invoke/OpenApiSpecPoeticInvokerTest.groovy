@@ -56,7 +56,7 @@ class OpenApiSpecPoeticInvokerTest {
 
   @Test
   void testListOperations() {
-    assertEquals(["getTodo", "getTodos", "getPosts", "getPost"].toSet(), invoke("listOperations"))
+    assertEquals(["getPost", "getPosts", "getTodo", "getTodos"], INVOKER.listOperations())
   }
 
   @SneakyThrows
