@@ -805,7 +805,17 @@ public class HttpPoet extends GroovyObjectSupport {
     return okHttpClient.interceptors();
   }
 
+  public Interceptor getInterceptor() {
+    List<Interceptor> interceptors = getInterceptors();
+    return !interceptors.isEmpty() ? interceptors.get(0) : null;
+  }
+
   public List<Interceptor> getNetworkInterceptors() {
     return okHttpClient.networkInterceptors();
+  }
+
+  public Interceptor getNetworkInterceptor() {
+    List<Interceptor> interceptors = getNetworkInterceptors();
+    return !interceptors.isEmpty() ? interceptors.get(0) : null;
   }
 }
