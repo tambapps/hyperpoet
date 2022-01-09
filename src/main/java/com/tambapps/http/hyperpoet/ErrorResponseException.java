@@ -1,13 +1,18 @@
 package com.tambapps.http.hyperpoet;
 
+import com.tambapps.http.hyperpoet.util.CachedResponseBody;
+import groovy.lang.Closure;
+import groovy.transform.stc.ClosureParams;
+import groovy.transform.stc.SimpleType;
 import lombok.Getter;
 import okhttp3.Headers;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Exception thrown when an error response is received
@@ -16,31 +21,45 @@ import java.util.function.Function;
 public class ErrorResponseException extends RuntimeException {
 
   private final int code;
-  private final byte[] body;
+  private final ResponseBody body;
   private final Map<String, String> headers;
 
-  protected ErrorResponseException(String method, String url, int code, byte[] body, Map<String, String> headers) {
+  protected ErrorResponseException(String method, String url, int code, ResponseBody body, Map<String, String> headers) {
     this(code, body, headers, String.format("endpoint %s %s response %d", method, url, code));
   }
 
-  protected ErrorResponseException(int code, byte[] body, Map<String, String> headers, String message) {
+  protected ErrorResponseException(int code, ResponseBody body, Map<String, String> headers, String message) {
     super(message);
     this.code = code;
     this.body = body;
     this.headers = headers;
   }
 
-  public String getBodyAsText() {
-    return new String(body);
+  public String getBodyAsText() throws IOException {
+    return body.string();
   }
 
-  public <T> T getBody(Function<byte[], T> converter) {
-    return converter.apply(body);
+  public byte[] getBodyAsBytes() throws IOException {
+    return body.bytes();
+  }
+
+  public InputStream getBodyAsInputStream() throws IOException {
+    return body.byteStream();
+  }
+
+  /**
+   * Get the body parsed with the provided parser
+   * @param parser the parser closure
+   * @return the parsed body
+   */
+  public Object getBody(@ClosureParams(value = SimpleType.class, options = "okhttp3.ResponseBody")
+      Closure<?> parser) {
+    return parser.call(body);
   }
 
   public static ErrorResponseException from(Response response) throws IOException {
     return new ErrorResponseException(response.request().method(), response.request().url().toString(),
-        response.code(), response.body() != null ? response.body().bytes() : null, getHeaders(response));
+        response.code(), response.body() != null ? CachedResponseBody.fromResponseBody(response.body()) : null, getHeaders(response));
   }
 
   protected static Map<String, String> getHeaders(Response response) {

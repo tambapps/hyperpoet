@@ -8,6 +8,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -15,37 +16,53 @@ import java.util.Map;
  */
 public class ProblemResponseException extends ErrorResponseException {
 
-  @Getter
-  private final String type;
-  @Getter
-  private final String detail;
+  private final Map<String, Object> members;
 
-  protected ProblemResponseException(int code, byte[] body,
-      Map<String, String> headers, String message, String type, String detail) {
+  protected ProblemResponseException(int code, ResponseBody body,
+      Map<String, String> headers, String message, Map<String, Object> members) {
     super(code, body, headers, message);
-    this.type = type;
-    this.detail = detail;
+    this.members = members;
+  }
+
+  public String getType() {
+    return (String) members.get("type");
+  }
+
+  public String getTitle() {
+    return (String) members.get("title");
+  }
+
+  public String getDetail() {
+    return (String) members.get("detail");
+  }
+
+  public Integer getStatus() {
+    Number number = (Number) members.get("status");
+    return number != null ? number.intValue() : null;
+  }
+
+  public String getInstance() {
+    return (String) members.get("instance");
+  }
+
+  public Object getMember(String propertyName) {
+    return members.get(propertyName);
   }
 
   public static ProblemResponseException from(Response response, Closure<?> parser) throws IOException {
-    ResponseBody responseBody = response.body();
-    byte[] bytes = null;
+    CachedResponseBody responseBody = CachedResponseBody.fromResponseBody(response.body());
+    Map<String, Object> members = new HashMap<>();
     Request request = response.request();
-    String message = String.format("endpoint %s %s responded %d", request.method(), request.url().encodedPath(), response.code());
-    String problemType = null;
-    String problemDetail = null;
-    if (responseBody != null) {
-      responseBody = CachedResponseBody.fromResponseBody(responseBody);
-      bytes = responseBody.bytes();
+    String errorMessage = String.format("endpoint %s %s responded %d", request.method(), request.url().encodedPath(), response.code());
+    if (!responseBody.isEmpty()) {
       try {
         Map<?, ?> json = (Map<?, ?>) parser.call(responseBody);
-        problemType = String.valueOf(json.get("type"));
-        problemDetail = String.valueOf(json.get("detail"));
-        message = String.format("endpoint %s %s responded %d with problem type %s: %s", request.method(), request.url().encodedPath(), response.code(), problemType, problemDetail);
+        json.forEach((key, value) -> members.put(String.valueOf(key), value));
+        errorMessage = String.format("endpoint %s %s responded %d with problem type %s: %s", request.method(), request.url().encodedPath(), response.code(), members.get("type"), members.get("detail"));
       } catch (Exception ignored) {
       }
     }
-    return new ProblemResponseException(response.code(), bytes, ErrorResponseException.getHeaders(response), message, problemType, problemDetail);
+    return new ProblemResponseException(response.code(), responseBody, ErrorResponseException.getHeaders(response), errorMessage, members);
   }
 
 }
