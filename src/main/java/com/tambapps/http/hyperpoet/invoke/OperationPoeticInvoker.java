@@ -3,6 +3,7 @@ package com.tambapps.http.hyperpoet.invoke;
 import com.tambapps.http.hyperpoet.HttpMethod;
 import com.tambapps.http.hyperpoet.HttpPoet;
 import groovy.lang.MissingMethodException;
+import lombok.AllArgsConstructor;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -14,7 +15,14 @@ import java.util.stream.Collectors;
 /**
  * Poetic invoker transforming operation name to endpoint
  */
+@AllArgsConstructor
 public class OperationPoeticInvoker implements PoeticInvoker {
+
+  private final boolean useSForPosts;
+
+  public OperationPoeticInvoker() {
+    this(false);
+  }
 
   @Override
   public Object invokeOrThrow(HttpPoet poet, String methodName, Object[] args,
@@ -50,8 +58,8 @@ public class OperationPoeticInvoker implements PoeticInvoker {
     }
 
     String endpoint = "/" + fields.stream().skip(1).collect(Collectors.joining("-"));
-    if (!fields.get(fields.size() - 1).endsWith("s") && (method == HttpMethod.POST || method == HttpMethod.DELETE)) {
-      // endpoints for creating and deleting objects use the plural
+    if (useSForPosts && !fields.get(fields.size() - 1).endsWith("s") && method == HttpMethod.POST) {
+      // endpoints for creating and use the plural
       endpoint += "s";
     }
     switch (args.length) {
