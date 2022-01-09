@@ -690,7 +690,7 @@ public class HttpPoet extends GroovyObjectSupport {
       }
       composedBody = composer != null ? composer.call(body) : body;
     }
-    MediaType mediaType = contentType != null ? MediaType.get(contentType.toString()) : null;
+    MediaType mediaType = contentType != null ? contentType.toMediaType() : null;
     return toRequestBody(composedBody, mediaType);
   }
 

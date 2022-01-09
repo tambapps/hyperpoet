@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import okhttp3.MediaType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,6 +45,9 @@ public class ContentType {
     return new ContentType(fields[0].trim(), additionalParameters);
   }
 
+  public MediaType toMediaType() {
+    return MediaType.get(toString());
+  }
   @Override
   public String toString() {
     if (additionalParameters.isEmpty()) {

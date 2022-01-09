@@ -9,7 +9,10 @@ import java.io.IOException;
 public class ErrorResponseHandlers {
 
   public static Closure<?> problemResponseHandler() {
-    return new ProblemResponseHandlerClosure(new JsonParserClosure());
+    return problemResponseHandler(new JsonParserClosure());
+  }
+  public static Closure<?> problemResponseHandler(Closure<?> parser) {
+    return new ProblemResponseHandlerClosure(parser);
   }
 
   private static class ProblemResponseHandlerClosure extends Closure<Void> {

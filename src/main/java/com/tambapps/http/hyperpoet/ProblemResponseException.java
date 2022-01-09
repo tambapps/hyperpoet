@@ -2,9 +2,12 @@ package com.tambapps.http.hyperpoet;
 
 import com.tambapps.http.hyperpoet.util.CachedResponseBody;
 import groovy.lang.Closure;
+import groovy.lang.GroovyObject;
+import groovy.lang.MetaClass;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.codehaus.groovy.runtime.InvokerHelper;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -13,7 +16,9 @@ import java.util.Map;
 /**
  * Error response exception containing data for JSON RFC 7807 Problem details
  */
-public class ProblemResponseException extends ErrorResponseException {
+public class ProblemResponseException extends ErrorResponseException implements GroovyObject {
+
+  private transient final MetaClass metaClass = InvokerHelper.getMetaClass(this.getClass());
 
   private final Map<String, Object> members;
 
@@ -47,6 +52,23 @@ public class ProblemResponseException extends ErrorResponseException {
   public Object getMember(String propertyName) {
     return members.get(propertyName);
   }
+
+  public Object getAt(String propertyName) {
+    return getMember(propertyName);
+  }
+
+  @Override
+  public Object getProperty(String propertyName) {
+    return getMember(propertyName);
+  }
+
+  @Override
+  public MetaClass getMetaClass() {
+    return metaClass;
+  }
+
+  @Override
+  public void setMetaClass(MetaClass metaClass) {}
 
   public static ProblemResponseException from(Response response, Closure<?> parser) throws IOException {
     CachedResponseBody responseBody = CachedResponseBody.from(response.body());
