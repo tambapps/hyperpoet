@@ -3,11 +3,11 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <!-- Note to self deploy it using JDK8 (just use intelIJ) and use -DperformRelease=true to activate release plugins -->
+  <!-- Note to self: deploy (mvn deploy) it using JDK8 (just use intelIJ) and use -DperformRelease=true to activate release plugins -->
 
   <groupId>com.tambapps.http</groupId>
   <artifactId>hyperpoet</artifactId>
-  <version>1.2.1-SNAPSHOT</version>
+  <version>1.2.1</version>
   <packaging>jar</packaging>
 
   <name>HyperPoet - Groovy-friendly HTTP client</name>
