@@ -94,9 +94,6 @@ public class OpenApiSpecPoeticInvoker implements PoeticInvoker {
       MissingMethodException e) throws IOException {
     EndpointOperation op = endpointOperationMap.get(methodName);
     if (op == null) {
-      if ("listOperations".equals(methodName)) {
-        return endpointOperationMap.keySet();
-      }
       throw e;
     }
     Map<?, ?> additionalParams = getAdditionalParams(args);
@@ -187,6 +184,17 @@ public class OpenApiSpecPoeticInvoker implements PoeticInvoker {
 
   private Map<?, ?> getAdditionalParams(Object[] args) {
     return (Map<?, ?>) Arrays.stream(args).filter(a -> a instanceof Map).findFirst().orElse(Collections.emptyMap());
+  }
+
+  public List<String> listOperations() {
+    return endpointOperationMap.keySet()
+        .stream()
+        .sorted()
+        .collect(Collectors.toList());
+  }
+
+  public EndpointOperation getOperation(String name) {
+    return endpointOperationMap.get(name);
   }
 
   @Value
