@@ -198,7 +198,7 @@ public class OpenApiSpecPoeticInvoker implements PoeticInvoker {
   }
 
   @Value
-  private static class EndpointOperation {
+  public static class EndpointOperation {
     String path;
     HttpMethod method;
     Operation operation;
