@@ -630,7 +630,11 @@ public class HttpPoet extends GroovyObjectSupport {
 
   private Object handleResponse(Response response, Map<?, ?> additionalParameters) {
     if (!response.isSuccessful()) {
-      return errorResponseHandler != null ? errorResponseHandler.call(response) : defaultHandleErrorResponse(response);
+      if (errorResponseHandler != null) {
+        return errorResponseHandler.getMaximumNumberOfParameters() > 1 ? errorResponseHandler.call(response, additionalParameters) : errorResponseHandler.call(response);
+      } else {
+        return defaultHandleErrorResponse(response);
+      }
     }
     return parseResponse(response, additionalParameters);
   }

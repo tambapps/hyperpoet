@@ -3,6 +3,7 @@ package com.tambapps.http.hyperpoet;
 import com.tambapps.http.hyperpoet.io.parser.JsonParserClosure;
 import groovy.lang.Closure;
 import okhttp3.Response;
+import org.codehaus.groovy.runtime.MethodClosure;
 
 import java.io.IOException;
 
@@ -11,8 +12,13 @@ public class ErrorResponseHandlers {
   public static Closure<?> problemResponseHandler() {
     return problemResponseHandler(new JsonParserClosure());
   }
+
   public static Closure<?> problemResponseHandler(Closure<?> parser) {
     return new ProblemResponseHandlerClosure(parser);
+  }
+
+  public static Closure<?> parseResponseHandler(HttpPoet poet) {
+    return new MethodClosure(poet, "parseResponse");
   }
 
   private static class ProblemResponseHandlerClosure extends Closure<Void> {
