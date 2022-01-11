@@ -2,6 +2,7 @@ package com.tambapps.http.hyperpoet;
 
 import static com.tambapps.http.hyperpoet.util.ParametersUtils.getOrDefault;
 import static com.tambapps.http.hyperpoet.util.ParametersUtils.getOrDefaultSupply;
+import static com.tambapps.http.hyperpoet.util.ParametersUtils.getStringOrDefault;
 
 import com.tambapps.http.hyperpoet.invoke.PoeticInvoker;
 import com.tambapps.http.hyperpoet.io.composer.Composers;
@@ -89,7 +90,7 @@ public class HttpPoet extends GroovyObjectSupport {
       @NamedParam(value = "contentType", type = Closure.class)
       Map<?, ?> properties) {
     this(getOrDefaultSupply(properties, "okHttpClient", OkHttpClient.class, OkHttpClient::new),
-        getOrDefault(properties, "url", String.class, ""));
+        getStringOrDefault(properties, "url", ""));
     Map<?, ?> headers = getOrDefault(properties, "headers", Map.class, Collections.emptyMap());
     for (Map.Entry<?, ?> entry : headers.entrySet()) {
       putHeader(entry.getKey(), entry.getValue());

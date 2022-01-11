@@ -5,6 +5,11 @@ import java.util.function.Supplier;
 
 public class ParametersUtils {
 
+  public static String getStringOrDefault(Map<?, ?> additionalParameters, String key, String defaultValue) {
+    Object object = additionalParameters.get(key);
+    return object != null ? object.toString() : defaultValue;
+  }
+
   public static <T> T getOrDefault(Map<?, ?> additionalParameters, String key, Class<T> clazz,
       T defaultValue) {
     Object object = additionalParameters.get(key);
