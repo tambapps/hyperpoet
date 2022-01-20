@@ -10,8 +10,9 @@ import org.junit.jupiter.api.Test
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertThrows
 
+// TODO include surefire-plugin in order to make tests work
 class ErrorResponseHandlersTest {
-  private static final HttpPoet POET = new HttpPoet(url: "https://jsonplaceholder.typicode.com",
+  private static final HttpPoet POET = new PrintingHttpPoet(url: "https://jsonplaceholder.typicode.com",
       contentType: ContentType.JSON, acceptContentType: ContentType.JSON).tap {
     errorResponseHandler = ErrorResponseHandlers.problemResponseHandler()
   }
@@ -52,7 +53,7 @@ class ErrorResponseHandlersTest {
   void testParseResponse() {
     POET.errorResponseHandler = ErrorResponseHandlers.parseResponseHandler(POET)
 
-    def response = POET.get("/something")
+    def response = POET.post("/something", body: [a: "b"])
 
     assertEquals(PROBLEM.type, response.type)
     assertEquals(PROBLEM.title, response.title)

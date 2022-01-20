@@ -628,15 +628,12 @@ public class HttpPoet extends GroovyObjectSupport {
     }
   }
 
-  private Object handleResponse(Response response, Map<?, ?> additionalParameters) {
+  protected Object handleResponse(Response response, Map<?, ?> additionalParameters) {
     if (!response.isSuccessful()) {
-      if (errorResponseHandler != null) {
-        return errorResponseHandler.getMaximumNumberOfParameters() > 1 ? errorResponseHandler.call(response, additionalParameters) : errorResponseHandler.call(response);
-      } else {
-        return defaultHandleErrorResponse(response);
-      }
+      return handleErrorResponse(response, additionalParameters);
+    } else {
+      return parseResponse(response, additionalParameters);
     }
-    return parseResponse(response, additionalParameters);
   }
 
   protected Object parseResponse(Response response, Map<?, ?> additionalParameters) {
@@ -756,9 +753,17 @@ public class HttpPoet extends GroovyObjectSupport {
     return builder;
   }
 
+  protected Object handleErrorResponse(Response response, Map<?, ?> additionalParameters) {
+    if (errorResponseHandler != null) {
+      return errorResponseHandler.getMaximumNumberOfParameters() > 1 ? errorResponseHandler.call(response, additionalParameters) : errorResponseHandler.call(response);
+    } else {
+      return defaultHandleErrorResponse(response, additionalParameters);
+    }
+  }
+
   // used by method closure
   @SneakyThrows
-  protected Object defaultHandleErrorResponse(Response response) {
+  protected Object defaultHandleErrorResponse(Response response, Map<?, ?> additionalParameters) {
     ErrorResponseException exception = ErrorResponseException.from(response);
     response.close();
     throw exception;

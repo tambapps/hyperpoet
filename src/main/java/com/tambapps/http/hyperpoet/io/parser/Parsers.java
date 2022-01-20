@@ -22,7 +22,9 @@ public class Parsers {
 
   public static Map<ContentType, Closure<?>> getMap() {
     Map<ContentType, Closure<?>> map = new HashMap<>();
-    map.put(ContentType.JSON, new JsonParserClosure());
+    JsonParserClosure jsonParserClosure = new JsonParserClosure();
+    map.put(ContentType.JSON, jsonParserClosure);
+    map.put(ContentType.PROBLEM_JSON, jsonParserClosure);
     map.put(ContentType.XML, new MethodClosure(Parsers.class, "parseXmlResponseBody"));
     map.put(ContentType.TEXT, new MethodClosure(Parsers.class, "parseStringResponseBody"));
     map.put(ContentType.HTML, new MethodClosure(Parsers.class, "parseStringResponseBody"));

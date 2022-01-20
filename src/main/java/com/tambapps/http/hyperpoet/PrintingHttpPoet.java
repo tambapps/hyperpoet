@@ -5,6 +5,7 @@ import static com.tambapps.http.hyperpoet.util.Ansi.RED;
 import static com.tambapps.http.hyperpoet.util.Ansi.print;
 import static com.tambapps.http.hyperpoet.util.Ansi.println;
 import static com.tambapps.http.hyperpoet.util.ParametersUtils.getOrDefault;
+import static com.tambapps.http.hyperpoet.util.ParametersUtils.getOrDefaultSupply;
 
 import com.tambapps.http.hyperpoet.io.poeticprinter.PoeticPrinters;
 import com.tambapps.http.hyperpoet.util.CachedResponseBody;
@@ -20,7 +21,6 @@ import okhttp3.ResponseBody;
 
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 
@@ -54,25 +54,22 @@ public class PrintingHttpPoet extends HttpPoet {
     super(baseUrl);
   }
 
-  @SneakyThrows
   @Override
-  protected Object parseResponseBody(Response response, ResponseBody body,
-      Map<?, ?> additionalParameters, ContentType responseContentType) {
-    boolean print = getOrDefault(additionalParameters, "print", Boolean.class, true);
-    if (!print) {
-      return super.parseResponseBody(response, body, additionalParameters,
-          responseContentType);
+  @SneakyThrows
+  protected Object handleResponse(Response response, Map<?, ?> additionalParameters) {
+    if (getOrDefault(additionalParameters, "print", Boolean.class, true)) {
+      final Response cachedResponse = response.newBuilder().body(CachedResponseBody.from(response.body())).build();
+      response = cachedResponse;
+      ContentType responseContentType =
+          getOrDefaultSupply(additionalParameters, "acceptContentType", ContentType.class, () -> getResponseContentType(cachedResponse));
+      printResponse(cachedResponse, cachedResponse.body(), responseContentType, additionalParameters);
     }
-    // cache response so we can print it and then reuse it for whatever the user will want to do
-    CachedResponseBody cachedResponseBody = CachedResponseBody.from(body);
-    printResponse(response, cachedResponseBody, responseContentType, additionalParameters);
-    return super.parseResponseBody(response, cachedResponseBody, additionalParameters,
-        responseContentType);
+    return super.handleResponse(response, additionalParameters);
   }
 
   @Override
-  protected Object defaultHandleErrorResponse(Response response) {
-    return parseResponse(response, Collections.emptyMap());
+  protected Object defaultHandleErrorResponse(Response response, Map<?, ?> additionalParameters) {
+    return response.body() != null ? parseResponse(response, additionalParameters) : null;
   }
 
   private void printResponse(Response response, ResponseBody body,

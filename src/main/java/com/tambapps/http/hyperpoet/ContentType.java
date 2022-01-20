@@ -22,6 +22,7 @@ import java.util.List;
 public class ContentType {
 
   public static final ContentType JSON = new ContentType("application/json");
+  public static final ContentType PROBLEM_JSON = new ContentType("application/problem+json");
   public static final ContentType XML = new ContentType("application/xml");
   public static final ContentType TEXT = new ContentType("text/plain");
   public static final ContentType HTML = new ContentType("text/html");
