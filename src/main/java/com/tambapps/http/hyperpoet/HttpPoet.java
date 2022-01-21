@@ -643,16 +643,11 @@ public class HttpPoet extends GroovyObjectSupport {
     }
     ContentType responseContentType =
         getOrDefaultSupply(additionalParameters, "acceptContentType", ContentType.class, () -> getResponseContentType(response));
-    return parseResponseBody(response, body, additionalParameters, responseContentType);
-  }
-
-  // overriden by printingHttpPoet to cache response body
-  protected Object parseResponseBody(Response response, ResponseBody body,
-      Map<?, ?> additionalParameters, ContentType responseContentType) {
     Closure<?> parser = getOrDefault(additionalParameters, "parser", Closure.class,
         parsers.get(responseContentType));
     if (parser == null) {
-      return Parsers.parseStringResponseBody(body);
+      parser = parsers.get(null);
+      return parser != null ? parser.call(body) : Parsers.parseStringResponseBody(body);
     } else {
       return parser.call(body);
     }
@@ -827,5 +822,9 @@ public class HttpPoet extends GroovyObjectSupport {
   public Interceptor getNetworkInterceptor() {
     List<Interceptor> interceptors = getNetworkInterceptors();
     return !interceptors.isEmpty() ? interceptors.get(0) : null;
+  }
+
+  public void setDefaultParser(@ClosureParams(value = SimpleType.class, options = "okhttp3.ResponseBody") Closure<?> parser) {
+    parsers.put(null, parser);
   }
 }
