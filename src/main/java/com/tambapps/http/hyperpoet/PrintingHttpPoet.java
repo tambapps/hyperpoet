@@ -129,12 +129,16 @@ public class PrintingHttpPoet extends HttpPoet {
     if (bytes.length == 0) {
       println("(No content)");
     } else if (print) {
-      Closure<?> printer = printers.get(contentType);
+      Closure<?> printer = printers.getOrDefault(contentType, printers.get(null));
       if (printer != null) {
         printer.call(bytes);
       } else {
         println(new String(bytes));
       }
     }
+  }
+
+  public void setDefaultPrinter(Closure<?> closure) {
+    printers.put(null, closure);
   }
 }

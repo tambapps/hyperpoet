@@ -12,7 +12,9 @@ public final class PoeticPrinters {
 
   public static Map<ContentType, Closure<?>> getMap() {
     Map<ContentType, Closure<?>> map = new HashMap<>();
-    map.put(ContentType.JSON, new JsonPoeticPrinter());
+    JsonPoeticPrinter printer = new JsonPoeticPrinter();
+    map.put(ContentType.JSON, printer);
+    map.put(ContentType.PROBLEM_JSON, printer);
     return map;
   }
 
