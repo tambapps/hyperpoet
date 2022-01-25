@@ -58,6 +58,7 @@ public class HttpPoet extends GroovyObjectSupport {
 
   private OkHttpClient okHttpClient;
   private final Map<String, String> headers = new HashMap<>();
+  private final Map<String, Object> params = new HashMap<>();
   private final CustomJsonGenerator jsonGenerator = new CustomJsonGenerator();
   private final Map<Class<?>, Closure<?>> queryParamConverters = new HashMap<>();
   private final QueryParamComposer queryParamComposer = new QueryParamComposer(queryParamConverters, MultivaluedQueryParamComposingType.REPEAT);
@@ -727,6 +728,7 @@ public class HttpPoet extends GroovyObjectSupport {
     String url =
         new UrlBuilder(baseUrl, queryParamComposer).append(
                 urlOrEndpoint)
+            .addParams(params)
             .addParams(
                 getOrDefault(additionalParameters, "params", Map.class, Collections.emptyMap()))
             .build();
