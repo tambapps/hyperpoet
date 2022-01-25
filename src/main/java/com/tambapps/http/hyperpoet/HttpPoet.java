@@ -829,4 +829,10 @@ public class HttpPoet extends GroovyObjectSupport {
   public void setDefaultParser(@ClosureParams(value = SimpleType.class, options = "okhttp3.ResponseBody") Closure<?> parser) {
     parsers.put(null, parser);
   }
+
+  public void configureOkHttpClient(@ClosureParams(value = SimpleType.class, options = "okhttp3.OkHttpClient.Builder") Closure<Void> configurer) {
+    OkHttpClient.Builder builder = okHttpClient.newBuilder();
+    configurer.call(builder);
+    this.okHttpClient = builder.build();
+  }
 }
