@@ -664,7 +664,8 @@ public class HttpPoet extends GroovyObjectSupport {
     ContentType contentType = getOrDefault(additionalParameters, "contentType", ContentType.class,
         this.contentType);
     if (body == null) {
-      return null;
+      // must not be null, so we return an empty body instead
+      return RequestBody.create(new byte[0]);
     }
     if (body instanceof Closure) {
       body = ((Closure) body).call();
