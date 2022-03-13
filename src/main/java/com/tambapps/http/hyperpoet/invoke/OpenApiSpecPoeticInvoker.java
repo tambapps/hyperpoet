@@ -115,23 +115,7 @@ public class OpenApiSpecPoeticInvoker implements PoeticInvoker {
   private Request toRequest(HttpPoet poet, EndpointOperation op, String resolvedPath,
       Map<?, ?> additionalParams) {
     okhttp3.Request.Builder okBuilder = poet.request(resolvedPath, additionalParams);
-    switch (op.getMethod()) {
-      case GET:
-        okBuilder.get();
-        break;
-      case DELETE:
-        okBuilder.delete();
-        break;
-      case PUT:
-        okBuilder.put(poet.requestBody(additionalParams));
-        break;
-      case POST:
-        okBuilder.post(poet.requestBody(additionalParams));
-        break;
-      case PATCH:
-        okBuilder.patch(poet.requestBody(additionalParams));
-        break;
-    }
+    okBuilder.method(op.getMethod().name(), poet.requestBody(additionalParams, op.getMethod()));
 
     okhttp3.Request okHttpRequest = okBuilder.build();
     HttpUrl url = okHttpRequest.url();

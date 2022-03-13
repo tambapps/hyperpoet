@@ -148,7 +148,7 @@ public class HttpPoet extends GroovyObjectSupport {
       @NamedParam(value = "acceptContentType", type = ContentType.class)
       Map<?, ?> additionalParameters, String urlOrEndpoint, HttpMethod method)
       throws IOException {
-    return method(additionalParameters, urlOrEndpoint, method.toString());
+    return method(additionalParameters, urlOrEndpoint, method.name());
   }
 
   /**
@@ -170,7 +170,7 @@ public class HttpPoet extends GroovyObjectSupport {
       @NamedParam(value = "acceptContentType", type = ContentType.class)
       Map<?, ?> additionalParameters, String urlOrEndpoint, String method)
       throws IOException {
-    RequestBody requestBody = requestBody(additionalParameters);
+    RequestBody requestBody = requestBody(additionalParameters, method);
     Request request =
         request(urlOrEndpoint, additionalParameters).method(method, requestBody).build();
     return doRequest(request, additionalParameters);
@@ -210,10 +210,34 @@ public class HttpPoet extends GroovyObjectSupport {
       @NamedParam(value = "params", type = Map.class)
       @NamedParam(value = "headers", type = Map.class)
       @NamedParam(value = "acceptContentType", type = ContentType.class)
+      Map<?, ?> additionalParameters, String urlOrEndpoint, HttpMethod method,
+      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler)
+      throws IOException {
+    return method(additionalParameters, urlOrEndpoint, method.name(), responseHandler);
+  }
+
+  /**
+   * Performs a request with the provided method name, response handler and additional parameters
+   *
+   * @param additionalParameters the additional parameters
+   * @param urlOrEndpoint        the url or endpoint
+   * @param method        the HTTP method
+   * @param responseHandler      the response handler
+   * @return the result returned by the response handler
+   * @throws IOException in case of I/O error
+   */
+  public Object method(
+      @NamedParam(value = "body")
+      @NamedParam(value = "contentType", type = ContentType.class)
+      @NamedParam(value = "composer", type = Closure.class)
+      @NamedParam(value = "parser", type = Closure.class)
+      @NamedParam(value = "params", type = Map.class)
+      @NamedParam(value = "headers", type = Map.class)
+      @NamedParam(value = "acceptContentType", type = ContentType.class)
       Map<?, ?> additionalParameters, String urlOrEndpoint, String method,
       @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler)
       throws IOException {
-    RequestBody requestBody = requestBody(additionalParameters);
+    RequestBody requestBody = requestBody(additionalParameters, method);
     Request request =
         request(urlOrEndpoint, additionalParameters).method(method, requestBody).build();
     return doRequest(request, responseHandler);
@@ -247,9 +271,7 @@ public class HttpPoet extends GroovyObjectSupport {
       @NamedParam(value = "headers", type = Map.class)
       @NamedParam(value = "acceptContentType", type = ContentType.class)
       Map<?, ?> additionalParameters, String urlOrEndpoint) throws IOException {
-    RequestBody requestBody = requestBody(additionalParameters);
-    Request request = request(urlOrEndpoint, additionalParameters).put(requestBody).build();
-    return doRequest(request, additionalParameters);
+    return method(additionalParameters, urlOrEndpoint, HttpMethod.PUT);
   }
 
   /**
@@ -286,9 +308,7 @@ public class HttpPoet extends GroovyObjectSupport {
       Map<?, ?> additionalParameters, String urlOrEndpoint,
       @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler)
       throws IOException {
-    RequestBody requestBody = requestBody(additionalParameters);
-    Request request = request(urlOrEndpoint, additionalParameters).put(requestBody).build();
-    return doRequest(request, responseHandler);
+    return method(additionalParameters, urlOrEndpoint, HttpMethod.PUT, responseHandler);
   }
 
   /**
@@ -319,9 +339,7 @@ public class HttpPoet extends GroovyObjectSupport {
       @NamedParam(value = "headers", type = Map.class)
       @NamedParam(value = "acceptContentType", type = ContentType.class)
       Map<?, ?> additionalParameters, String urlOrEndpoint) throws IOException {
-    RequestBody requestBody = requestBody(additionalParameters);
-    Request request = request(urlOrEndpoint, additionalParameters).patch(requestBody).build();
-    return doRequest(request, additionalParameters);
+    return method(additionalParameters, urlOrEndpoint, HttpMethod.PATCH);
   }
 
   /**
@@ -357,9 +375,7 @@ public class HttpPoet extends GroovyObjectSupport {
       Map<?, ?> additionalParameters, String urlOrEndpoint,
       @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler)
       throws IOException {
-    RequestBody requestBody = requestBody(additionalParameters);
-    Request request = request(urlOrEndpoint, additionalParameters).patch(requestBody).build();
-    return doRequest(request, responseHandler);
+    return method(additionalParameters, urlOrEndpoint, HttpMethod.PATCH, responseHandler);
   }
 
   /**
@@ -390,9 +406,7 @@ public class HttpPoet extends GroovyObjectSupport {
       @NamedParam(value = "headers", type = Map.class)
       @NamedParam(value = "acceptContentType", type = ContentType.class)
       Map<?, ?> additionalParameters, String urlOrEndpoint) throws IOException {
-    RequestBody requestBody = requestBody(additionalParameters);
-    Request request = request(urlOrEndpoint, additionalParameters).post(requestBody).build();
-    return doRequest(request, additionalParameters);
+    return method(additionalParameters, urlOrEndpoint, HttpMethod.POST);
   }
 
   /**
@@ -428,9 +442,7 @@ public class HttpPoet extends GroovyObjectSupport {
       Map<?, ?> additionalParameters, String urlOrEndpoint,
       @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler)
       throws IOException {
-    RequestBody requestBody = requestBody(additionalParameters);
-    Request request = request(urlOrEndpoint, additionalParameters).post(requestBody).build();
-    return doRequest(request, responseHandler);
+    return method(additionalParameters, urlOrEndpoint, HttpMethod.POST, responseHandler);
   }
 
   /**
@@ -659,13 +671,17 @@ public class HttpPoet extends GroovyObjectSupport {
     return contentTypeHeader != null ? ContentType.from(contentTypeHeader) : acceptContentType;
   }
 
-  public RequestBody requestBody(Map<?, ?> additionalParameters) throws IOException {
+  public RequestBody requestBody(Map<?, ?> additionalParameters, HttpMethod method) throws IOException {
+    return requestBody(additionalParameters, method.name());
+  }
+
+  public RequestBody requestBody(Map<?, ?> additionalParameters, String method) throws IOException {
     Object body = getOrDefault(additionalParameters, "body", Object.class, null);
     ContentType contentType = getOrDefault(additionalParameters, "contentType", ContentType.class,
         this.contentType);
     if (body == null) {
-      // must not be null, so we return an empty body instead
-      return RequestBody.create(new byte[0]);
+      // request body must not be null for some methods, so we return an empty body instead
+      return okhttp3.internal.http.HttpMethod.requiresRequestBody(method) ? RequestBody.create(new byte[0]) : null;
     }
     if (body instanceof Closure) {
       body = ((Closure) body).call();
