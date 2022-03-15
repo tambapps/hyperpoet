@@ -2,6 +2,7 @@ package com.tambapps.http.hyperpoet.util;
 
 import lombok.AllArgsConstructor;
 import okhttp3.MediaType;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okio.BufferedSource;
 import okio.Okio;
@@ -11,9 +12,19 @@ import org.jetbrains.annotations.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-
 @AllArgsConstructor
 public class CachedResponseBody extends ResponseBody {
+
+  public static Response newResponseWitchCachedBody(Response response) throws IOException {
+    if (response.body() instanceof CachedResponseBody) {
+      return response;
+    } else {
+      return new Response(response.request(), response.protocol(), response.message(), response.code(),
+          response.handshake(), response.headers(), from(response.body()), response.networkResponse(),
+          null, null, response.sentRequestAtMillis(), response.receivedResponseAtMillis(),
+          null);
+    }
+  }
 
   public static CachedResponseBody from(ResponseBody responseBody) throws IOException {
     if (responseBody == null) {

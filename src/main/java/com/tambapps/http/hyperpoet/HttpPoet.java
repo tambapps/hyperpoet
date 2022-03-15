@@ -11,6 +11,7 @@ import com.tambapps.http.hyperpoet.io.json.CustomJsonGenerator;
 import com.tambapps.http.hyperpoet.url.MultivaluedQueryParamComposingType;
 import com.tambapps.http.hyperpoet.url.QueryParamComposer;
 import com.tambapps.http.hyperpoet.url.UrlBuilder;
+import com.tambapps.http.hyperpoet.util.CachedResponseBody;
 import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MissingMethodException;
@@ -56,6 +57,8 @@ import java.util.Map;
 @Setter
 public class HttpPoet extends GroovyObjectSupport {
 
+  public static final int DEFAULT_HISTORY_LIMIT = 10;
+
   private OkHttpClient okHttpClient;
   private final Map<String, String> headers = new HashMap<>();
   private final Map<String, Object> params = new HashMap<>();
@@ -71,6 +74,7 @@ public class HttpPoet extends GroovyObjectSupport {
   private ContentType contentType;
   private ContentType acceptContentType;
   private PoeticInvoker poeticInvoker = null;
+  private History history;
 
   public HttpPoet() {
     this("");
@@ -240,7 +244,7 @@ public class HttpPoet extends GroovyObjectSupport {
     RequestBody requestBody = requestBody(additionalParameters, method);
     Request request =
         request(urlOrEndpoint, additionalParameters).method(method, requestBody).build();
-    return doRequest(request, responseHandler);
+    return doRequest(request, additionalParameters, responseHandler);
   }
 
   /**
@@ -511,7 +515,7 @@ public class HttpPoet extends GroovyObjectSupport {
       @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler)
       throws IOException {
     Request request = request(urlOrEndpoint, additionalParameters).delete().build();
-    return doRequest(request, responseHandler);
+    return doRequest(request, additionalParameters, responseHandler);
   }
 
   /**
@@ -581,7 +585,7 @@ public class HttpPoet extends GroovyObjectSupport {
       @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler)
       throws IOException {
     Request request = request(urlOrEndpoint, additionalParameters).get().build();
-    return doRequest(request, responseHandler);
+    return doRequest(request, additionalParameters, responseHandler);
   }
 
   /**
@@ -594,8 +598,11 @@ public class HttpPoet extends GroovyObjectSupport {
     headers.put(String.valueOf(key), String.valueOf(value));
   }
 
-  public void putHeader(Tuple2<String, String> header) {
-    putHeader(header.getV1(), header.getV2());
+  public void putHeader(List<?> header) {
+    if (header.size() != 2) {
+      throw new IllegalArgumentException("Argument should have two elements");
+    }
+    putHeader(header.get(0), header.get(1));
   }
 
   /**
@@ -608,7 +615,7 @@ public class HttpPoet extends GroovyObjectSupport {
     return headers.remove(key);
   }
 
-  private Object doRequest(Request request, Closure<?> responseHandler) throws IOException {
+  private Object doRequest(Request request, Map<?, ?> additionalParameters, Closure<?> responseHandler) throws IOException {
     if (onPreExecute != null) {
       if (onPreExecute.getMaximumNumberOfParameters() > 1) {
         onPreExecute.call(request, extractRequestBody(request.body()));
@@ -617,10 +624,11 @@ public class HttpPoet extends GroovyObjectSupport {
       }
     }
     try (Response response = okHttpClient.newCall(request).execute()) {
+      Response effectiveResponse = handleHistory(response, additionalParameters);
       if (onPostExecute != null) {
-        onPostExecute.call(response);
+        onPostExecute.call(effectiveResponse);
       }
-      return responseHandler.call(response);
+      return responseHandler.call(effectiveResponse);
     }
   }
 
@@ -634,10 +642,11 @@ public class HttpPoet extends GroovyObjectSupport {
       }
     }
     try (Response response = okHttpClient.newCall(request).execute()) {
+      Response effectiveResponse = handleHistory(response, additionalParameters);
       if (onPostExecute != null) {
-        onPostExecute.call(response);
+        onPostExecute.call(effectiveResponse);
       }
-      return handleResponse(response, additionalParameters);
+      return handleResponse(effectiveResponse, additionalParameters);
     }
   }
 
@@ -654,15 +663,24 @@ public class HttpPoet extends GroovyObjectSupport {
     if (body == null) {
       return null;
     }
-    ContentType responseContentType =
-        getOrDefaultSupply(additionalParameters, "acceptContentType", ContentType.class, () -> getResponseContentType(response));
+    Closure<?> parser = extractResponseBodyParser(response, additionalParameters);
+    return parser.call(body);
+  }
+
+  private ContentType extractResponseContentType(Response response, Map<?, ?> additionalParameters) {
+    return getOrDefaultSupply(additionalParameters, "acceptContentType", ContentType.class, () -> getResponseContentType(response));
+  }
+
+  private Closure<?> extractResponseBodyParser(Response response, Map<?, ?> additionalParameters) {
+    ContentType responseContentType = extractResponseContentType(response, additionalParameters);
     Closure<?> parser = getOrDefault(additionalParameters, "parser", Closure.class,
         parsers.get(responseContentType));
-    if (parser == null) {
-      parser = parsers.get(null);
-      return parser != null ? parser.call(body) : Parsers.parseStringResponseBody(body);
+    if (parser != null) {
+      return parser;
+    } else if (parsers.get(null) != null) {
+      return parsers.get(null);
     } else {
-      return parser.call(body);
+      return new MethodClosure(Parsers.class, "parseStringResponseBody");
     }
   }
 
@@ -851,5 +869,41 @@ public class HttpPoet extends GroovyObjectSupport {
     OkHttpClient.Builder builder = okHttpClient.newBuilder();
     configurer.call(builder);
     this.okHttpClient = builder.build();
+  }
+
+  public void enableHistory() {
+    enableHistory(DEFAULT_HISTORY_LIMIT);
+  }
+
+  public void enableHistory(int limit) {
+    if (history == null) {
+      history = new History(limit);
+    } else {
+      history.setLimit(limit);
+    }
+  }
+
+  public void disableHistory() {
+    history = null;
+  }
+
+  /**
+   * Handle the history if it is enabled (== not null), in which case the response will be cached.
+   * If it isn't enabled, the response given in parameters will be returned
+   * @param response the response
+   * @param additionalParameters additional parameters
+   * @throws IOException in case of I/O error
+   * @return the response, cached if needed
+   */
+  private Response handleHistory(Response response, Map<?, ?> additionalParameters) throws IOException {
+    // TODO document skipHistory and the main feature
+    if (history == null || getOrDefault(additionalParameters, "skipHistory", Boolean.class, false)) {
+      return response;
+    }
+    Response cachedResponse = CachedResponseBody.newResponseWitchCachedBody(response);
+    Object requestBody = getOrDefault(additionalParameters, "body", Object.class, null);
+    Closure<?> responseParser = extractResponseBodyParser(response, additionalParameters);
+    history.add(HttpExchange.newInstance(cachedResponse, requestBody, responseParser));
+    return cachedResponse;
   }
 }

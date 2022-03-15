@@ -1,9 +1,9 @@
 package com.tambapps.http.hyperpoet;
 
-import groovy.lang.Tuple2;
-
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 
 public final class Headers {
 
@@ -11,21 +11,21 @@ public final class Headers {
 
   private Headers() {}
 
-  public static Tuple2<String, String> basicAuth(String user, String password) {
+  public static List<String> basicAuth(String user, String password) {
    return basicAuth(user + ":" + password);
   }
 
-  public static Tuple2<String, String> basicAuth(String credentials) {
+  public static List<String> basicAuth(String credentials) {
     return authorization(String.format("Basic %s", Base64.getEncoder()
         .encodeToString(credentials.getBytes(StandardCharsets.UTF_8))));
   }
 
-  public static Tuple2<String, String> jwt(String jwtToken) {
-    return authorization(String.format("Bearer %s", jwtToken));
+  public static List<String> bearer(String token) {
+    return authorization(String.format("Bearer %s", token));
   }
 
-  public static Tuple2<String, String> authorization(String value) {
-    return new Tuple2<>(AUTHORIZATION, value);
+  public static List<String> authorization(String value) {
+    return Arrays.asList(AUTHORIZATION, value);
   }
 
 
