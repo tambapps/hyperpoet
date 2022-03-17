@@ -43,6 +43,7 @@ class HistoryTest {
 
     assertEquals([getTodo, patchTodo, [:], post], client.history*.responseBody)
     assertEquals(post, client.history[-1].responseBody)
+    println(client.history.first())
   }
 
   @Test

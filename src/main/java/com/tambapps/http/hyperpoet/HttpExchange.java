@@ -2,8 +2,6 @@ package com.tambapps.http.hyperpoet;
 
 import com.tambapps.http.hyperpoet.util.CachedResponseBody;
 import groovy.lang.Closure;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -13,21 +11,22 @@ import okhttp3.ResponseBody;
 import java.util.List;
 import java.util.Map;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class HttpExchange {
 
-  public static HttpExchange newInstance(Response response, Object requestBody, Closure<?> parser) {
+  @Getter
+  private final Response response;
+  @Getter
+  private final Object requestBody;
+  private final Closure<?> parser;
+
+  public HttpExchange(Response response, Object requestBody, Closure<?> parser) {
     if (response != null && response.body() != null && !(response.body() instanceof CachedResponseBody)) {
       throw new IllegalArgumentException("Response body should have been cached");
     }
-    return new HttpExchange(response, requestBody, parser);
+    this.response = response;
+    this.requestBody = requestBody;
+    this.parser = parser;
   }
-
-  @Getter
-  Response response;
-  @Getter
-  Object requestBody;
-  Closure<?> parser;
 
   public Request getRequest() {
     return response.request();
@@ -59,5 +58,10 @@ public class HttpExchange {
     } else {
       return parser.call(getRawResponseBody());
     }
+  }
+
+  @Override
+  public String toString() {
+    return String.format("HttpExchange{request=%s, response=%s}", getRequest(), getResponse());
   }
 }
