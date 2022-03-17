@@ -27,7 +27,8 @@ public class History extends AbstractList<HttpExchange> {
 
   @Override
   public HttpExchange get(int index) {
-    return exchanges.get(index);
+    // to allow getting with reverse index
+    return exchanges.get(index >= 0 ? index : size() - index);
   }
 
   @Override

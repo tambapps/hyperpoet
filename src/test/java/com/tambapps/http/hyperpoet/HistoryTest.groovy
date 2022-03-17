@@ -42,6 +42,7 @@ class HistoryTest {
     def post = client.post('/posts', body: [title: 'foo', body: 'bar', userId: 1])
 
     assertEquals([getTodo, patchTodo, [:], post], client.history*.responseBody)
+    assertEquals(post, client.history[-1].responseBody)
   }
 
   @Test
