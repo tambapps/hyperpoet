@@ -147,7 +147,7 @@ public final class Composers {
       RequestBody requestBody;
       // smart conversions
       if (value instanceof File) {
-        requestBody = RequestBody.create(ResourceGroovyMethods.getBytes((File) value), mediaType);;
+        requestBody = RequestBody.create(ResourceGroovyMethods.getBytes((File) value), mediaType);
       } else if (value instanceof Path) {
         requestBody = RequestBody.create(ResourceGroovyMethods.getBytes(((Path) value).toFile()), mediaType);;
       } else if (value instanceof Reader) {
