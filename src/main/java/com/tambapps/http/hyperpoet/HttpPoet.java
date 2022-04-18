@@ -65,7 +65,7 @@ public class HttpPoet extends GroovyObjectSupport {
   private final CustomJsonGenerator jsonGenerator = new CustomJsonGenerator();
   private final Map<Class<?>, Closure<?>> queryParamConverters = new HashMap<>();
   private final QueryParamComposer queryParamComposer = new QueryParamComposer(queryParamConverters, MultivaluedQueryParamComposingType.REPEAT);
-  private final Map<ContentType, Closure<?>> composers = Composers.getMap(jsonGenerator, queryParamComposer);
+  private final Map<ContentType, Closure<?>> composers = Composers.getMap(this, jsonGenerator, queryParamComposer);
   private final Map<ContentType, Closure<?>> parsers = Parsers.getMap();
   private Closure<?> errorResponseHandler = null;
   protected Closure<?> onPreExecute;

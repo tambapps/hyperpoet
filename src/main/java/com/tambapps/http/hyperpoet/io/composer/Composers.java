@@ -1,17 +1,26 @@
 package com.tambapps.http.hyperpoet.io.composer;
 
 import com.tambapps.http.hyperpoet.ContentType;
+import com.tambapps.http.hyperpoet.FormPart;
+import com.tambapps.http.hyperpoet.HttpPoet;
 import com.tambapps.http.hyperpoet.url.QueryParamComposer;
 import groovy.json.JsonGenerator;
 import groovy.json.JsonOutput;
 import groovy.lang.Closure;
 import groovy.util.Node;
 import groovy.xml.XmlUtil;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import org.codehaus.groovy.runtime.IOGroovyMethods;
 import org.codehaus.groovy.runtime.MethodClosure;
+import org.codehaus.groovy.runtime.ResourceGroovyMethods;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +37,8 @@ public final class Composers {
 
   private Composers() {}
 
-  public static Map<ContentType, Closure<?>> getMap(JsonGenerator jsonGenerator, QueryParamComposer queryParamComposer) {
+  public static Map<ContentType, Closure<?>> getMap(HttpPoet httpPoet,
+      JsonGenerator jsonGenerator, QueryParamComposer queryParamComposer) {
     Map<ContentType, Closure<?>> map = new HashMap<>();
     map.put(ContentType.JSON, new MethodClosure(jsonGenerator, "toJson"));
     map.put(ContentType.XML, new MethodClosure(Composers.class, "composeXmlBody"));
@@ -36,6 +46,7 @@ public final class Composers {
     map.put(ContentType.HTML, new MethodClosure(Composers.class, "composeStringBody"));
     map.put(ContentType.BINARY, new MethodClosure(Composers.class, "composeBytesBody"));
     map.put(ContentType.URL_ENCODED, new MethodClosure(queryParamComposer, "composeToString"));
+    map.put(ContentType.MULTIPART_FORM, new MultipartFormComposerClosure(httpPoet));
     // default composer (when no content type was found)
     map.put(null, new MethodClosure(Composers.class, "composeStringBody"));
     return map;
@@ -79,4 +90,62 @@ public final class Composers {
     return bytes;
   }
 
+  private static class MultipartFormComposerClosure extends Closure<RequestBody> {
+    // keeping poet instance to have an up to date (and mostly non-null) composers
+    private final HttpPoet poet;
+
+    MultipartFormComposerClosure(HttpPoet poet) {
+      super(null);
+      this.poet = poet;
+    }
+
+    public RequestBody doCall(Object body) throws IOException {
+      Map<?, ?> map;
+      if (body instanceof File) {
+        map = Collections.singletonMap(((File) body).getName(), body);
+      } else if (body instanceof Path) {
+        map = Collections.singletonMap(((Path) body).toFile().getName(), body);
+      } else if (body instanceof Map) {
+        map = (Map<?, ?>) body;
+      } else {
+        throw new IllegalArgumentException("Body must be a file, a path or a map");
+      }
+      MultipartBody.Builder builder = new MultipartBody.Builder()
+          .setType(MultipartBody.FORM);
+
+      for (Map.Entry<?, ?> entry : map.entrySet()) {
+        String key = String.valueOf(entry.getKey());
+        Object value = entry.getValue();
+        if (value instanceof File) {
+          addFormDataPart(builder, key, (File) value);
+        } else if (value instanceof Path) {
+          addFormDataPart(builder, key, ((Path) body).toFile());
+        } else if (value instanceof InputStream) {
+          addFormDataPart(builder, key, (InputStream) value);
+        } else if (value instanceof FormPart) {
+          addFormDataPart(builder, key, (FormPart) value, poet.getComposers());
+        } else {
+          builder.addFormDataPart(key, String.valueOf(value));
+        }
+      }
+      return builder.build();
+    }
+  }
+
+  private static void addFormDataPart(MultipartBody.Builder builder, String key, File file) throws IOException {
+    builder.addFormDataPart(key, file.getName(), RequestBody.create(ResourceGroovyMethods.getBytes(file), MediaType.parse(ContentType.BINARY.getContentType())));
+  }
+
+  private static void addFormDataPart(MultipartBody.Builder builder, String key, InputStream inputStream) throws IOException {
+    builder.addFormDataPart(key, key, RequestBody.create(IOGroovyMethods.getBytes(inputStream), MediaType.parse(ContentType.BINARY.getContentType())));
+  }
+
+  private static void addFormDataPart(MultipartBody.Builder builder, String key, FormPart formPart, Map<ContentType, Closure<?>> composers) throws IOException {
+    String filename = formPart.getFilename() != null ? formPart.getFilename() : key;
+    Closure<?> composer = composers.get(formPart.getContentType());
+    if (composer == null) {
+      throw new IllegalArgumentException(String.format("Couldn't find a composer for FormPart '%s'", filename));
+    }
+    builder.addFormDataPart(key, filename, (RequestBody) composer.call(formPart.getValue()));
+  }
 }
