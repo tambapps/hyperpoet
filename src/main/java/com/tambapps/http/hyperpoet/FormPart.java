@@ -4,7 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// TODO document this
+// TODO document this in wiki
+/**
+ * Class representing a part of a Multipart form request body
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
