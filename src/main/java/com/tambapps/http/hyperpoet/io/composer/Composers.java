@@ -19,6 +19,7 @@ import org.codehaus.groovy.runtime.ResourceGroovyMethods;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
@@ -130,22 +131,35 @@ public final class Composers {
       }
       return builder.build();
     }
-  }
 
-  private static void addFormDataPart(MultipartBody.Builder builder, String key, File file) throws IOException {
-    builder.addFormDataPart(key, file.getName(), RequestBody.create(ResourceGroovyMethods.getBytes(file), MediaType.parse(ContentType.BINARY.getContentType())));
-  }
-
-  private static void addFormDataPart(MultipartBody.Builder builder, String key, InputStream inputStream) throws IOException {
-    builder.addFormDataPart(key, key, RequestBody.create(IOGroovyMethods.getBytes(inputStream), MediaType.parse(ContentType.BINARY.getContentType())));
-  }
-
-  private static void addFormDataPart(MultipartBody.Builder builder, String key, FormPart formPart, Map<ContentType, Closure<?>> composers) throws IOException {
-    String filename = formPart.getFilename() != null ? formPart.getFilename() : key;
-    Closure<?> composer = composers.get(formPart.getContentType());
-    if (composer == null) {
-      throw new IllegalArgumentException(String.format("Couldn't find a composer for FormPart '%s'", filename));
+    private void addFormDataPart(MultipartBody.Builder builder, String key, File file) throws IOException {
+      builder.addFormDataPart(key, file.getName(), RequestBody.create(ResourceGroovyMethods.getBytes(file), ContentType.BINARY.toMediaType()));
     }
-    builder.addFormDataPart(key, filename, (RequestBody) composer.call(formPart.getValue()));
+
+    private void addFormDataPart(MultipartBody.Builder builder, String key, InputStream inputStream) throws IOException {
+      builder.addFormDataPart(key, key, RequestBody.create(IOGroovyMethods.getBytes(inputStream), ContentType.BINARY.toMediaType()));
+    }
+
+    private void addFormDataPart(MultipartBody.Builder builder, String key, FormPart formPart, Map<ContentType, Closure<?>> composers) throws IOException {
+      final Object value = formPart.getValue();
+      MediaType mediaType = formPart.getContentType().toMediaType();
+      String filename = formPart.getFilename() != null ? formPart.getFilename() : key;
+      RequestBody requestBody;
+      // smart conversions
+      if (value instanceof File) {
+        requestBody = RequestBody.create(ResourceGroovyMethods.getBytes((File) value), mediaType);;
+      } else if (value instanceof Path) {
+        requestBody = RequestBody.create(ResourceGroovyMethods.getBytes(((Path) value).toFile()), mediaType);;
+      } else if (value instanceof Reader) {
+        requestBody = RequestBody.create(IOGroovyMethods.getText((Reader) value), mediaType);
+      } else {
+        Closure<?> composer = composers.get(formPart.getContentType());
+        if (composer == null) {
+          throw new IllegalArgumentException(String.format("Couldn't find a composer for FormPart '%s'", filename));
+        }
+        requestBody = (RequestBody) composer.call(value);
+      }
+      builder.addFormDataPart(key, filename, requestBody);
+    }
   }
 }
