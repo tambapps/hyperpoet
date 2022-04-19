@@ -1,6 +1,7 @@
 package com.tambapps.http.hyperpoet.io.parser;
 
 import com.tambapps.http.hyperpoet.ContentType;
+import com.tambapps.http.hyperpoet.util.ContentTypeMap;
 import groovy.lang.Closure;
 import groovy.xml.XmlSlurper;
 import lombok.SneakyThrows;
@@ -20,17 +21,15 @@ public class Parsers {
 
   private Parsers() {}
 
-  public static Map<ContentType, Closure<?>> getMap() {
-    Map<ContentType, Closure<?>> map = new HashMap<>();
-    JsonParserClosure jsonParserClosure = new JsonParserClosure();
-    map.put(ContentType.JSON, jsonParserClosure);
-    map.put(ContentType.PROBLEM_JSON, jsonParserClosure);
+  public static ContentTypeMap<Closure<?>> getMap() {
+    ContentTypeMap<Closure<?>> map = new ContentTypeMap<>();
+    map.put(ContentType.JSON, new JsonParserClosure());
     map.put(ContentType.XML, new MethodClosure(Parsers.class, "parseXmlResponseBody"));
     map.put(ContentType.TEXT, new MethodClosure(Parsers.class, "parseStringResponseBody"));
     map.put(ContentType.HTML, new MethodClosure(Parsers.class, "parseStringResponseBody"));
     map.put(ContentType.BINARY, new MethodClosure(Parsers.class, "parseBytesResponseBody"));
     // default parser (when no content type was found)
-    map.put(null, new MethodClosure(Parsers.class, "parseStringResponseBody"));
+    map.setDefaultValue(new MethodClosure(Parsers.class, "parseStringResponseBody"));
     return map;
   }
 

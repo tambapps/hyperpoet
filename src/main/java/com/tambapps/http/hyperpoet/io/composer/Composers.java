@@ -4,6 +4,7 @@ import com.tambapps.http.hyperpoet.ContentType;
 import com.tambapps.http.hyperpoet.FormPart;
 import com.tambapps.http.hyperpoet.HttpPoet;
 import com.tambapps.http.hyperpoet.url.QueryParamComposer;
+import com.tambapps.http.hyperpoet.util.ContentTypeMap;
 import groovy.json.JsonGenerator;
 import groovy.json.JsonOutput;
 import groovy.lang.Closure;
@@ -38,18 +39,17 @@ public final class Composers {
 
   private Composers() {}
 
-  public static Map<ContentType, Closure<?>> getMap(HttpPoet httpPoet,
-      JsonGenerator jsonGenerator, QueryParamComposer queryParamComposer) {
-    Map<ContentType, Closure<?>> map = new HashMap<>();
+  public static ContentTypeMap<Closure<?>> getMap(JsonGenerator jsonGenerator, QueryParamComposer queryParamComposer) {
+    ContentTypeMap<Closure<?>> map = new ContentTypeMap<>();
     map.put(ContentType.JSON, new MethodClosure(jsonGenerator, "toJson"));
     map.put(ContentType.XML, new MethodClosure(Composers.class, "composeXmlBody"));
     map.put(ContentType.TEXT, new MethodClosure(Composers.class, "composeStringBody"));
     map.put(ContentType.HTML, new MethodClosure(Composers.class, "composeStringBody"));
     map.put(ContentType.BINARY, new MethodClosure(Composers.class, "composeBytesBody"));
     map.put(ContentType.URL_ENCODED, new MethodClosure(queryParamComposer, "composeToString"));
-    map.put(ContentType.MULTIPART_FORM, new MultipartFormComposerClosure(httpPoet));
+    map.put(ContentType.MULTIPART_FORM, new MultipartFormComposerClosure(map));
     // default composer (when no content type was found)
-    map.put(null, new MethodClosure(Composers.class, "composeStringBody"));
+    map.setDefaultValue(new MethodClosure(Composers.class, "composeStringBody"));
     return map;
   }
 
@@ -93,11 +93,11 @@ public final class Composers {
 
   private static class MultipartFormComposerClosure extends Closure<RequestBody> {
     // keeping poet instance to have an up to date (and mostly non-null) composers
-    private final HttpPoet poet;
+    private final ContentTypeMap<Closure<?>> composers;
 
-    MultipartFormComposerClosure(HttpPoet poet) {
+    MultipartFormComposerClosure(ContentTypeMap<Closure<?>> composers) {
       super(null);
-      this.poet = poet;
+      this.composers = composers;
     }
 
     public RequestBody doCall(Object body) throws IOException {
@@ -124,7 +124,7 @@ public final class Composers {
         } else if (value instanceof InputStream) {
           addFormDataPart(builder, key, (InputStream) value);
         } else if (value instanceof FormPart) {
-          addFormDataPart(builder, key, (FormPart) value, poet.getComposers());
+          addFormDataPart(builder, key, (FormPart) value);
         } else {
           builder.addFormDataPart(key, String.valueOf(value));
         }
@@ -140,7 +140,7 @@ public final class Composers {
       builder.addFormDataPart(key, key, RequestBody.create(IOGroovyMethods.getBytes(inputStream), ContentType.BINARY.toMediaType()));
     }
 
-    private void addFormDataPart(MultipartBody.Builder builder, String key, FormPart formPart, Map<ContentType, Closure<?>> composers) throws IOException {
+    private void addFormDataPart(MultipartBody.Builder builder, String key, FormPart formPart) throws IOException {
       final Object value = formPart.getValue();
       MediaType mediaType = formPart.getContentType().toMediaType();
       String filename = formPart.getFilename() != null ? formPart.getFilename() : key;

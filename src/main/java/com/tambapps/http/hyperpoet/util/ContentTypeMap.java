@@ -1,7 +1,9 @@
 package com.tambapps.http.hyperpoet.util;
 
 import com.tambapps.http.hyperpoet.ContentType;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -13,6 +15,10 @@ import java.util.TreeMap;
 @NoArgsConstructor
 // using TreeMap to have ContentType sorted when iterating over keys and checking inclusion
 public class ContentTypeMap<T> extends TreeMap<ContentType, T> {
+
+  @Getter
+  @Setter
+  private T defaultValue;
 
   public ContentTypeMap(Map<ContentType, T> map) {
     super(map);
@@ -43,6 +49,6 @@ public class ContentTypeMap<T> extends TreeMap<ContentType, T> {
         return super.get(candidateKey);
       }
     }
-    return null;
+    return defaultValue;
   }
 }

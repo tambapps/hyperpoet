@@ -12,6 +12,7 @@ import com.tambapps.http.hyperpoet.url.MultivaluedQueryParamComposingType;
 import com.tambapps.http.hyperpoet.url.QueryParamComposer;
 import com.tambapps.http.hyperpoet.url.UrlBuilder;
 import com.tambapps.http.hyperpoet.util.CachedResponseBody;
+import com.tambapps.http.hyperpoet.util.ContentTypeMap;
 import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MissingMethodException;
@@ -64,8 +65,8 @@ public class HttpPoet extends GroovyObjectSupport {
   private final CustomJsonGenerator jsonGenerator = new CustomJsonGenerator();
   private final Map<Class<?>, Closure<?>> queryParamConverters = new HashMap<>();
   private final QueryParamComposer queryParamComposer = new QueryParamComposer(queryParamConverters, MultivaluedQueryParamComposingType.REPEAT);
-  private final Map<ContentType, Closure<?>> composers = Composers.getMap(this, jsonGenerator, queryParamComposer);
-  private final Map<ContentType, Closure<?>> parsers = Parsers.getMap();
+  private final ContentTypeMap<Closure<?>> composers = Composers.getMap(jsonGenerator, queryParamComposer);
+  private final ContentTypeMap<Closure<?>> parsers = Parsers.getMap();
   private Closure<?> errorResponseHandler = null;
   protected Closure<?> onPreExecute;
   protected Closure<?> onPostExecute;
@@ -874,7 +875,7 @@ public class HttpPoet extends GroovyObjectSupport {
   }
 
   public void setDefaultParser(@ClosureParams(value = SimpleType.class, options = "okhttp3.ResponseBody") Closure<?> parser) {
-    parsers.put(null, parser);
+    parsers.setDefaultValue(parser);
   }
 
   public void configureOkHttpClient(@ClosureParams(value = SimpleType.class, options = "okhttp3.OkHttpClient.Builder") Closure<Void> configurer) {

@@ -9,6 +9,7 @@ import static com.tambapps.http.hyperpoet.util.ParametersUtils.getOrDefaultSuppl
 
 import com.tambapps.http.hyperpoet.io.poeticprinter.PoeticPrinters;
 import com.tambapps.http.hyperpoet.util.CachedResponseBody;
+import com.tambapps.http.hyperpoet.util.ContentTypeMap;
 import groovy.lang.Closure;
 import groovy.transform.NamedParam;
 import lombok.Getter;
@@ -27,7 +28,7 @@ import java.util.Map;
 @Getter
 public class PrintingHttpPoet extends HttpPoet {
 
-  private final Map<ContentType, Closure<?>> printers = PoeticPrinters.getMap();
+  private final ContentTypeMap<Closure<?>> printers = PoeticPrinters.getMap();
 
   public PrintingHttpPoet(OkHttpClient okHttpClient, String baseUrl) {
     super(okHttpClient, baseUrl);
@@ -139,6 +140,6 @@ public class PrintingHttpPoet extends HttpPoet {
   }
 
   public void setDefaultPrinter(Closure<?> closure) {
-    printers.put(null, closure);
+    printers.setDefaultValue(closure);
   }
 }
