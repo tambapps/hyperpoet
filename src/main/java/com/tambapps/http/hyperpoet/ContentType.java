@@ -16,15 +16,14 @@ import java.util.regex.Pattern;
 /**
  * Class representing a Mime Type, used to know how to (de)serialize request/response data.
  * Wildcard type/subtypes and mime type parameters are supported
- * E.g for the value 'application/json; charset=UTF-8' it will only consider 'application/json'
- * for equality/hashCode
  */
 @Value
 public class ContentType implements Comparable<ContentType> {
 
+  private static final String WILDCARD_TYPE = "*";
+
+  public static final ContentType WILDCARD = new ContentType("*", "*");
   public static final ContentType JSON = new ContentType("application", "json");
-  // TODO remove me
-  public static final ContentType PROBLEM_JSON = new ContentType("application","problem+json");
   public static final ContentType XML = new ContentType("application", "xml");
   public static final ContentType TEXT = new ContentType("text", "plain");
   public static final ContentType HTML = new ContentType("text", "html");
@@ -32,7 +31,6 @@ public class ContentType implements Comparable<ContentType> {
   public static final ContentType URL_ENCODED = new ContentType("application", "x-www-form-urlencoded");
   public static final ContentType MULTIPART_FORM = new ContentType("multipart", "form-data");
 
-  private static final String WILDCARD_TYPE = "*";
   private static final String PARAM_CHARSET = "charset";
 
   String type;
@@ -183,22 +181,31 @@ public class ContentType implements Comparable<ContentType> {
     return builder.toString();
   }
 
-  // custom comparison by specificity
-  // */* < audio/* < audio/mp3
+  // comparison by specificity
+  // audio/toto+mp3 < audio/mp3 < audio/* < */*
   @Override
   public int compareTo(@NotNull ContentType o) {
     if (isWildcardType() && !o.isWildcardType()) {
-      return -1;
-    } else if (o.isWildcardType() && !isWildcardType()) {
       return 1;
+    } else if (o.isWildcardType() && !isWildcardType()) {
+      return -1;
     }
     int typeComparison = getType().compareTo(o.getType());
     if (typeComparison != 0) {
       return typeComparison;
     }
     if (isWildcardSubtype() && !o.isWildcardSubtype()) {
-      return -1;
+      return 1;
     } else if (o.isWildcardSubtype() && !isWildcardSubtype()) {
+      return -1;
+    }
+    int subTypeComparisonPrefix = getSubtypeSuffix().orElse(getSubtype()).compareTo(o.getSubtypeSuffix().orElse(o.getSubtype()));
+    if (subTypeComparisonPrefix != 0) {
+      return subTypeComparisonPrefix;
+    }
+    if (getSubtypeSuffix().isPresent() && !o.getSubtypeSuffix().isPresent()) {
+      return -1;
+    } else if (o.getSubtypeSuffix().isPresent() && !getSubtypeSuffix().isPresent()) {
       return 1;
     }
     int subTypeComparison = getSubtype().compareTo(o.getSubtype());

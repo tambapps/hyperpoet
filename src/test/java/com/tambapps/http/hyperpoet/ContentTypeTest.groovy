@@ -2,7 +2,9 @@ package com.tambapps.http.hyperpoet
 
 import java.nio.charset.StandardCharsets
 
+import static com.tambapps.http.hyperpoet.ContentType.HTML
 import static com.tambapps.http.hyperpoet.ContentType.JSON
+import static com.tambapps.http.hyperpoet.ContentType.WILDCARD
 import static com.tambapps.http.hyperpoet.ContentType.XML
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertFalse
@@ -34,5 +36,25 @@ class ContentTypeTest {
     assertEquals("json", type.subtypeSuffix.get())
     assertEquals([charset: 'UTF-8', lang: 'en'], type.parameters)
     assertEquals(StandardCharsets.UTF_8, type.charset.get())
+  }
+
+  @Test
+  void testSort() {
+    def types = [
+        WILDCARD, JSON, new ContentType("application","problem+json"),
+        XML, HTML, new ContentType("application","toto+xml"),
+        new ContentType("application","*"),
+        new ContentType("text","*")
+    ]
+    assertEquals([
+        new ContentType("application","problem+json"),
+        JSON,
+        new ContentType("application","toto+xml"),
+        XML,
+        new ContentType("application","*"),
+        HTML,
+        new ContentType("text","*"),
+        WILDCARD
+    ], types.sort())
   }
 }
