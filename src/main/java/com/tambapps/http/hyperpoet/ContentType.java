@@ -72,7 +72,7 @@ public class ContentType implements Comparable<ContentType> {
       return new ContentType(type, subtype);
     }
     Map<String, String> parameters = new HashMap<>();
-    Matcher matcher = Pattern.compile(";\\s*(\\w+)=\"?([^;]+)\"?").matcher(mimeType.substring(index + 1));
+    Matcher matcher = Pattern.compile(";\\s*(\\w+)=\"?([^;]+)\"?").matcher(mimeType.substring(index));
     while (matcher.find()) {
       // parameter names are case-insensitive and usually lowercase
       String parameterName = matcher.group(1).toLowerCase(Locale.ENGLISH);
