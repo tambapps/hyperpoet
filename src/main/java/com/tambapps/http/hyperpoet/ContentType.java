@@ -144,8 +144,6 @@ public class ContentType implements Comparable<ContentType> {
       // */* includes anything
       return true;
     } else if (getType().equals(other.getType())) {
-      // TODO test that application/json includes application/problem+json
-      // TODO create composers holder and parsers holder using this include method
       if (getSubtype().equals(other.getSubtypeSuffix().orElse(other.getSubtype()))) {
         return true;
       }
