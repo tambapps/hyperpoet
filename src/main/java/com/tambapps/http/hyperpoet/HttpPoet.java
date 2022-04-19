@@ -15,7 +15,6 @@ import com.tambapps.http.hyperpoet.util.CachedResponseBody;
 import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MissingMethodException;
-import groovy.lang.Tuple2;
 import groovy.transform.NamedParam;
 import groovy.transform.stc.ClosureParams;
 import groovy.transform.stc.SimpleType;
@@ -699,7 +698,7 @@ public class HttpPoet extends GroovyObjectSupport {
 
   protected ContentType getResponseContentType(Response response) {
     String contentTypeHeader = response.header("Content-Type");
-    return contentTypeHeader != null ? ContentType.from(contentTypeHeader) : acceptContentType;
+    return contentTypeHeader != null ? ContentType.valueOf(contentTypeHeader) : acceptContentType;
   }
 
   public RequestBody requestBody(Map<?, ?> additionalParameters, HttpMethod method) throws IOException {
