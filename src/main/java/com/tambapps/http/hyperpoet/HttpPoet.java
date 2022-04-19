@@ -690,8 +690,6 @@ public class HttpPoet extends GroovyObjectSupport {
         parsers.get(responseContentType));
     if (parser != null) {
       return parser;
-    } else if (parsers.get(null) != null) {
-      return parsers.get(null);
     } else {
       return new MethodClosure(Parsers.class, "parseStringResponseBody");
     }
