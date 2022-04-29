@@ -14,6 +14,7 @@ import com.tambapps.http.hyperpoet.url.UrlBuilder;
 import com.tambapps.http.hyperpoet.util.CachedResponseBody;
 import com.tambapps.http.hyperpoet.util.ContentTypeMap;
 import groovy.lang.Closure;
+import groovy.lang.DelegatesTo;
 import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MissingMethodException;
 import groovy.transform.NamedParam;
@@ -896,6 +897,10 @@ public class HttpPoet extends GroovyObjectSupport {
 
   public void disableHistory() {
     history = null;
+  }
+
+  public void poem(@DelegatesTo(HttpPoem.class) Closure<?> closure) {
+    new HttpPoem(this).run(closure);
   }
 
   /**
