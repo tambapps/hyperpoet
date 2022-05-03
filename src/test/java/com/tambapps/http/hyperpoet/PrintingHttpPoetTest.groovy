@@ -1,11 +1,14 @@
 package com.tambapps.http.hyperpoet
 
+import com.tambapps.http.hyperpoet.interceptor.ConsolePrintingInterceptor
 import org.junit.jupiter.api.Test
 
 class PrintingHttpPoetTest {
 
-  private PrintingHttpPoet client = new PrintingHttpPoet(url: "https://jsonplaceholder.typicode.com",
-      contentType: ContentType.JSON, acceptContentType: ContentType.JSON)
+  private HttpPoet client = new HttpPoet(url: "https://jsonplaceholder.typicode.com",
+      contentType: ContentType.JSON, acceptContentType: ContentType.JSON).tap {
+    addInterceptor(new ConsolePrintingInterceptor())
+  }
 
   @Test
   void testGetAll() {

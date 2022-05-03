@@ -25,6 +25,11 @@ import java.net.URLDecoder;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Http poet printing request and response data.
+ * Deprecated: use HttpPoet with a ConsolePrintingInterceptor instead
+ */
+@Deprecated
 @Getter
 public class PrintingHttpPoet extends HttpPoet {
 

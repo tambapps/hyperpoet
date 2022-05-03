@@ -1,0 +1,129 @@
+package com.tambapps.http.hyperpoet.interceptor;
+
+import static com.tambapps.http.hyperpoet.util.Ansi.BLUE_SKY;
+import static com.tambapps.http.hyperpoet.util.Ansi.RED;
+import static com.tambapps.http.hyperpoet.util.Ansi.print;
+import static com.tambapps.http.hyperpoet.util.Ansi.println;
+
+import com.tambapps.http.hyperpoet.ContentType;
+import com.tambapps.http.hyperpoet.HttpPoet;
+import com.tambapps.http.hyperpoet.io.poeticprinter.PoeticPrinters;
+import com.tambapps.http.hyperpoet.util.CachedResponseBody;
+import com.tambapps.http.hyperpoet.util.ContentTypeMap;
+import groovy.lang.Closure;
+import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
+// TODO document this and don't forget to put it in release note
+public class ConsolePrintingInterceptor implements Interceptor {
+
+  private final ContentTypeMap<Closure<?>> printers = PoeticPrinters.getMap();
+
+  private final AtomicBoolean shouldPrint = new AtomicBoolean(true);
+  private final AtomicBoolean shouldPrintRequestBody = new AtomicBoolean(true);
+  private final AtomicBoolean shouldPrintResponseBody = new AtomicBoolean(true);
+
+  @NotNull
+  @Override public Response intercept(@NotNull Chain chain) throws IOException {
+    Request request = chain.request();
+    if (!shouldPrint.get()) {
+      return chain.proceed(request);
+    }
+    printRequest(request);
+    return printAndCacheResponse(chain.proceed(request));
+  }
+
+  private void printRequest(Request request) throws IOException {
+    print(request.method().toUpperCase(Locale.ENGLISH) + " ");
+    StringBuilder pathBuilder = new StringBuilder("/");
+    HttpUrl url = request.url();
+    pathBuilder.append(String.join("/", url.pathSegments()));
+    int querySize = url.querySize();
+    if (querySize > 0) {
+      pathBuilder.append("?");
+      for (int i = 0; i < querySize; i++) {
+        pathBuilder.append(URLDecoder.decode(url.queryParameterName(i), "UTF-8"))
+            .append("=")
+            .append(URLDecoder.decode(String.valueOf(url.queryParameterValue(i)), "UTF-8"));
+        if (i < querySize - 1) {
+          pathBuilder.append("&");
+        }
+      }
+    }
+    print(BLUE_SKY, pathBuilder);
+    println();
+    if (!shouldPrintRequestBody.get()) {
+      return;
+    }
+    RequestBody requestBody = request.body();
+    if (requestBody != null) {
+      if (requestBody.isOneShot()) {
+        print("Request is one shot. Cannot print it");
+      } else {
+        String contentTypeHeader = request.headers().get(ContentType.HEADER);
+        ContentType contentType = contentTypeHeader != null ? ContentType.valueOf(contentTypeHeader) : null;
+        byte[] bytes = HttpPoet.extractRequestBody(requestBody);
+        printBytes(bytes, contentType);
+      }
+    }
+    println();
+  }
+
+  private Response printAndCacheResponse(Response response) throws IOException {
+    print("Response: ");
+    String responseText = String.valueOf(response.code());
+    String message = response.message();
+    if (!message.isEmpty()) {
+      responseText += " - " + message;
+    }
+    print(response.isSuccessful() ? BLUE_SKY : RED, responseText);
+    println();
+    if (!shouldPrintResponseBody.get()) {
+      return response;
+    }
+
+    Response cachedResponse = response.newBuilder().body(CachedResponseBody.from(response.body())).build();
+    response.close();
+    ResponseBody responseBody = cachedResponse.body();
+    byte[] bytes = responseBody != null ? responseBody.bytes() : new byte[0];
+    String contentTypeHeader = response.headers().get(ContentType.HEADER);
+    // TODO we don't know about the acceptContentType parameter here
+    ContentType contentType = contentTypeHeader != null ? ContentType.valueOf(contentTypeHeader) : null;
+    printBytes(bytes, contentType);
+    return cachedResponse;
+  }
+
+  private void printBytes(byte[] bytes, ContentType contentType) {
+    if (bytes.length == 0) {
+      println("(No content)");
+    } else {
+      Closure<?> printer = printers.get(contentType);
+      if (printer != null) {
+        printer.call(bytes);
+      } else {
+        println(new String(bytes));
+      }
+    }
+  }
+
+  public void setShouldPrint(boolean value) {
+    shouldPrint.set(value);
+  }
+
+  public void setShouldPrintRequestBody(boolean value) {
+    shouldPrintRequestBody.set(value);
+  }
+
+  public void setShouldPrintResponseBody(boolean value) {
+    shouldPrintResponseBody.set(value);
+  }
+}
