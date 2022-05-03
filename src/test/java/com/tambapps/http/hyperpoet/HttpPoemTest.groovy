@@ -12,7 +12,7 @@ class HttpPoemTest {
     @Test
     void testGet() {
         client.poem {
-            def a = get '/todos/1'
+            def todo = get '/todos/1'
             assertNotNull(todo.id)
             assertNotNull(todo.userId)
             assertNotNull(todo.title)
