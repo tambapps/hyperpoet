@@ -35,6 +35,7 @@ import okio.Okio;
 import org.codehaus.groovy.runtime.IOGroovyMethods;
 import org.codehaus.groovy.runtime.MethodClosure;
 import org.codehaus.groovy.runtime.ResourceGroovyMethods;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -68,7 +69,8 @@ public class HttpPoet extends GroovyObjectSupport {
   private final QueryParamComposer queryParamComposer = new QueryParamComposer(queryParamConverters, MultivaluedQueryParamComposingType.REPEAT);
   private final ContentTypeMap<Closure<?>> composers = Composers.getMap(jsonGenerator, queryParamComposer);
   private final ContentTypeMap<Closure<?>> parsers = Parsers.getMap();
-  private Closure<?> errorResponseHandler = null;
+  // TODO document in release note that I changed the default error response handler
+  private Closure<?> errorResponseHandler = ErrorResponseHandlers.parseResponseHandler(this);
   protected Closure<?> onPreExecute;
   protected Closure<?> onPostExecute;
   private String baseUrl;
@@ -177,9 +179,7 @@ public class HttpPoet extends GroovyObjectSupport {
       @NamedParam(value = "skipHistory", type = Boolean.class)
       Map<?, ?> additionalParameters, String urlOrEndpoint, String method)
       throws IOException {
-    RequestBody requestBody = requestBody(additionalParameters, method);
-    Request request =
-        request(urlOrEndpoint, additionalParameters).method(method, requestBody).build();
+    Request request = request(method, urlOrEndpoint, additionalParameters);
     return doRequest(request, additionalParameters);
   }
 
@@ -246,9 +246,7 @@ public class HttpPoet extends GroovyObjectSupport {
       Map<?, ?> additionalParameters, String urlOrEndpoint, String method,
       @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler)
       throws IOException {
-    RequestBody requestBody = requestBody(additionalParameters, method);
-    Request request =
-        request(urlOrEndpoint, additionalParameters).method(method, requestBody).build();
+    Request request = request(method, urlOrEndpoint, additionalParameters);
     return doRequest(request, additionalParameters, responseHandler);
   }
 
@@ -488,7 +486,7 @@ public class HttpPoet extends GroovyObjectSupport {
       @NamedParam(value = "acceptContentType", type = ContentType.class)
       @NamedParam(value = "skipHistory", type = Boolean.class)
       Map<?, ?> additionalParameters, String urlOrEndpoint) throws IOException {
-    Request request = request(urlOrEndpoint, additionalParameters).delete().build();
+    Request request = request(HttpMethod.DELETE, urlOrEndpoint, additionalParameters);
     return doRequest(request, additionalParameters);
   }
 
@@ -526,7 +524,7 @@ public class HttpPoet extends GroovyObjectSupport {
       Map<?, ?> additionalParameters, String urlOrEndpoint,
       @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler)
       throws IOException {
-    Request request = request(urlOrEndpoint, additionalParameters).delete().build();
+    Request request = request(HttpMethod.DELETE, urlOrEndpoint, additionalParameters);
     return doRequest(request, additionalParameters, responseHandler);
   }
 
@@ -559,7 +557,7 @@ public class HttpPoet extends GroovyObjectSupport {
       @NamedParam(value = "acceptContentType", type = ContentType.class)
       @NamedParam(value = "skipHistory", type = Boolean.class)
       Map<?, ?> additionalParameters, String urlOrEndpoint) throws IOException {
-    Request request = request(urlOrEndpoint, additionalParameters).get().build();
+    Request request = request(HttpMethod.GET, urlOrEndpoint, additionalParameters);
     return doRequest(request, additionalParameters);
   }
 
@@ -598,7 +596,7 @@ public class HttpPoet extends GroovyObjectSupport {
       Map<?, ?> additionalParameters, String urlOrEndpoint,
       @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler)
       throws IOException {
-    Request request = request(urlOrEndpoint, additionalParameters).get().build();
+    Request request = request(HttpMethod.GET, urlOrEndpoint, additionalParameters);
     return doRequest(request, additionalParameters, responseHandler);
   }
 
@@ -697,15 +695,11 @@ public class HttpPoet extends GroovyObjectSupport {
   }
 
   protected ContentType getResponseContentType(Response response) {
-    String contentTypeHeader = response.header("Content-Type");
+    String contentTypeHeader = response.header(ContentType.HEADER);
     return contentTypeHeader != null ? ContentType.valueOf(contentTypeHeader) : acceptContentType;
   }
 
-  public RequestBody requestBody(Map<?, ?> additionalParameters, HttpMethod method) throws IOException {
-    return requestBody(additionalParameters, method.name());
-  }
-
-  public RequestBody requestBody(Map<?, ?> additionalParameters, String method) throws IOException {
+  private RequestBody requestBody(Map<?, ?> additionalParameters, String method) throws IOException {
     Object body = getOrDefault(additionalParameters, "body", Object.class, null);
     ContentType contentType = getOrDefault(additionalParameters, "contentType", ContentType.class,
         this.contentType);
@@ -739,7 +733,7 @@ public class HttpPoet extends GroovyObjectSupport {
     return toRequestBody(composedBody, mediaType);
   }
 
-  protected byte[] extractRequestBody(RequestBody requestBody) {
+  public static byte[] extractRequestBody(RequestBody requestBody) throws IOException {
     if (requestBody == null || requestBody.isOneShot()) {
       return null;
     }
@@ -748,8 +742,6 @@ public class HttpPoet extends GroovyObjectSupport {
       requestBody.writeTo(bufferedSink);
       bufferedSink.flush();
       return outputStream.toByteArray();
-    } catch (IOException e) {
-      return null;
     }
   }
 
@@ -770,7 +762,11 @@ public class HttpPoet extends GroovyObjectSupport {
     }
   }
 
-  public Request.Builder request(String urlOrEndpoint, Map<?, ?> additionalParameters) {
+  public Request request(HttpMethod method, String urlOrEndpoint, Map<?, ?> additionalParameters) throws IOException {
+    return request(method.name(), urlOrEndpoint, additionalParameters);
+  }
+
+  public Request request(String method, String urlOrEndpoint, Map<?, ?> additionalParameters) throws IOException {
     // url stuff
     String url =
         new UrlBuilder(baseUrl, queryParamComposer).append(
@@ -779,7 +775,8 @@ public class HttpPoet extends GroovyObjectSupport {
             .addParams(
                 getOrDefault(additionalParameters, "params", Map.class, Collections.emptyMap()))
             .build();
-    Request.Builder builder = new Request.Builder().url(url);
+    RequestBody requestBody = requestBody(additionalParameters, method);
+    Request.Builder builder = new Request.Builder().url(url).method(method, requestBody);
     // headers stuff
     for (Map.Entry<String, String> entry : headers.entrySet()) {
       builder.header(entry.getKey(), entry.getValue());
@@ -794,7 +791,7 @@ public class HttpPoet extends GroovyObjectSupport {
     if (acceptContentType != null) {
       builder.header("Accept", acceptContentType.toString());
     }
-    return builder;
+    return builder.build();
   }
 
   protected Object handleErrorResponse(Response response, Map<?, ?> additionalParameters) {
@@ -900,6 +897,7 @@ public class HttpPoet extends GroovyObjectSupport {
   }
 
   public Object poem(@DelegatesTo(HttpPoem.class) Closure<?> closure) {
+    // TODO maybe disable poetic invoker while running poem? (it might be ambiguous)
     return new HttpPoem(this).run(closure);
   }
 

@@ -114,10 +114,7 @@ public class OpenApiSpecPoeticInvoker implements PoeticInvoker {
   @SneakyThrows
   private Request toRequest(HttpPoet poet, EndpointOperation op, String resolvedPath,
       Map<?, ?> additionalParams) {
-    okhttp3.Request.Builder okBuilder = poet.request(resolvedPath, additionalParams);
-    okBuilder.method(op.getMethod().name(), poet.requestBody(additionalParams, op.getMethod()));
-
-    okhttp3.Request okHttpRequest = okBuilder.build();
+    okhttp3.Request okHttpRequest = poet.request(op.getMethod(), resolvedPath, additionalParams);
     HttpUrl url = okHttpRequest.url();
     SimpleRequest.Builder builder = new SimpleRequest.Builder(Request.Method.valueOf(op.getMethod().toString()), resolvedPath);
     for (int i = 0; i < url.querySize(); i++) {
