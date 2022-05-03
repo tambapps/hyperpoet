@@ -1,5 +1,6 @@
 package com.tambapps.http.hyperpoet
 
+import com.tambapps.http.hyperpoet.interceptor.ConsolePrintingInterceptor
 import groovy.json.JsonOutput
 import okhttp3.Protocol
 import okhttp3.Response
@@ -11,9 +12,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertThrows
 
 class ErrorResponseHandlersTest {
-  private static final HttpPoet POET = new PrintingHttpPoet(url: "https://jsonplaceholder.typicode.com",
+  private static final HttpPoet POET = new HttpPoet(url: "https://jsonplaceholder.typicode.com",
       contentType: ContentType.JSON, acceptContentType: ContentType.JSON).tap {
     errorResponseHandler = ErrorResponseHandlers.throwProblemResponseHandler()
+    addInterceptor(new ConsolePrintingInterceptor())
   }
   private static final PROBLEM = [type  : '/errors/type', title: 'Bad Request', status: 400,
                                   detail: 'You were bad', instance: '/instance/0', additionalProperty: 1]

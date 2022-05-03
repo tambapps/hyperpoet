@@ -23,11 +23,18 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 // TODO document this and don't forget to put it in release note
+/**
+ * Interceptor allowing you to print colored request and response data. It is compatible and was only
+ * tested in a Linux environment.
+ * This interceptor can be useful for demos
+ */
 public class ConsolePrintingInterceptor implements Interceptor {
 
   private final ContentTypeMap<Closure<?>> printers = PoeticPrinters.getMap();
 
+  // TODO handle these from HttpPoet, with the below setters, after having created constant for HttpPoet method parameters (e.g. "print", "printRequestBody")
   private final AtomicBoolean shouldPrint = new AtomicBoolean(true);
   private final AtomicBoolean shouldPrintRequestBody = new AtomicBoolean(true);
   private final AtomicBoolean shouldPrintResponseBody = new AtomicBoolean(true);
@@ -96,7 +103,7 @@ public class ConsolePrintingInterceptor implements Interceptor {
     ResponseBody responseBody = cachedResponse.body();
     byte[] bytes = responseBody != null ? responseBody.bytes() : new byte[0];
     String contentTypeHeader = response.headers().get(ContentType.HEADER);
-    // TODO we don't know about the acceptContentType parameter here
+    // note that we don't know about the acceptContentType parameter here (it may be okay, so I may not ever fix this)
     ContentType contentType = contentTypeHeader != null ? ContentType.valueOf(contentTypeHeader) : null;
     printBytes(bytes, contentType);
     return cachedResponse;

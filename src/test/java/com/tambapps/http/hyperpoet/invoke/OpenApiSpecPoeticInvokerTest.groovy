@@ -1,7 +1,7 @@
 package com.tambapps.http.hyperpoet.invoke
 
 import com.tambapps.http.hyperpoet.HttpPoet
-import com.tambapps.http.hyperpoet.PrintingHttpPoet
+import com.tambapps.http.hyperpoet.interceptor.ConsolePrintingInterceptor
 import groovy.transform.CompileStatic
 import lombok.SneakyThrows
 
@@ -16,7 +16,9 @@ class OpenApiSpecPoeticInvokerTest {
   private static final OpenApiSpecPoeticInvoker INVOKER = OpenApiSpecPoeticInvoker.fromSpec(
           OpenApiSpecPoeticInvokerTest.class.getResourceAsStream("/spec.yaml").text
   )
-  private final HttpPoet poet = new PrintingHttpPoet("https://jsonplaceholder.typicode.com")
+  private final HttpPoet poet = new HttpPoet("https://jsonplaceholder.typicode.com").tap {
+    addInterceptor(new ConsolePrintingInterceptor())
+  }
 
   @Test
   void testNotFoundOperation() throws IOException {
