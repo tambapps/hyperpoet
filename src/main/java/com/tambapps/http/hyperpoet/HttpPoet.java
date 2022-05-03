@@ -699,10 +699,9 @@ public class HttpPoet extends GroovyObjectSupport {
     return contentTypeHeader != null ? ContentType.valueOf(contentTypeHeader) : acceptContentType;
   }
 
-  private RequestBody requestBody(Map<?, ?> additionalParameters, String method) throws IOException {
+  private RequestBody requestBody(Map<?, ?> additionalParameters, ContentType contentType, String method) throws IOException {
     Object body = getOrDefault(additionalParameters, "body", Object.class, null);
-    ContentType contentType = getOrDefault(additionalParameters, "contentType", ContentType.class,
-        this.contentType);
+
     if (body == null) {
       // request body must not be null for some methods, so we return an empty body instead
       return okhttp3.internal.http.HttpMethod.requiresRequestBody(method) ? RequestBody.create(new byte[0]) : null;
@@ -775,7 +774,9 @@ public class HttpPoet extends GroovyObjectSupport {
             .addParams(
                 getOrDefault(additionalParameters, "params", Map.class, Collections.emptyMap()))
             .build();
-    RequestBody requestBody = requestBody(additionalParameters, method);
+    ContentType contentType = getOrDefault(additionalParameters, "contentType", ContentType.class,
+        this.contentType);
+    RequestBody requestBody = requestBody(additionalParameters, contentType, method);
     Request.Builder builder = new Request.Builder().url(url).method(method, requestBody);
     // headers stuff
     for (Map.Entry<String, String> entry : headers.entrySet()) {
@@ -790,6 +791,9 @@ public class HttpPoet extends GroovyObjectSupport {
         getOrDefault(additionalParameters, "acceptContentType", ContentType.class, this.acceptContentType);
     if (acceptContentType != null) {
       builder.header("Accept", acceptContentType.toString());
+    }
+    if (contentType != null) {
+      builder.header(ContentType.HEADER, contentType.toString());
     }
     return builder.build();
   }
