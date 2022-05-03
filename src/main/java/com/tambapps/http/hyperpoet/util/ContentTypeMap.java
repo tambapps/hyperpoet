@@ -32,6 +32,10 @@ public class ContentTypeMap<T> extends TreeMap<ContentType, T> {
   public T get(Object key) {
     if (key instanceof ContentType) {
       return getAt((ContentType) key);
+    } else if (key == null) {
+      // normally treemap doesn't accept null values.
+      // instead we return the default value
+      return defaultValue;
     } else {
       return super.get(key);
     }
