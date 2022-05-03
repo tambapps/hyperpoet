@@ -9,6 +9,10 @@ import java.io.IOException;
 
 public class ErrorResponseHandlers {
 
+  public static Closure<?> throwResponseHandler() {
+    return new ThrowResponseHandlerClosure();
+  }
+
   public static Closure<?> problemResponseHandler() {
     return problemResponseHandler(new JsonParserClosure());
   }
@@ -19,6 +23,19 @@ public class ErrorResponseHandlers {
 
   public static Closure<?> parseResponseHandler(HttpPoet poet) {
     return new MethodClosure(poet, "parseResponse");
+  }
+
+  private static class ThrowResponseHandlerClosure extends Closure<Void> {
+
+    public ThrowResponseHandlerClosure() {
+      super(null);
+    }
+
+    public void doCall(Response response) throws IOException {
+      ErrorResponseException exception = ErrorResponseException.from(response);
+      response.close();
+      throw exception;
+    }
   }
 
   private static class ProblemResponseHandlerClosure extends Closure<Void> {
