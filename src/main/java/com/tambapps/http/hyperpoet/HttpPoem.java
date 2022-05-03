@@ -77,16 +77,6 @@ public class HttpPoem extends GroovyObjectSupport {
     return new UrlBuilder(url).addParams(queryParams).build();
   }
 
-  @Override
-  public Object invokeMethod(String name, Object args) {
-    try {
-      return super.invokeMethod(name, args);
-    } catch (MissingMethodException e) {
-      // in order to call e.g. GET
-      return super.invokeMethod(name.toLowerCase(), args);
-    }
-  }
-
   private static Map<?,?> map(Object... values) {
     Map<Object, Object> map = new HashMap<>();
     for (int i = 0; i < values.length / 2; i++) {

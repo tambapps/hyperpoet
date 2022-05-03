@@ -12,8 +12,7 @@ class HttpPoemTest {
     @Test
     void testGet() {
         client.poem {
-            // yes, there is a hack to upper case method
-            def a = GET '/todos/1'
+            def a = get '/todos/1'
             assertNotNull(todo.id)
             assertNotNull(todo.userId)
             assertNotNull(todo.title)
