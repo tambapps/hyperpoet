@@ -20,7 +20,8 @@ import java.util.regex.Pattern;
 @Value
 public class ContentType implements Comparable<ContentType> {
 
-  private static final String WILDCARD_TYPE = "*";
+  public static final String WILDCARD_TYPE = "*";
+  public static final String HEADER = "Content-Type";
 
   public static final ContentType WILDCARD = new ContentType("*", "*");
   public static final ContentType JSON = new ContentType("application", "json");
@@ -31,7 +32,7 @@ public class ContentType implements Comparable<ContentType> {
   public static final ContentType URL_ENCODED = new ContentType("application", "x-www-form-urlencoded");
   public static final ContentType MULTIPART_FORM = new ContentType("multipart", "form-data");
 
-  private static final String PARAM_CHARSET = "charset";
+  public static final String PARAM_CHARSET = "charset";
 
   String type;
   String subtype;
