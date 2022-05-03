@@ -11,6 +11,8 @@ import com.tambapps.http.hyperpoet.io.poeticprinter.PoeticPrinters;
 import com.tambapps.http.hyperpoet.util.CachedResponseBody;
 import com.tambapps.http.hyperpoet.util.ContentTypeMap;
 import groovy.lang.Closure;
+import lombok.Getter;
+import lombok.Setter;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -32,11 +34,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class ConsolePrintingInterceptor implements Interceptor {
 
+  /**
+   * Whether to print full url or just the path
+   */
+  @Getter
+  @Setter
+  private boolean printFullUrl;
   private final ContentTypeMap<Closure<?>> printers = PoeticPrinters.getMap();
 
   private final AtomicBoolean shouldPrint = new AtomicBoolean(true);
   private final AtomicBoolean shouldPrintRequestBody = new AtomicBoolean(true);
   private final AtomicBoolean shouldPrintResponseBody = new AtomicBoolean(true);
+
+  public ConsolePrintingInterceptor() {
+    this(true);
+  }
+
+  public ConsolePrintingInterceptor(boolean printFullUrl) {
+    this.printFullUrl = printFullUrl;
+  }
 
   @NotNull
   @Override public Response intercept(@NotNull Chain chain) throws IOException {
@@ -50,9 +66,15 @@ public class ConsolePrintingInterceptor implements Interceptor {
 
   private void printRequest(Request request) throws IOException {
     print(request.method().toUpperCase(Locale.ENGLISH) + " ");
-    StringBuilder pathBuilder = new StringBuilder("/");
+    StringBuilder pathBuilder = new StringBuilder();
     HttpUrl url = request.url();
-    pathBuilder.append(String.join("/", url.pathSegments()));
+    if (printFullUrl) {
+      pathBuilder.append(url.scheme())
+          .append("://")
+          .append(url.host());
+    }
+
+    pathBuilder.append('/').append(String.join("/", url.pathSegments()));
     int querySize = url.querySize();
     if (querySize > 0) {
       pathBuilder.append("?");
