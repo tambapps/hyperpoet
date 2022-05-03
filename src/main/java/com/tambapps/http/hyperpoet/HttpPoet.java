@@ -899,8 +899,8 @@ public class HttpPoet extends GroovyObjectSupport {
     history = null;
   }
 
-  public void poem(@DelegatesTo(HttpPoem.class) Closure<?> closure) {
-    new HttpPoem(this).run(closure);
+  public Object poem(@DelegatesTo(HttpPoem.class) Closure<?> closure) {
+    return new HttpPoem(this).run(closure);
   }
 
   /**

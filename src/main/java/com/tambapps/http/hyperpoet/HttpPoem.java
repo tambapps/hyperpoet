@@ -3,7 +3,6 @@ package com.tambapps.http.hyperpoet;
 import com.tambapps.http.hyperpoet.url.UrlBuilder;
 import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
-import groovy.lang.MissingMethodException;
 import lombok.AllArgsConstructor;
 
 import java.io.IOException;
@@ -16,9 +15,9 @@ public class HttpPoem extends GroovyObjectSupport {
 
   private final HttpPoet poet;
 
-  public void run(Closure<?> closure) {
+  public Object run(Closure<?> closure) {
     closure.setDelegate(this);
-    closure.call();
+    return closure.call();
   }
 
   public Object get(String url) throws IOException {
