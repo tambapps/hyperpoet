@@ -1,9 +1,11 @@
-package com.tambapps.http.hyperpoet
+package com.tambapps.http.hyperpoet.interceptor
 
+import com.tambapps.http.hyperpoet.ContentType
+import com.tambapps.http.hyperpoet.HttpPoet
 import com.tambapps.http.hyperpoet.interceptor.ConsolePrintingInterceptor
 import org.junit.jupiter.api.Test
 
-class PrintingHttpPoetTest {
+class ConsolePrintingInterceptorTest {
 
   private HttpPoet client = new HttpPoet(url: "https://jsonplaceholder.typicode.com",
       contentType: ContentType.JSON, acceptContentType: ContentType.JSON).tap {
@@ -42,6 +44,11 @@ class PrintingHttpPoetTest {
   }
 
   @Test
+  void testPost_doNotPrint() {
+    def p = client.post("/posts", body: [title: 'foo', body: 'bar', userId: 1], print: false)
+  }
+
+  @Test
   void testPost_doNotPrintResponseBody() {
     def p = client.post("/posts", body: [title: 'foo', body: 'bar', userId: 1], printResponseBody: false)
   }
@@ -51,4 +58,15 @@ class PrintingHttpPoetTest {
     def p = client.post("/posts", body: [title: 'foo', body: 'bar', userId: 1], printRequestBody: false)
   }
 
+  @Test
+  void testPost_doNotPrintConsecutive() {
+    println('print nothing')
+    client.post("/posts", body: [title: 'foo', body: 'bar', userId: 1], print: false)
+    println('do not print request body')
+    client.post("/posts", body: [title: 'foo', body: 'bar', userId: 1], printRequestBody: false)
+    println('do not print response body')
+    client.post("/posts", body: [title: 'foo', body: 'bar', userId: 1], printResponseBody: false)
+    println('print everything')
+    client.post("/posts", body: [title: 'foo', body: 'bar', userId: 1])
+  }
 }

@@ -34,7 +34,6 @@ public class ConsolePrintingInterceptor implements Interceptor {
 
   private final ContentTypeMap<Closure<?>> printers = PoeticPrinters.getMap();
 
-  // TODO handle these from HttpPoet, with the below setters, after having created constant for HttpPoet method parameters (e.g. "print", "printRequestBody")
   private final AtomicBoolean shouldPrint = new AtomicBoolean(true);
   private final AtomicBoolean shouldPrintRequestBody = new AtomicBoolean(true);
   private final AtomicBoolean shouldPrintResponseBody = new AtomicBoolean(true);
@@ -69,6 +68,7 @@ public class ConsolePrintingInterceptor implements Interceptor {
     print(BLUE_SKY, pathBuilder);
     println();
     if (!shouldPrintRequestBody.get()) {
+      println();
       return;
     }
     RequestBody requestBody = request.body();
