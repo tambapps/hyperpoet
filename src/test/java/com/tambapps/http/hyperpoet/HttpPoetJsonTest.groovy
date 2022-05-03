@@ -25,6 +25,7 @@ class HttpPoetJsonTest {
       println(response.code())
     }
     poeticInvoker = new OperationPoeticInvoker(true)
+    errorResponseHandler = ErrorResponseHandlers.throwResponseHandler()
     it
   }
 

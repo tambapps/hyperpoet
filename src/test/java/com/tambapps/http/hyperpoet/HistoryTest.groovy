@@ -24,6 +24,7 @@ class HistoryTest {
       println(response.code())
     }
     enableHistory(10)
+    errorResponseHandler = ErrorResponseHandlers.throwResponseHandler()
   }
 
   @BeforeEach

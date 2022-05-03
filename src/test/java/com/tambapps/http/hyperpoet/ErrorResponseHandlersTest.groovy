@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows
 class ErrorResponseHandlersTest {
   private static final HttpPoet POET = new PrintingHttpPoet(url: "https://jsonplaceholder.typicode.com",
       contentType: ContentType.JSON, acceptContentType: ContentType.JSON).tap {
-    errorResponseHandler = ErrorResponseHandlers.problemResponseHandler()
+    errorResponseHandler = ErrorResponseHandlers.throwProblemResponseHandler()
   }
   private static final PROBLEM = [type  : '/errors/type', title: 'Bad Request', status: 400,
                                   detail: 'You were bad', instance: '/instance/0', additionalProperty: 1]
@@ -34,7 +34,7 @@ class ErrorResponseHandlersTest {
 
   @Test
   void testCatchProblem() {
-    POET.errorResponseHandler = ErrorResponseHandlers.problemResponseHandler()
+    POET.errorResponseHandler = ErrorResponseHandlers.throwProblemResponseHandler()
     def exception = assertThrows(ProblemResponseException.class) {
       POET.get("/something")
     }

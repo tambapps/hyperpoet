@@ -9,16 +9,18 @@ import java.io.IOException;
 
 public class ErrorResponseHandlers {
 
+  // TODO document addition of this response handler
   public static Closure<?> throwResponseHandler() {
     return new ThrowResponseHandlerClosure();
   }
 
-  public static Closure<?> problemResponseHandler() {
-    return problemResponseHandler(new JsonParserClosure());
+  // TODO document renaming of this response handler (previously problemResponseHandler())
+  public static Closure<?> throwProblemResponseHandler() {
+    return throwProblemResponseHandler(new JsonParserClosure());
   }
 
-  public static Closure<?> problemResponseHandler(Closure<?> parser) {
-    return new ProblemResponseHandlerClosure(parser);
+  public static Closure<?> throwProblemResponseHandler(Closure<?> parser) {
+    return new ThrowProblemResponseHandlerClosure(parser);
   }
 
   public static Closure<?> parseResponseHandler(HttpPoet poet) {
@@ -38,11 +40,11 @@ public class ErrorResponseHandlers {
     }
   }
 
-  private static class ProblemResponseHandlerClosure extends Closure<Void> {
+  private static class ThrowProblemResponseHandlerClosure extends Closure<Void> {
 
     private final Closure<?> jsonParser;
 
-    public ProblemResponseHandlerClosure(Closure<?> jsonParser) {
+    public ThrowProblemResponseHandlerClosure(Closure<?> jsonParser) {
       super(null);
       this.jsonParser = jsonParser;
     }
