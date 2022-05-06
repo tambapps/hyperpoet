@@ -924,7 +924,6 @@ public class HttpPoet extends GroovyObjectSupport {
   }
 
   public Object poem(@DelegatesTo(HttpPoem.class) Closure<?> closure) {
-    // TODO maybe disable poetic invoker while running poem? (it might be ambiguous)
     return new HttpPoem(this).run(closure);
   }
 
