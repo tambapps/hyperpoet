@@ -1,6 +1,5 @@
 package com.tambapps.http.hyperpoet;
 
-import com.tambapps.http.hyperpoet.invoke.PoeticInvoker;
 import com.tambapps.http.hyperpoet.url.UrlBuilder;
 import com.tambapps.http.hyperpoet.util.Constants;
 import groovy.lang.Closure;
@@ -95,8 +94,9 @@ public class HttpPoem extends GroovyObjectSupport {
     Optional<HeaderMap> optHeaders = Optional.empty();
 
     Map<Object, Object> poetParams = new HashMap<>();
+    boolean requiresRequestBody = method != null && okhttp3.internal.http.HttpMethod.requiresRequestBody(method);
     if (params.length == 1) {
-      if (okhttp3.internal.http.HttpMethod.requiresRequestBody(method)) {
+      if (requiresRequestBody) {
         poetParams.put(Constants.BODY_PARAM, params[0]);
       } else {
         poetParams.put(Constants.QUERY_PARAMS_PARAM, params[0]);
@@ -109,6 +109,9 @@ public class HttpPoem extends GroovyObjectSupport {
           optParams = Optional.of((ParamMap) param);
         } else if (param instanceof HeaderMap) {
           optHeaders = Optional.of((HeaderMap) param);
+        } else if (param instanceof ContentType) {
+          // TODO document this
+          poetParams.put(requiresRequestBody ? Constants.CONTENT_TYPE_PARAM : Constants.ACCEPT_CONTENT_TYPE_PARAM, param);
         }
       }
     }
@@ -116,15 +119,6 @@ public class HttpPoem extends GroovyObjectSupport {
     optParams.ifPresent(queryParams -> poetParams.put(Constants.QUERY_PARAMS_PARAM, queryParams));
     optHeaders.ifPresent(headers -> poetParams.put(Constants.HEADER_PARAM, headers));
     return poetParams;
-  }
-
-  // will be invoked by groovy when method missing
-  public void methodMissing(String name, Object args) {
-    PoeticInvoker poeticInvoker = poet.getPoeticInvoker();
-    if (poeticInvoker != null) {
-      // TODO
-      // poeticInvoker.invokeOrThrow(poet, name, null);
-    }
   }
 
   // used to know which map is body

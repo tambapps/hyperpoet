@@ -1,6 +1,7 @@
 package com.tambapps.http.hyperpoet
 
 import com.tambapps.http.hyperpoet.interceptor.ConsolePrintingInterceptor
+import com.tambapps.http.hyperpoet.invoke.OperationPoeticInvoker
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertNotNull
@@ -60,5 +61,14 @@ class HttpPoemTest {
             assertNotNull(todo.id)
             assertNotNull(todo.title)
         }
+    }
+
+    @Test
+    void testPoetcInvoker() {
+        client.poeticInvoker = new OperationPoeticInvoker()
+        client.poem {
+
+        }
+        client.poeticInvoker = null
     }
 }
