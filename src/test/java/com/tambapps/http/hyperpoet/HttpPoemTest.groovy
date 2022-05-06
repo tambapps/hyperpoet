@@ -63,12 +63,4 @@ class HttpPoemTest {
         }
     }
 
-    @Test
-    void testPoetcInvoker() {
-        client.poeticInvoker = new OperationPoeticInvoker()
-        client.poem {
-
-        }
-        client.poeticInvoker = null
-    }
 }
