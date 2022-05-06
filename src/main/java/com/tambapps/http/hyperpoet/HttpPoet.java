@@ -85,8 +85,7 @@ public class HttpPoet extends GroovyObjectSupport {
   private final QueryParamComposer queryParamComposer = new QueryParamComposer(queryParamConverters, MultivaluedQueryParamComposingType.REPEAT);
   private final ContentTypeMap<Closure<?>> composers = Composers.getMap(jsonGenerator, queryParamComposer);
   private final ContentTypeMap<Closure<?>> parsers = Parsers.getMap();
-  // TODO document in release note that I changed the default error response handler
-  private Closure<?> errorResponseHandler = ErrorResponseHandlers.parseResponseHandler(this);
+  private Closure<?> errorResponseHandler = ErrorResponseHandlers.throwResponseHandler();
   protected Closure<?> onPreExecute;
   protected Closure<?> onPostExecute;
   private String baseUrl;
