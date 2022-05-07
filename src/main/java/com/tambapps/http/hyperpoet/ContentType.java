@@ -114,7 +114,7 @@ public class ContentType implements Comparable<ContentType> {
   }
 
   /**
-   * Indicates whether the {@linkplain #getSubtype() subtype} is the wildcard
+   * Indicates whether the getSubtype() subtype is the wildcard
    * character <code>&#42;</code> or the wildcard character followed by a suffix
    * (e.g. <code>&#42;+xml</code>).
    * @return whether the subtype is a wildcard

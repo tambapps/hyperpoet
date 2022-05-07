@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * A map of content type -> T that handles content types inclusion when retrieving an element
+ * A map of content type -&gt; T that handles content types inclusion when retrieving an element
  * @param <T>
  */
 @NoArgsConstructor
