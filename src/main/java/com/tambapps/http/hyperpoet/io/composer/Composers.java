@@ -2,7 +2,6 @@ package com.tambapps.http.hyperpoet.io.composer;
 
 import com.tambapps.http.hyperpoet.ContentType;
 import com.tambapps.http.hyperpoet.FormPart;
-import com.tambapps.http.hyperpoet.HttpPoet;
 import com.tambapps.http.hyperpoet.url.QueryParamComposer;
 import com.tambapps.http.hyperpoet.util.ContentTypeMap;
 import groovy.json.JsonGenerator;
@@ -23,7 +22,6 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
