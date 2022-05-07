@@ -1,6 +1,7 @@
 package com.tambapps.http.hyperpoet.interceptor
 
 import com.tambapps.http.hyperpoet.ContentType
+import com.tambapps.http.hyperpoet.ErrorResponseHandlers
 import com.tambapps.http.hyperpoet.HttpPoet
 import com.tambapps.http.hyperpoet.interceptor.ConsolePrintingInterceptor
 import org.junit.jupiter.api.Test
@@ -10,6 +11,7 @@ class ConsolePrintingInterceptorTest {
   private HttpPoet client = new HttpPoet(url: "https://jsonplaceholder.typicode.com",
       contentType: ContentType.JSON, acceptContentType: ContentType.JSON).tap {
     addInterceptor(new ConsolePrintingInterceptor())
+    errorResponseHandler = ErrorResponseHandlers.parseResponseHandler(it)
   }
 
   @Test
