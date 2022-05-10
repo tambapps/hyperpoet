@@ -5,6 +5,7 @@ import com.tambapps.http.hyperpoet.util.Constants;
 import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -61,11 +62,21 @@ public class HttpPoem extends GroovyObjectSupport {
   }
 
   public Map<?, ?> b(Map<?, ?> params) {
-    return body(params);
+    return body(params, null);
   }
 
   public Map<?, ?> body(Map<?, ?> params) {
-    return new BodyMap(params);
+    return body(params, null);
+  }
+
+  // b(JSON, queryParam: value)
+  public Map<?, ?> b(Map<?, ?> params, ContentType contentType) {
+    return body(params, contentType);
+  }
+
+  // b(JSON, queryParam: value)
+  public Map<?, ?> body(Map<?, ?> params, ContentType contentType) {
+    return new BodyMap(params, contentType);
   }
 
   public Map<?, ?> h(Map<?, ?> params) {
@@ -115,7 +126,13 @@ public class HttpPoem extends GroovyObjectSupport {
         }
       }
     }
-    optBody.ifPresent(body -> poetParams.put(Constants.BODY_PARAM, body));
+    optBody.ifPresent(body -> {
+      poetParams.put(Constants.BODY_PARAM, body);
+      if (body.getContentType() != null) {
+        // TODO document this
+        poetParams.put(Constants.CONTENT_TYPE_PARAM, body.getContentType());
+      }
+    });
     optParams.ifPresent(queryParams -> poetParams.put(Constants.QUERY_PARAMS_PARAM, queryParams));
     optHeaders.ifPresent(headers -> poetParams.put(Constants.HEADER_PARAM, headers));
     return poetParams;
@@ -123,8 +140,11 @@ public class HttpPoem extends GroovyObjectSupport {
 
   // used to know which map is body
   private static class BodyMap extends HashMap<Object, Object> {
-    public BodyMap(Map<?, ?> m) {
+    @Getter
+    private final ContentType contentType;
+    public BodyMap(Map<?, ?> m, ContentType contentType) {
       super(m);
+      this.contentType = contentType;
     }
   }
 
