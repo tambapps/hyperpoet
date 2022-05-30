@@ -4,6 +4,7 @@ import static com.tambapps.http.hyperpoet.util.Ansi.println;
 
 import com.tambapps.http.hyperpoet.io.json.PrettyJsonGenerator;
 import groovy.json.JsonSlurper;
+import groovy.json.StringEscapeUtils;
 
 public class JsonPoeticPrinter extends AbstractPoeticPrinter {
 
@@ -13,7 +14,7 @@ public class JsonPoeticPrinter extends AbstractPoeticPrinter {
   @Override
   public void printBytes(byte[] bytes) {
     Object object = jsonSlurper.parseText(new String(bytes));
-    println(prettyJsonGenerator.toJson(object));
+    println(StringEscapeUtils.unescapeJavaScript(prettyJsonGenerator.toJson(object)));
   }
 
 }

@@ -1,5 +1,6 @@
 package com.tambapps.http.hyperpoet
 
+import com.tambapps.http.hyperpoet.interceptor.ConsolePrintingInterceptor
 import com.tambapps.http.hyperpoet.invoke.OperationPoeticInvoker
 import okhttp3.Request
 import okhttp3.Response
@@ -14,16 +15,7 @@ class HttpPoetJsonTest {
 
   private HttpPoet client = new HttpPoet(url: "https://jsonplaceholder.typicode.com",
       contentType: ContentType.JSON, acceptContentType: ContentType.JSON).with {
-    onPreExecute = { Request request, byte[] body ->
-      println("headers\n${request.headers()}")
-      if (request.method() in ['POST', 'PATCH', 'PUT']) {
-        assertNotNull(body)
-        println("Body: " + new String(body))
-      }
-    }
-    onPostExecute = { Response response ->
-      println(response.code())
-    }
+    addInterceptor(new ConsolePrintingInterceptor())
     poeticInvoker = new OperationPoeticInvoker(true)
     errorResponseHandler = ErrorResponseHandlers.throwResponseHandler()
     it
@@ -94,7 +86,7 @@ class HttpPoetJsonTest {
 
   @Test
   void testPost() {
-    def post = client.post("/posts", body: [title: 'foo', body: 'bar', userId: 1])
+    def post = client.post("/posts", body: [title: 'foo€', body: 'bar', userId: 1])
 
     // it seems that the API response has changed? these fields doesn't exist annymore
     //assertEquals('foo', post.title)
