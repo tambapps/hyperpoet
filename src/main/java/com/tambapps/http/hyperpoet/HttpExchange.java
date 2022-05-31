@@ -28,6 +28,10 @@ public class HttpExchange {
     this.parser = parser;
   }
 
+  public boolean isSuccessful() {
+    return response.isSuccessful();
+  }
+
   public Request getRequest() {
     return response.request();
   }
