@@ -28,6 +28,7 @@ public class ContentType implements Comparable<ContentType> {
   public static final ContentType XML = new ContentType("application", "xml");
   public static final ContentType TEXT = new ContentType("text", "plain");
   public static final ContentType HTML = new ContentType("text", "html");
+  public static final ContentType CSV = new ContentType("text", "csv");
   public static final ContentType BINARY = new ContentType("application", "octet-stream");
   public static final ContentType URL_ENCODED = new ContentType("application", "x-www-form-urlencoded");
   public static final ContentType MULTIPART_FORM = new ContentType("multipart", "form-data");
