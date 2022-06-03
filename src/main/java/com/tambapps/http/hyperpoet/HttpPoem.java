@@ -6,6 +6,7 @@ import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -16,7 +17,9 @@ import java.util.Optional;
 @AllArgsConstructor
 public class HttpPoem extends GroovyObjectSupport {
 
-  private final HttpPoet poet;
+  @Getter
+  @Setter
+  private HttpPoet poet;
 
   public Object run(Closure<?> closure) {
     closure.setDelegate(this);
