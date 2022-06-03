@@ -26,7 +26,6 @@ import java.net.URLDecoder;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-// TODO document this and don't forget to put it in release note
 /**
  * Interceptor allowing you to print colored request and response data. It is compatible and was only
  * tested in a Linux environment.
