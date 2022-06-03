@@ -95,6 +95,14 @@ public class HttpPoem extends GroovyObjectSupport {
     return new ParamMap(params);
   }
 
+  public Map<?, ?> a(Map<?, ?> params) {
+    return additionalParameters(params);
+  }
+
+  public Map<?, ?> additionalParameters(Map<?, ?> params) {
+    return new AdditionalParametersMap(params);
+  }
+
   private Map<?, ?> buildPoetParams(HttpMethod method, Object... params) {
     return buildPoetParams(method.name(), params);
   }
@@ -103,6 +111,7 @@ public class HttpPoem extends GroovyObjectSupport {
     Optional<BodyMap> optBody = Optional.empty();
     Optional<ParamMap> optParams = Optional.empty();
     Optional<HeaderMap> optHeaders = Optional.empty();
+    Optional<AdditionalParametersMap> optAdditionalParametersMap = Optional.empty();
 
     Map<Object, Object> poetParams = new HashMap<>();
     boolean requiresRequestBody = method != null && okhttp3.internal.http.HttpMethod.requiresRequestBody(method);
@@ -120,8 +129,9 @@ public class HttpPoem extends GroovyObjectSupport {
           optParams = Optional.of((ParamMap) param);
         } else if (param instanceof HeaderMap) {
           optHeaders = Optional.of((HeaderMap) param);
+        } else if (param instanceof AdditionalParametersMap) {
+          optAdditionalParametersMap = Optional.of((AdditionalParametersMap) param);
         } else if (param instanceof ContentType) {
-          // TODO document this
           poetParams.put(requiresRequestBody ? Constants.CONTENT_TYPE_PARAM : Constants.ACCEPT_CONTENT_TYPE_PARAM, param);
         }
       }
@@ -135,6 +145,7 @@ public class HttpPoem extends GroovyObjectSupport {
     });
     optParams.ifPresent(queryParams -> poetParams.put(Constants.QUERY_PARAMS_PARAM, queryParams));
     optHeaders.ifPresent(headers -> poetParams.put(Constants.HEADER_PARAM, headers));
+    optAdditionalParametersMap.ifPresent(poetParams::putAll);
     return poetParams;
   }
 
@@ -156,6 +167,12 @@ public class HttpPoem extends GroovyObjectSupport {
 
   private static class HeaderMap extends HashMap<Object, Object> {
     public HeaderMap(Map<?, ?> m) {
+      super(m);
+    }
+  }
+
+  private static class AdditionalParametersMap extends HashMap<Object, Object> {
+    public AdditionalParametersMap(Map<?, ?> m) {
       super(m);
     }
   }
