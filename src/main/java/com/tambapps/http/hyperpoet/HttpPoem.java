@@ -142,7 +142,6 @@ public class HttpPoem extends GroovyObjectSupport {
     optBody.ifPresent(body -> {
       poetParams.put(Constants.BODY_PARAM, body);
       if (body.getContentType() != null) {
-        // TODO document this
         poetParams.put(Constants.CONTENT_TYPE_PARAM, body.getContentType());
       }
     });
