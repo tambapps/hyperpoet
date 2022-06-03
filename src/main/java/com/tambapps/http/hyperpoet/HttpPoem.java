@@ -179,4 +179,7 @@ public class HttpPoem extends GroovyObjectSupport {
     }
   }
 
+  public History getHistory() {
+    return poet.getHistory();
+  }
 }

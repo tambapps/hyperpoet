@@ -907,16 +907,17 @@ public class HttpPoet extends GroovyObjectSupport {
     this.okHttpClient = builder.build();
   }
 
-  public void enableHistory() {
-    enableHistory(DEFAULT_HISTORY_LIMIT);
+  public HttpPoet enableHistory() {
+    return enableHistory(DEFAULT_HISTORY_LIMIT);
   }
 
-  public void enableHistory(int limit) {
+  public HttpPoet enableHistory(int limit) {
     if (history == null) {
       history = new History(limit);
     } else {
       history.setLimit(limit);
     }
+    return this;
   }
 
   public void disableHistory() {
