@@ -6,8 +6,10 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertFalse
 import static org.junit.jupiter.api.Assertions.assertNotNull
 import static org.junit.jupiter.api.Assertions.assertThrows
+import static org.junit.jupiter.api.Assertions.fail
 
 class HistoryTest {
 
@@ -40,7 +42,13 @@ class HistoryTest {
     assertThrows(ErrorResponseException) {
       client.get("/todos/123456789") // the body is an empty json
     }
+    if (client.history.last()) {
+      fail("Groovy truth should have been false")
+    }
     def post = client.post('/posts', body: [title: 'foo', body: 'bar', userId: 1])
+    if (!client.history.last()) {
+      fail("Groovy truth should have been true")
+    }
 
     assertEquals([getTodo, patchTodo, [:], post], client.history*.responseBody)
     assertEquals(post, client.history[-1].responseBody)

@@ -64,6 +64,11 @@ public class HttpExchange {
     }
   }
 
+  // for the groovy truth
+  public boolean asBoolean() {
+    return isSuccessful();
+  }
+
   @Override
   public String toString() {
     return String.format("HttpExchange{request=%s, response=%s}", getRequest(), getResponse());
