@@ -9,12 +9,10 @@ import java.io.IOException;
 
 public class ErrorResponseHandlers {
 
-  // TODO document addition of this response handler
   public static Closure<?> throwResponseHandler() {
     return new ThrowResponseHandlerClosure();
   }
 
-  // TODO document renaming of this response handler (previously problemResponseHandler())
   public static Closure<?> throwProblemResponseHandler() {
     return throwProblemResponseHandler(new JsonParserClosure());
   }
