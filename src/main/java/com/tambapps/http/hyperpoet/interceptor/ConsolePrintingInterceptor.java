@@ -40,6 +40,7 @@ public class ConsolePrintingInterceptor implements Interceptor {
   @Getter
   @Setter
   private boolean printFullUrl;
+  @Getter
   private final ContentTypeMap<Closure<?>> printers = PoeticPrinters.getMap();
 
   private final AtomicBoolean shouldPrint = new AtomicBoolean(true);
