@@ -29,7 +29,7 @@ public class HttpExchange {
   }
 
   public boolean isSuccessful() {
-    return response.isSuccessful();
+    return response != null && response.isSuccessful();
   }
 
   public Request getRequest() {
