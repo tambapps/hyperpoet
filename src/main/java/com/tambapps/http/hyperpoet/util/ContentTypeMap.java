@@ -10,7 +10,7 @@ import java.util.TreeMap;
 
 /**
  * A map of content type -&gt; T that handles content types inclusion when retrieving an element
- * @param <T>
+ * @param <T> the type of the map values
  */
 @NoArgsConstructor
 // using TreeMap to have ContentType sorted when iterating over keys and checking inclusion
