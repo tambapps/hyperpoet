@@ -13,6 +13,7 @@ import com.tambapps.http.hyperpoet.util.ContentTypeMap;
 import groovy.lang.Closure;
 import lombok.Getter;
 import lombok.Setter;
+import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -39,6 +40,13 @@ public class ConsolePrintingInterceptor implements Interceptor {
   @Getter
   @Setter
   private boolean printFullUrl;
+  // TODO document this
+  @Getter
+  @Setter
+  private boolean printRequestHeaders;
+  @Getter
+  @Setter
+  private boolean printResponseHeaders;
   @Getter
   private final ContentTypeMap<Closure<?>> printers = PoeticPrinters.getMap();
 
@@ -89,6 +97,9 @@ public class ConsolePrintingInterceptor implements Interceptor {
     }
     print(BLUE_SKY, pathBuilder);
     println();
+    if (printRequestHeaders) {
+      printHeaders(request.headers());
+    }
     if (!shouldPrintRequestBody.get()) {
       println();
       return;
@@ -116,6 +127,9 @@ public class ConsolePrintingInterceptor implements Interceptor {
     }
     print(response.isSuccessful() ? BLUE_SKY : RED, responseText);
     println();
+    if (printResponseHeaders) {
+      printHeaders(response.headers());
+    }
     if (!shouldPrintResponseBody.get()) {
       return response;
     }
@@ -129,6 +143,12 @@ public class ConsolePrintingInterceptor implements Interceptor {
     ContentType contentType = contentTypeHeader != null ? ContentType.valueOf(contentTypeHeader) : null;
     printBytes(bytes, contentType);
     return cachedResponse;
+  }
+
+  private void printHeaders(Headers headers) {
+    println("Headers");
+    headers.forEach(p -> println(p.getFirst() + ": " + p.getSecond()));
+    println();
   }
 
   private void printBytes(byte[] bytes, ContentType contentType) {
