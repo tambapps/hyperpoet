@@ -901,7 +901,7 @@ public class HttpPoet extends GroovyObjectSupport {
     parsers.setDefaultValue(parser);
   }
 
-  public void configureOkHttpClient(@ClosureParams(value = SimpleType.class, options = "okhttp3.OkHttpClient.Builder") Closure<Void> configurer) {
+  public void configureOkHttpClient(@ClosureParams(value = SimpleType.class, options = "okhttp3.OkHttpClient.Builder") Closure<?> configurer) {
     OkHttpClient.Builder builder = okHttpClient.newBuilder();
     configurer.call(builder);
     this.okHttpClient = builder.build();
