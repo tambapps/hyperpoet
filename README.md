@@ -5,7 +5,7 @@ Hyperpoet is a Groovy-friendly HTTP client written in Java 8 backed by OkHttp.
 
 The main goal of this library is to be able to perform HTTP requests with as less code as possible.
 
-For that, several functionalities ware implemented
+For that, several functionalities were implemented
 
 - **Automatic I/O handling** :
 No need to open and close Input/OutputStream, the poet does it for you
