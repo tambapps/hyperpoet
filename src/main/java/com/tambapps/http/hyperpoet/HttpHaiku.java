@@ -21,7 +21,6 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Class allowing you to perform quick one-time requests
  */
-// TODO document this
 public class HttpHaiku {
 
   private static final AtomicReference<HttpPoet> POET_REFERENCE = new AtomicReference<>();

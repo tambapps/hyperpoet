@@ -53,10 +53,15 @@ for other dependency management tools.
 ## Examples
 
 ### Get an url
+
 ```groovy
+import com.tambapps.http.hyperpoet.HttpHaiku
+
 HttpPoet poet = new HttpPoet(url: API_URL)
 def posts = poet.get("/posts", params: [author: 'someone@gmail.com'])
 processPosts(posts)
+// or if you don't want to instantiate a Poet
+def todos = HttpHaiku.get("$API_URL/todos", [author: 'someone@gmail.com'])
 ```
 
 ### Post data
@@ -68,6 +73,8 @@ try {
 } catch (ErrorResponseException e) {
   println "Couldn't create new post!"
 }
+// or if you don't want to instantiate a Poet
+HttpHaiku.post("$API_URL/todos", contentType: ContentType.JSON, body: newPost)
 ```
 
 ### Printing request/response data
