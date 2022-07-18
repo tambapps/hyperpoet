@@ -815,7 +815,8 @@ public class HttpPoet extends GroovyObjectSupport {
     if (acceptContentType != null) {
       builder.header("Accept", acceptContentType.toString());
     }
-    if (contentType != null) {
+    if (contentType != null && additionalParameters.containsKey(BODY_PARAM)) {
+      // only specify Content-Type header if there is a body
       builder.header(ContentType.HEADER, contentType.toString());
     }
     return builder.build();
