@@ -151,6 +151,9 @@ public class UrlBuilder {
       String[] fields = param.split("=");
       if (fields.length == 2) {
         queryParams.add(new QueryParam(urlDecode(fields[0]), urlDecode(fields[1])));
+      } else if (fields.length == 1) {
+        // to handle boolean query parameters
+        queryParams.add(new QueryParam(urlDecode(fields[0]), null));
       }
     }
     return url.substring(0, start);

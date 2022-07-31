@@ -18,7 +18,7 @@ public class QueryParam {
 
   @Override
   public String toString() {
-    return key + "=" + value;
+    return value != null ? key + "=" + value : key;
   }
 
   /**
@@ -26,7 +26,7 @@ public class QueryParam {
    * @return this query parameter URL encoded
    */
   public String encoded() {
-    return urlEncode(key) + "=" + urlEncode(value);
+    return value != null ? urlEncode(key) + "=" + urlEncode(value) : urlEncode(key);
   }
 
   @SneakyThrows
