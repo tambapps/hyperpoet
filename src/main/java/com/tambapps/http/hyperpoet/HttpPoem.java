@@ -118,27 +118,30 @@ public class HttpPoem extends GroovyObjectSupport {
 
     Map<Object, Object> poetParams = new HashMap<>();
     boolean requiresRequestBody = method != null && okhttp3.internal.http.HttpMethod.requiresRequestBody(method);
-    if (params.length == 1) {
-      if (requiresRequestBody) {
-        poetParams.put(Constants.BODY_PARAM, params[0]);
+
+    for (Object param : params) {
+      if (param instanceof BodyMap) {
+        optBody = Optional.of((BodyMap) param);
+      } else if (param instanceof ParamMap) {
+        optParams = Optional.of((ParamMap) param);
+      } else if (param instanceof HeaderMap) {
+        optHeaders = Optional.of((HeaderMap) param);
+      } else if (param instanceof AdditionalParametersMap) {
+        optAdditionalParametersMap = Optional.of((AdditionalParametersMap) param);
+      } else if (param instanceof ContentType) {
+        poetParams.put(requiresRequestBody ? Constants.CONTENT_TYPE_PARAM : Constants.ACCEPT_CONTENT_TYPE_PARAM, param);
       } else {
-        poetParams.put(Constants.QUERY_PARAMS_PARAM, params[0]);
-      }
-    } else {
-      for (Object param : params) {
-        if (param instanceof BodyMap) {
-          optBody = Optional.of((BodyMap) param);
-        } else if (param instanceof ParamMap) {
-          optParams = Optional.of((ParamMap) param);
-        } else if (param instanceof HeaderMap) {
-          optHeaders = Optional.of((HeaderMap) param);
-        } else if (param instanceof AdditionalParametersMap) {
-          optAdditionalParametersMap = Optional.of((AdditionalParametersMap) param);
-        } else if (param instanceof ContentType) {
-          poetParams.put(requiresRequestBody ? Constants.CONTENT_TYPE_PARAM : Constants.ACCEPT_CONTENT_TYPE_PARAM, param);
+        if (params.length != 1) {
+          throw new RuntimeException("Don't know how to handle provided parameters");
+        }
+        if (requiresRequestBody) {
+          poetParams.put(Constants.BODY_PARAM, params[0]);
+        } else {
+          poetParams.put(Constants.QUERY_PARAMS_PARAM, params[0]);
         }
       }
     }
+
     optBody.ifPresent(body -> {
       poetParams.put(Constants.BODY_PARAM, body);
       if (body.getContentType() != null) {
