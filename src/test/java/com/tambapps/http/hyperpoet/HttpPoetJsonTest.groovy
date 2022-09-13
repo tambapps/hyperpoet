@@ -11,9 +11,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertNotNull
 import static org.junit.jupiter.api.Assertions.assertThrows
 
-class HttpPoetJsonTest {
+class HttpPoetJsonTest extends JsonPlaceholderTest {
 
-  private HttpPoet client = new HttpPoet(url: "https://jsonplaceholder.typicode.com",
+  private HttpPoet client = new HttpPoet(url: PLACEHOLDER_API_URL,
       contentType: ContentType.JSON, acceptContentType: ContentType.JSON).with {
     addInterceptor(new ConsolePrintingInterceptor())
     poeticInvoker = new OperationPoeticInvoker(true)
@@ -86,24 +86,22 @@ class HttpPoetJsonTest {
 
   @Test
   void testPost() {
-    def post = client.post("/posts", body: [title: 'foo€', body: 'bar', userId: 1])
+    def post = client.post("/posts", body: [title: 'foo', body: 'bar', userId: 1])
 
-    // it seems that the API response has changed? these fields doesn't exist annymore
-    //assertEquals('foo', post.title)
-    //assertEquals('bar', post.body)
-    //assertEquals(1, post.userId)
-    assertEquals(101, post.id)
+    assertEquals('foo', post.title)
+    assertEquals('bar', post.body)
+    assertEquals(1, post.userId)
+    assertNotNull(post.id)
   }
 
   @Test
   void testPost_usingMethod() {
     def post = client.createPost(body: [title: 'foo', body: 'bar', userId: 1])
 
-    // it seems that the API response has changed? these fields doesn't exist annymore
-    //assertEquals('foo', post.title)
-    //assertEquals('bar', post.body)
-    //assertEquals(1, post.userId)
-    assertEquals(101, post.id)
+    assertEquals('foo', post.title)
+    assertEquals('bar', post.body)
+    assertEquals(1, post.userId)
+    assertNotNull(post.id)
   }
 
   @Test

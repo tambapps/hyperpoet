@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertNotNull
 
-class HttpHaikuTest {
+class HttpHaikuTest extends JsonPlaceholderTest {
 
   @Test
   void testGet() {
-    def todo = HttpHaiku.get("https://jsonplaceholder.typicode.com/todos/1")
+    def todo = HttpHaiku.get("$PLACEHOLDER_API_URL/todos/1")
 
     println(todo)
     assertNotNull(todo.id)
@@ -24,7 +24,7 @@ class HttpHaikuTest {
     def interceptor = new ConsolePrintingInterceptor(printRequestHeaders: true)
     HttpHaiku.poet.addInterceptor(interceptor)
     try {
-      def todo = HttpHaiku.get("https://jsonplaceholder.typicode.com/todos/1",
+      def todo = HttpHaiku.get("$PLACEHOLDER_API_URL/todos/1",
           headers: [("X-Some-Custom-Header"): "Value"])
 
       println(todo)
@@ -41,7 +41,7 @@ class HttpHaikuTest {
 
   @Test
   void testPatch() {
-    def todo = HttpHaiku.patch("https://jsonplaceholder.typicode.com/todos/1", [title: 'new title'])
+    def todo = HttpHaiku.patch("$PLACEHOLDER_API_URL/todos/1", [title: 'new title'], ContentType.JSON)
 
     println(todo)
     assertNotNull(todo.id)
@@ -52,12 +52,12 @@ class HttpHaikuTest {
 
   @Test
   void testPost() {
-    def post = HttpHaiku.post("https://jsonplaceholder.typicode.com/posts", [title: 'foo€', body: 'bar', userId: 1])
+    def post = HttpHaiku.post("$PLACEHOLDER_API_URL/posts", [title: 'foo', body: 'bar', userId: 1], ContentType.JSON)
 
     // it seems that the API response has changed? these fields doesn't exist anymore
-    //assertEquals('foo', post.title)
-    //assertEquals('bar', post.body)
-    //assertEquals(1, post.userId)
-    assertEquals(101, post.id)
+    assertEquals('foo', post.title)
+    assertEquals('bar', post.body)
+    assertEquals(1, post.userId)
+    assertNotNull(post.id)
   }
 }

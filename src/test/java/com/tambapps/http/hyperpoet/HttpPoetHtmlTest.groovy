@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertEquals
 
-class HttpPoetHtmlTest {
+class HttpPoetHtmlTest extends JsonPlaceholderTest {
 
-  private HttpPoet client = new HttpPoet(url: "https://fr.wikipedia.org",
+  private HttpPoet client = new HttpPoet(url: PLACEHOLDER_API_URL,
       contentType: ContentType.JSON, acceptContentType: ContentType.HTML).with {
     parsers[ContentType.HTML] = { ResponseBody body -> Jsoup.parse(body.string()) }
     it
@@ -17,7 +17,7 @@ class HttpPoetHtmlTest {
 
   @Test
   void testJsoup() {
-    def html = client.get("/wiki/Groovy_(langage)")
+    def html = client.get("/page.html")
     assertEquals(Document.class, html.class)
   }
 }

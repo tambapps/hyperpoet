@@ -11,9 +11,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull
 import static org.junit.jupiter.api.Assertions.assertThrows
 import static org.junit.jupiter.api.Assertions.fail
 
-class HistoryTest {
+class HistoryTest extends JsonPlaceholderTest {
 
-  private HttpPoet client = new HttpPoet(url: "https://jsonplaceholder.typicode.com",
+  private HttpPoet client = new HttpPoet(url: PLACEHOLDER_API_URL,
       contentType: ContentType.JSON, acceptContentType: ContentType.JSON).tap {
     onPreExecute = { Request request, byte[] body ->
       println("headers\n${request.headers()}")

@@ -1,6 +1,7 @@
 package com.tambapps.http.hyperpoet.invoke
 
 import com.tambapps.http.hyperpoet.HttpPoet
+import com.tambapps.http.hyperpoet.JsonPlaceholderTest
 import com.tambapps.http.hyperpoet.interceptor.ConsolePrintingInterceptor
 import groovy.transform.CompileStatic
 import lombok.SneakyThrows
@@ -12,11 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows
 import static org.junit.jupiter.api.Assertions.assertTrue
 
 @CompileStatic
-class OpenApiSpecPoeticInvokerTest {
+class OpenApiSpecPoeticInvokerTest extends JsonPlaceholderTest {
   private static final OpenApiSpecPoeticInvoker INVOKER = OpenApiSpecPoeticInvoker.fromSpec(
           OpenApiSpecPoeticInvokerTest.class.getResourceAsStream("/spec.yaml").text
   )
-  private final HttpPoet poet = new HttpPoet("https://jsonplaceholder.typicode.com").tap {
+  private final HttpPoet poet = new HttpPoet(PLACEHOLDER_API_URL).tap {
     addInterceptor(new ConsolePrintingInterceptor())
   }
 

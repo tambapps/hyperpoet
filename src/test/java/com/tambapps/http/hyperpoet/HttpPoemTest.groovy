@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertNotNull
 
-class HttpPoemTest {
-    private HttpPoet client = new HttpPoet(url: "https://jsonplaceholder.typicode.com",
+class HttpPoemTest extends JsonPlaceholderTest {
+    private HttpPoet client = new HttpPoet(url: PLACEHOLDER_API_URL,
             contentType: ContentType.JSON, acceptContentType: ContentType.JSON).tap {
         addInterceptor(new ConsolePrintingInterceptor())
     }

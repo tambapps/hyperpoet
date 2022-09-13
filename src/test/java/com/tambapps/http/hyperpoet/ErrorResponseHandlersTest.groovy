@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Test
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertThrows
 
-class ErrorResponseHandlersTest {
-  private static final HttpPoet POET = new HttpPoet(url: "https://jsonplaceholder.typicode.com",
+class ErrorResponseHandlersTest extends JsonPlaceholderTest {
+  private static final HttpPoet POET = new HttpPoet(url: PLACEHOLDER_API_URL,
       contentType: ContentType.JSON, acceptContentType: ContentType.JSON).tap {
     errorResponseHandler = ErrorResponseHandlers.throwProblemResponseHandler()
     addInterceptor(new ConsolePrintingInterceptor())
