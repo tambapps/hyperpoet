@@ -26,12 +26,35 @@ public class HttpPoem extends GroovyObjectSupport {
     return closure.call();
   }
 
+  public Object get(Map<?, ?> body, String url, Object... params) throws IOException {
+    Object[] realParams = new Object[params.length + 1];
+    System.arraycopy(params, 0, realParams, 1, params.length);
+    realParams[0] = this.params(body);
+    return get(url, realParams);
+  }
+
   public Object get(String url, Object... params) throws IOException {
     return poet.get(buildPoetParams(HttpMethod.GET, params), url);
   }
 
+  public Object delete(Map<?, ?> body, String url, Object... params) throws IOException {
+    Object[] realParams = new Object[params.length + 1];
+    System.arraycopy(params, 0, realParams, 1, params.length);
+    realParams[0] = this.params(body);
+    return get(url, realParams);
+  }
+
   public Object delete(String url, Object... params) throws IOException {
     return poet.delete(buildPoetParams(HttpMethod.DELETE, params), url);
+  }
+
+  // for e.g. patch 'foo/1', name: 'new foo', p(param: 1)
+  // or patch 'foo/1', name: 'tourism'
+  public Object patch(Map<?, ?> body, String url, Object... params) throws IOException {
+    Object[] realParams = new Object[params.length + 1];
+    System.arraycopy(params, 0, realParams, 1, params.length);
+    realParams[0] = this.body(body);
+    return patch(url, realParams);
   }
 
   public Object patch(String url, Object... params) throws IOException {
@@ -42,8 +65,22 @@ public class HttpPoem extends GroovyObjectSupport {
     return poet.put(buildPoetParams(HttpMethod.PUT, params), url);
   }
 
+  public Object put(Map<?, ?> body, String url, Object... params) throws IOException {
+    Object[] realParams = new Object[params.length + 1];
+    System.arraycopy(params, 0, realParams, 1, params.length);
+    realParams[0] = this.body(body);
+    return put(url, realParams);
+  }
+
   public Object post(String url, Object... params) throws IOException {
     return poet.post(buildPoetParams(HttpMethod.POST, params), url);
+  }
+
+  public Object post(Map<?, ?> body, String url, Object... params) throws IOException {
+    Object[] realParams = new Object[params.length + 1];
+    System.arraycopy(params, 0, realParams, 1, params.length);
+    realParams[0] = this.body(body);
+    return post(url, realParams);
   }
 
   public String path(String path) {
