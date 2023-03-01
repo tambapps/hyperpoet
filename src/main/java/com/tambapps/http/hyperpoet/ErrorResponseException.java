@@ -53,7 +53,7 @@ public class ErrorResponseException extends RuntimeException {
    * @return the parsed body
    */
   public Object getBody(@ClosureParams(value = SimpleType.class, options = "okhttp3.ResponseBody")
-      Closure<?> parser) {
+      Function parser) {
     return parser.call(body);
   }
 

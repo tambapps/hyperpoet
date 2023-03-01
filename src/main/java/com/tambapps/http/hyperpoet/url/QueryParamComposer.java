@@ -1,5 +1,6 @@
 package com.tambapps.http.hyperpoet.url;
 
+import com.tambapps.http.hyperpoet.Function;
 import groovy.lang.Closure;
 import groovy.transform.stc.ClosureParams;
 import groovy.transform.stc.FirstParam;
@@ -20,16 +21,16 @@ import java.util.stream.Collectors;
 @Setter
 public class QueryParamComposer {
 
-  private final Map<Class<?>, Closure<?>> converters;
+  private final Map<Class<?>, Function> converters;
   private MultivaluedQueryParamComposingType multivaluedQueryParamComposingType;
 
-  public Closure<?> getAt(Class<?> clazz) {
+  public Function getAt(Class<?> clazz) {
     return converters.get(clazz);
   }
 
   public <T> void putAt(Class<T> clazz,
       @ClosureParams(FirstParam.FirstGenericType.class) Closure<String> closure) {
-    converters.put(clazz, closure);
+    converters.put(clazz, closure::call);
   }
 
   public List<QueryParam> compose(Object value) {
@@ -93,11 +94,11 @@ public class QueryParamComposer {
     if (value == null) {
       return "null";
     }
-    Closure<?> converter = findConverter(value.getClass());
+    Function converter = findConverter(value.getClass());
     return converter != null ? String.valueOf(converter.call(value)) : String.valueOf(value);
   }
 
-  private Closure<?> findConverter(Class<?> clazz) {
+  private Function findConverter(Class<?> clazz) {
     return converters.entrySet()
         .stream()
         .filter(e -> e.getKey().isAssignableFrom(clazz))

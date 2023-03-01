@@ -63,6 +63,7 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -81,13 +82,13 @@ public class HttpPoet extends GroovyObjectSupport {
   private final Map<String, String> headers = new HashMap<>();
   private final Map<String, Object> params = new HashMap<>();
   private final CustomJsonGenerator jsonGenerator = new CustomJsonGenerator();
-  private final Map<Class<?>, Closure<?>> queryParamConverters = new HashMap<>();
+  private final Map<Class<?>, Function> queryParamConverters = new HashMap<>();
   private final QueryParamComposer queryParamComposer = new QueryParamComposer(queryParamConverters, MultivaluedQueryParamComposingType.REPEAT);
-  private final ContentTypeMap<Closure<?>> composers = Composers.getMap(jsonGenerator, queryParamComposer);
-  private final ContentTypeMap<Closure<?>> parsers = Parsers.getMap();
-  private Closure<?> errorResponseHandler = ErrorResponseHandlers.throwResponseHandler();
-  protected Closure<?> onPreExecute;
-  protected Closure<?> onPostExecute;
+  private final ContentTypeMap<Function> composers = Composers.getMap(jsonGenerator, queryParamComposer);
+  private final ContentTypeMap<Function> parsers = Parsers.getMap();
+  private Function errorResponseHandler = ErrorResponseHandlers.throwResponseHandler();
+  protected Function onPreExecute;
+  protected Function onPostExecute;
   private String baseUrl;
   private ContentType contentType;
   private ContentType acceptContentType;
@@ -119,15 +120,18 @@ public class HttpPoet extends GroovyObjectSupport {
       putHeader(entry.getKey(), entry.getValue());
     }
     this.errorResponseHandler =
-        getOrDefault(properties, ERROR_RESPONSE_HANDLER_PARAM, Closure.class, this.errorResponseHandler);
-    this.onPreExecute = getOrDefault(properties, ON_PRE_EXECUTE_PARAM, Closure.class, null);
-    this.onPostExecute = getOrDefault(properties, ON_POST_EXECUTE_PARAM, Closure.class, null);
+        getOrDefault(properties, ERROR_RESPONSE_HANDLER_PARAM, Function.class, this.errorResponseHandler);
+    this.onPreExecute = getOrDefault(properties, ON_PRE_EXECUTE_PARAM, Function.class, null);
+    this.onPostExecute = getOrDefault(properties, ON_POST_EXECUTE_PARAM, Function.class, null);
     acceptContentType =
         getOrDefault(properties, ACCEPT_CONTENT_TYPE_PARAM, ContentType.class, null);
     this.contentType = getOrDefault(properties, CONTENT_TYPE_PARAM, ContentType.class, null);
 
-    Closure<?> localDateTimeFormatter = new MethodClosure(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"), "format");
-    Closure<?> dateTimeFormatter = new MethodClosure(DateTimeFormatter.ofPattern("yyyy-MM-dd"), "format");
+    final DateTimeFormatter ldtf = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    Function localDateTimeFormatter = (o) -> ldtf.format((TemporalAccessor) o);
+
+    final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    Function dateTimeFormatter = (o) -> dtf.format((TemporalAccessor) o);
     jsonGenerator.addConverter(LocalDateTime.class, localDateTimeFormatter);
     jsonGenerator.addConverter(LocalDate.class, dateTimeFormatter);
     queryParamConverters.put(LocalDateTime.class, localDateTimeFormatter);
@@ -209,7 +213,7 @@ public class HttpPoet extends GroovyObjectSupport {
    *
    */
   public Object method(String urlOrEndpoint, String method,
-      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler)
+      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Function responseHandler)
       throws IOException {
     return method(Collections.emptyMap(), urlOrEndpoint, method, responseHandler);
   }
@@ -234,7 +238,7 @@ public class HttpPoet extends GroovyObjectSupport {
       @NamedParam(value = ACCEPT_CONTENT_TYPE_PARAM, type = ContentType.class)
       @NamedParam(value = SKIP_HISTORY_PARAM, type = Boolean.class)
       Map<?, ?> additionalParameters, String urlOrEndpoint, HttpMethod method,
-      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler)
+      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Function responseHandler)
       throws IOException {
     return method(additionalParameters, urlOrEndpoint, method.name(), responseHandler);
   }
@@ -259,7 +263,7 @@ public class HttpPoet extends GroovyObjectSupport {
       @NamedParam(value = ACCEPT_CONTENT_TYPE_PARAM, type = ContentType.class)
       @NamedParam(value = SKIP_HISTORY_PARAM, type = Boolean.class)
       Map<?, ?> additionalParameters, String urlOrEndpoint, String method,
-      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler)
+      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Function responseHandler)
       throws IOException {
     Request request = request(method, urlOrEndpoint, additionalParameters);
     return doRequest(request, additionalParameters, responseHandler);
@@ -306,7 +310,7 @@ public class HttpPoet extends GroovyObjectSupport {
    * @throws IOException in case of I/O error
    */
   public Object put(String urlOrEndpoint,
-      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler) throws IOException {
+      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Function responseHandler) throws IOException {
     return put(Collections.emptyMap(), urlOrEndpoint, responseHandler);
   }
 
@@ -329,7 +333,7 @@ public class HttpPoet extends GroovyObjectSupport {
       @NamedParam(value = HEADER_PARAM, type = Map.class)
       @NamedParam(value = ACCEPT_CONTENT_TYPE_PARAM, type = ContentType.class)
       Map<?, ?> additionalParameters, String urlOrEndpoint,
-      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler)
+      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Function responseHandler)
       throws IOException {
     return method(additionalParameters, urlOrEndpoint, HttpMethod.PUT, responseHandler);
   }
@@ -375,7 +379,7 @@ public class HttpPoet extends GroovyObjectSupport {
    * @throws IOException in case of I/O error
    */
   public Object patch(String urlOrEndpoint,
-      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler) throws IOException {
+      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Function responseHandler) throws IOException {
     return post(Collections.emptyMap(), urlOrEndpoint, responseHandler);
   }
 
@@ -398,7 +402,7 @@ public class HttpPoet extends GroovyObjectSupport {
       @NamedParam(value = ACCEPT_CONTENT_TYPE_PARAM, type = ContentType.class)
       @NamedParam(value = SKIP_HISTORY_PARAM, type = Boolean.class)
       Map<?, ?> additionalParameters, String urlOrEndpoint,
-      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler)
+      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Function responseHandler)
       throws IOException {
     return method(additionalParameters, urlOrEndpoint, HttpMethod.PATCH, responseHandler);
   }
@@ -444,7 +448,7 @@ public class HttpPoet extends GroovyObjectSupport {
    * @throws IOException in case of I/O error
    */
   public Object post(String urlOrEndpoint,
-      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler) throws IOException {
+      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Function responseHandler) throws IOException {
     return post(Collections.emptyMap(), urlOrEndpoint, responseHandler);
   }
 
@@ -467,7 +471,7 @@ public class HttpPoet extends GroovyObjectSupport {
       @NamedParam(value = ACCEPT_CONTENT_TYPE_PARAM, type = ContentType.class)
       @NamedParam(value = SKIP_HISTORY_PARAM, type = Boolean.class)
       Map<?, ?> additionalParameters, String urlOrEndpoint,
-      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler)
+      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Function responseHandler)
       throws IOException {
     return method(additionalParameters, urlOrEndpoint, HttpMethod.POST, responseHandler);
   }
@@ -514,7 +518,7 @@ public class HttpPoet extends GroovyObjectSupport {
    * @throws IOException in case of I/O error
    */
   public Object delete(String urlOrEndpoint,
-      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler) throws IOException {
+      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Function responseHandler) throws IOException {
     return delete(Collections.emptyMap(), urlOrEndpoint, responseHandler);
   }
 
@@ -537,7 +541,7 @@ public class HttpPoet extends GroovyObjectSupport {
       @NamedParam(value = ACCEPT_CONTENT_TYPE_PARAM, type = ContentType.class)
       @NamedParam(value = SKIP_HISTORY_PARAM, type = Boolean.class)
       Map<?, ?> additionalParameters, String urlOrEndpoint,
-      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler)
+      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Function responseHandler)
       throws IOException {
     Request request = request(HttpMethod.DELETE, urlOrEndpoint, additionalParameters);
     return doRequest(request, additionalParameters, responseHandler);
@@ -585,7 +589,7 @@ public class HttpPoet extends GroovyObjectSupport {
    * @throws IOException in case of I/O error
    */
   public Object get(String urlOrEndpoint,
-      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler) throws IOException {
+      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Function responseHandler) throws IOException {
     return get(Collections.emptyMap(), urlOrEndpoint, responseHandler);
   }
 
@@ -609,7 +613,7 @@ public class HttpPoet extends GroovyObjectSupport {
       @NamedParam(value = ACCEPT_CONTENT_TYPE_PARAM, type = ContentType.class)
       @NamedParam(value = SKIP_HISTORY_PARAM, type = Boolean.class)
       Map<?, ?> additionalParameters, String urlOrEndpoint,
-      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Closure<?> responseHandler)
+      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Function responseHandler)
       throws IOException {
     Request request = request(HttpMethod.GET, urlOrEndpoint, additionalParameters);
     return doRequest(request, additionalParameters, responseHandler);
@@ -642,13 +646,9 @@ public class HttpPoet extends GroovyObjectSupport {
     return headers.remove(key);
   }
 
-  private Object doRequest(Request request, Map<?, ?> additionalParameters, Closure<?> responseHandler) throws IOException {
+  private Object doRequest(Request request, Map<?, ?> additionalParameters, Function responseHandler) throws IOException {
     if (onPreExecute != null) {
-      if (onPreExecute.getMaximumNumberOfParameters() > 1) {
-        onPreExecute.call(request, extractRequestBody(request.body()));
-      } else {
-        onPreExecute.call(request);
-      }
+      onPreExecute.call(request);
     }
     try (Response response = okHttpClient.newCall(request).execute()) {
       Response effectiveResponse = handleHistory(response, additionalParameters);
@@ -670,11 +670,7 @@ public class HttpPoet extends GroovyObjectSupport {
       printingInterceptor.setShouldPrintResponseBody(getOrDefault(additionalParameters, PRINT_RESPONSE_BODY_PARAM, Boolean.class, true));
     });
     if (onPreExecute != null) {
-      if (onPreExecute.getMaximumNumberOfParameters() > 1) {
-        onPreExecute.call(request, extractRequestBody(request.body()));
-      } else {
-        onPreExecute.call(request);
-      }
+      onPreExecute.call(request);
     }
     try (Response response = okHttpClient.newCall(request).execute()) {
       Response effectiveResponse = handleHistory(response, additionalParameters);
@@ -698,7 +694,7 @@ public class HttpPoet extends GroovyObjectSupport {
     if (body == null) {
       return null;
     }
-    Closure<?> parser = extractResponseBodyParser(response, additionalParameters);
+    Function parser = extractResponseBodyParser(response, additionalParameters);
     return parser.call(body);
   }
 
@@ -706,14 +702,14 @@ public class HttpPoet extends GroovyObjectSupport {
     return getOrDefaultSupply(additionalParameters, ACCEPT_CONTENT_TYPE_PARAM, ContentType.class, () -> getResponseContentType(response));
   }
 
-  private Closure<?> extractResponseBodyParser(Response response, Map<?, ?> additionalParameters) {
+  private Function extractResponseBodyParser(Response response, Map<?, ?> additionalParameters) {
     ContentType responseContentType = extractResponseContentType(response, additionalParameters);
-    Closure<?> parser = getOrDefault(additionalParameters, PARSER_PARAM, Closure.class,
+    Function parser = getOrDefault(additionalParameters, PARSER_PARAM, Function.class,
         parsers.get(responseContentType));
     if (parser != null) {
       return parser;
     } else {
-      return new MethodClosure(Parsers.class, "parseStringResponseBody");
+      return (o) -> Parsers.parseStringResponseBody((ResponseBody) o);
     }
   }
 
@@ -741,7 +737,7 @@ public class HttpPoet extends GroovyObjectSupport {
     } else if (body instanceof Reader) {
       composedBody = IOGroovyMethods.getText((Reader) body);
     } else {
-      Closure<?> composer = getOrDefault(additionalParameters, COMPOSER_PARAM, Closure.class,
+      Function composer = getOrDefault(additionalParameters, COMPOSER_PARAM, Function.class,
           composers.get(contentType));
       if (composer == null && (!(body instanceof RequestBody)
           && !(body instanceof String)
@@ -824,7 +820,7 @@ public class HttpPoet extends GroovyObjectSupport {
 
   protected Object handleErrorResponse(Response response, Map<?, ?> additionalParameters) {
     if (errorResponseHandler != null) {
-      return errorResponseHandler.getMaximumNumberOfParameters() > 1 ? errorResponseHandler.call(response, additionalParameters) : errorResponseHandler.call(response);
+      return errorResponseHandler.call(response);
     } else {
       return defaultHandleErrorResponse(response, additionalParameters);
     }
@@ -898,11 +894,11 @@ public class HttpPoet extends GroovyObjectSupport {
     return !interceptors.isEmpty() ? interceptors.get(0) : null;
   }
 
-  public void setDefaultParser(@ClosureParams(value = SimpleType.class, options = "okhttp3.ResponseBody") Closure<?> parser) {
+  public void setDefaultParser(@ClosureParams(value = SimpleType.class, options = "okhttp3.ResponseBody") Function parser) {
     parsers.setDefaultValue(parser);
   }
 
-  public void configureOkHttpClient(@ClosureParams(value = SimpleType.class, options = "okhttp3.OkHttpClient.Builder") Closure<?> configurer) {
+  public void configureOkHttpClient(@ClosureParams(value = SimpleType.class, options = "okhttp3.OkHttpClient.Builder") Function configurer) {
     OkHttpClient.Builder builder = okHttpClient.newBuilder();
     configurer.call(builder);
     this.okHttpClient = builder.build();
@@ -929,7 +925,7 @@ public class HttpPoet extends GroovyObjectSupport {
     return new HttpPoem(this);
   }
 
-  public Object poem(@DelegatesTo(HttpPoem.class) Closure<?> closure) {
+  public Object poem(@DelegatesTo(HttpPoem.class) Closure closure) {
     return new HttpPoem(this).run(closure);
   }
 
@@ -947,7 +943,7 @@ public class HttpPoet extends GroovyObjectSupport {
     }
     Response cachedResponse = CachedResponseBody.newResponseWitchCachedBody(response);
     Object requestBody = getOrDefault(additionalParameters, BODY_PARAM, Object.class, null);
-    Closure<?> responseParser = extractResponseBodyParser(response, additionalParameters);
+    Function responseParser = extractResponseBodyParser(response, additionalParameters);
     history.add(new HttpExchange(cachedResponse, requestBody, responseParser));
     return cachedResponse;
   }

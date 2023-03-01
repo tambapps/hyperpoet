@@ -21,7 +21,7 @@ public class HttpPoem extends GroovyObjectSupport {
   @Setter
   private HttpPoet poet;
 
-  public Object run(Closure<?> closure) {
+  public Object run(Closure closure) {
     closure.setDelegate(this);
     return closure.call();
   }

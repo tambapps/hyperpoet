@@ -1,5 +1,6 @@
 package com.tambapps.http.hyperpoet.io.json;
 
+import com.tambapps.http.hyperpoet.Function;
 import groovy.json.DefaultJsonGenerator;
 import groovy.lang.Closure;
 import lombok.AllArgsConstructor;
@@ -10,11 +11,11 @@ public class CustomJsonGenerator extends DefaultJsonGenerator {
     super(new Options());
   }
 
-  public void addConverter(Class<?> clazz, Closure<?> closure) {
+  public void addConverter(Class<?> clazz, Function closure) {
     converters.add(new TypeConverter(clazz, closure));
   }
 
-  public Closure<?> getAt(Class<?> clazz) {
+  public Function getAt(Class<?> clazz) {
     for (Converter converter : converters) {
       if (!(converter instanceof TypeConverter)) {
         continue;
@@ -27,7 +28,7 @@ public class CustomJsonGenerator extends DefaultJsonGenerator {
     return null;
   }
 
-  public void putAt(Class<?> clazz, Closure<?> closure) {
+  public void putAt(Class<?> clazz, Function closure) {
     addConverter(clazz, closure);
   }
 
@@ -35,7 +36,7 @@ public class CustomJsonGenerator extends DefaultJsonGenerator {
   private static class TypeConverter implements Converter {
 
     private final Class<?> clazz;
-    private final Closure<?> closure;
+    private final Function closure;
 
     @Override
     public boolean handles(Class<?> type) {
@@ -44,11 +45,7 @@ public class CustomJsonGenerator extends DefaultJsonGenerator {
 
     @Override
     public Object convert(Object value, String key) {
-      if (closure.getMaximumNumberOfParameters() > 1) {
-        return closure.call(value, key);
-      } else {
-        return closure.call(value);
-      }
+      return closure.call(value);
     }
   }
 }

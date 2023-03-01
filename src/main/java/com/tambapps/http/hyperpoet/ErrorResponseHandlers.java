@@ -2,35 +2,42 @@ package com.tambapps.http.hyperpoet;
 
 import com.tambapps.http.hyperpoet.io.parser.JsonParserClosure;
 import groovy.lang.Closure;
+import lombok.SneakyThrows;
 import okhttp3.Response;
 import org.codehaus.groovy.runtime.MethodClosure;
 
 import java.io.IOException;
+import java.util.Collections;
 
 public class ErrorResponseHandlers {
 
-  public static Closure<?> throwResponseHandler() {
+  public static Function throwResponseHandler() {
     return new ThrowResponseHandlerClosure();
   }
 
-  public static Closure<?> throwProblemResponseHandler() {
+  public static Function throwProblemResponseHandler() {
     return throwProblemResponseHandler(new JsonParserClosure());
   }
 
-  public static Closure<?> throwProblemResponseHandler(Closure<?> parser) {
+  public static Function throwProblemResponseHandler(Function parser) {
     return new ThrowProblemResponseHandlerClosure(parser);
   }
 
-  public static Closure<?> parseResponseHandler(HttpPoet poet) {
-    return new MethodClosure(poet, "parseResponse");
+  public static Function parseResponseHandler(HttpPoet poet) {
+    return (o) -> poet.parseResponse((Response) o, Collections.emptyMap());
   }
 
-  private static class ThrowResponseHandlerClosure extends Closure<Void> {
+  private static class ThrowResponseHandlerClosure implements Function {
 
     public ThrowResponseHandlerClosure() {
-      super(null);
     }
 
+    @SneakyThrows
+    @Override
+    public Object call(Object arg) {
+      doCall((Response) arg);
+      return null;
+    }
     public void doCall(Response response) throws IOException {
       ErrorResponseException exception = ErrorResponseException.from(response);
       response.close();
@@ -38,13 +45,19 @@ public class ErrorResponseHandlers {
     }
   }
 
-  private static class ThrowProblemResponseHandlerClosure extends Closure<Void> {
+  private static class ThrowProblemResponseHandlerClosure implements Function {
 
-    private final Closure<?> jsonParser;
+    private final Function jsonParser;
 
-    public ThrowProblemResponseHandlerClosure(Closure<?> jsonParser) {
-      super(null);
+    public ThrowProblemResponseHandlerClosure(Function jsonParser) {
       this.jsonParser = jsonParser;
+    }
+
+    @SneakyThrows
+    @Override
+    public Object call(Object arg) {
+      doCall((Response) arg);
+      return null;
     }
 
     public void doCall(Response response) throws IOException {

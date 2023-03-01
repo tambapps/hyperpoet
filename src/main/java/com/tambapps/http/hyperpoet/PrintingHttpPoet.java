@@ -33,7 +33,7 @@ import java.util.Map;
 @Getter
 public class PrintingHttpPoet extends HttpPoet {
 
-  private final ContentTypeMap<Closure<?>> printers = PoeticPrinters.getMap();
+  private final ContentTypeMap<Function> printers = PoeticPrinters.getMap();
 
   public PrintingHttpPoet(OkHttpClient okHttpClient, String baseUrl) {
     super(okHttpClient, baseUrl);
@@ -135,7 +135,7 @@ public class PrintingHttpPoet extends HttpPoet {
     if (bytes.length == 0) {
       println("(No content)");
     } else if (print) {
-      Closure<?> printer = printers.get(contentType);
+      Function printer = printers.get(contentType);
       if (printer != null) {
         printer.call(bytes);
       } else {
@@ -144,7 +144,7 @@ public class PrintingHttpPoet extends HttpPoet {
     }
   }
 
-  public void setDefaultPrinter(Closure<?> closure) {
+  public void setDefaultPrinter(Function closure) {
     printers.setDefaultValue(closure);
   }
 }

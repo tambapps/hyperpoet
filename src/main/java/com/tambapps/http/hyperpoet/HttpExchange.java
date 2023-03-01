@@ -17,9 +17,9 @@ public class HttpExchange {
   private final Response response;
   @Getter
   private final Object requestBody;
-  private final Closure<?> parser;
+  private final Function parser;
 
-  public HttpExchange(Response response, Object requestBody, Closure<?> parser) {
+  public HttpExchange(Response response, Object requestBody, Function parser) {
     if (response != null && response.body() != null && !(response.body() instanceof CachedResponseBody)) {
       throw new IllegalArgumentException("Response body should have been cached");
     }

@@ -1,18 +1,15 @@
 package com.tambapps.http.hyperpoet.io.parser;
 
 import com.tambapps.http.hyperpoet.ContentType;
+import com.tambapps.http.hyperpoet.Function;
 import com.tambapps.http.hyperpoet.util.ContentTypeMap;
-import groovy.lang.Closure;
 import groovy.xml.XmlSlurper;
 import lombok.SneakyThrows;
 import okhttp3.ResponseBody;
-import org.codehaus.groovy.runtime.MethodClosure;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Utility class holding several common parsers. A parser can return any kind of objects
@@ -21,19 +18,20 @@ public class Parsers {
 
   private Parsers() {}
 
-  public static ContentTypeMap<Closure<?>> getMap() {
-    ContentTypeMap<Closure<?>> map = new ContentTypeMap<>();
+  public static ContentTypeMap<Function> getMap() {
+    ContentTypeMap<Function> map = new ContentTypeMap<>();
     map.put(ContentType.JSON, new JsonParserClosure());
-    map.put(ContentType.XML, new MethodClosure(Parsers.class, "parseXmlResponseBody"));
-    map.put(ContentType.TEXT, new MethodClosure(Parsers.class, "parseStringResponseBody"));
-    map.put(ContentType.HTML, new MethodClosure(Parsers.class, "parseStringResponseBody"));
-    map.put(ContentType.BINARY, new MethodClosure(Parsers.class, "parseBytesResponseBody"));
+    map.put(ContentType.XML, (o) -> parseXmlResponseBody((ResponseBody) o));
+    map.put(ContentType.TEXT, (o) -> parseStringResponseBody((ResponseBody) o));
+    map.put(ContentType.HTML, (o) -> parseStringResponseBody((ResponseBody) o));
+    map.put(ContentType.BINARY, (o) -> parseBytesResponseBody((ResponseBody) o));
     // default parser (when no content type was found)
-    map.setDefaultValue(new MethodClosure(Parsers.class, "parseStringResponseBody"));
+    map.setDefaultValue((o) -> parseStringResponseBody((ResponseBody) o));
     return map;
   }
 
-  public static Object parseXmlResponseBody(ResponseBody body) throws IOException {
+  @SneakyThrows
+  public static Object parseXmlResponseBody(ResponseBody body) {
     String text = body.string();
     if (text.isEmpty()) {
       return "(No content)";
@@ -54,7 +52,8 @@ public class Parsers {
     return text;
   }
 
-  public static byte[] parseBytesResponseBody(ResponseBody body) throws IOException {
+  @SneakyThrows
+  public static byte[] parseBytesResponseBody(ResponseBody body) {
     return body.bytes();
   }
 }

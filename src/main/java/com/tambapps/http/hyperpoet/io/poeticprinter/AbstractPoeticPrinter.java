@@ -1,11 +1,16 @@
 package com.tambapps.http.hyperpoet.io.poeticprinter;
 
-import groovy.lang.Closure;
+import com.tambapps.http.hyperpoet.Function;
 
-public abstract class AbstractPoeticPrinter extends Closure<Void> implements PoeticPrinter {
+public abstract class AbstractPoeticPrinter implements Function, PoeticPrinter {
 
   protected AbstractPoeticPrinter() {
-    super(null);
+  }
+
+  @Override
+  public Object call(Object arg) {
+    doCall((byte[]) arg);
+    return null;
   }
 
   public void doCall(byte[] bytes) {

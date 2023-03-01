@@ -54,7 +54,7 @@ public class ProblemResponseException extends ErrorResponseException {
     return getMember(propertyName);
   }
 
-  public static ProblemResponseException from(Response response, Closure<?> parser) throws IOException {
+  public static ProblemResponseException from(Response response, Function parser) throws IOException {
     CachedResponseBody responseBody = CachedResponseBody.from(response.body());
     Map<String, Object> members = new HashMap<>();
     Request request = response.request();

@@ -1,5 +1,6 @@
 package com.tambapps.http.hyperpoet.url;
 
+import com.tambapps.http.hyperpoet.Function;
 import groovy.lang.Closure;
 import lombok.Getter;
 
@@ -35,7 +36,7 @@ public class UrlBuilder {
     this(url, new QueryParamComposer(new HashMap<>(), multivaluedQueryParamComposingType));
   }
 
-  public UrlBuilder(String url, Map<Class<?>, Closure<?>> queryParamConverters) {
+  public UrlBuilder(String url, Map<Class<?>, Function> queryParamConverters) {
     this(url, new QueryParamComposer(queryParamConverters, MultivaluedQueryParamComposingType.REPEAT));
   }
 

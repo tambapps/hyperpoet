@@ -2,18 +2,18 @@ package com.tambapps.http.hyperpoet.io.composer;
 
 import com.tambapps.http.hyperpoet.ContentType;
 import com.tambapps.http.hyperpoet.FormPart;
+import com.tambapps.http.hyperpoet.Function;
 import com.tambapps.http.hyperpoet.url.QueryParamComposer;
 import com.tambapps.http.hyperpoet.util.ContentTypeMap;
 import groovy.json.JsonGenerator;
 import groovy.json.JsonOutput;
-import groovy.lang.Closure;
 import groovy.util.Node;
 import groovy.xml.XmlUtil;
+import lombok.SneakyThrows;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import org.codehaus.groovy.runtime.IOGroovyMethods;
-import org.codehaus.groovy.runtime.MethodClosure;
 import org.codehaus.groovy.runtime.ResourceGroovyMethods;
 
 import java.io.File;
@@ -37,17 +37,17 @@ public final class Composers {
 
   private Composers() {}
 
-  public static ContentTypeMap<Closure<?>> getMap(JsonGenerator jsonGenerator, QueryParamComposer queryParamComposer) {
-    ContentTypeMap<Closure<?>> map = new ContentTypeMap<>();
-    map.put(ContentType.JSON, new MethodClosure(jsonGenerator, "toJson"));
-    map.put(ContentType.XML, new MethodClosure(Composers.class, "composeXmlBody"));
-    map.put(ContentType.TEXT, new MethodClosure(Composers.class, "composeStringBody"));
-    map.put(ContentType.HTML, new MethodClosure(Composers.class, "composeStringBody"));
-    map.put(ContentType.BINARY, new MethodClosure(Composers.class, "composeBytesBody"));
-    map.put(ContentType.URL_ENCODED, new MethodClosure(queryParamComposer, "composeToString"));
+  public static ContentTypeMap<Function> getMap(JsonGenerator jsonGenerator, QueryParamComposer queryParamComposer) {
+    ContentTypeMap<Function> map = new ContentTypeMap<>();
+    map.put(ContentType.JSON, jsonGenerator::toJson);
+    map.put(ContentType.XML, Composers::composeXmlBody);
+    map.put(ContentType.TEXT, Composers::composeStringBody);
+    map.put(ContentType.HTML, Composers::composeStringBody);
+    map.put(ContentType.BINARY, Composers::composeBytesBody);
+    map.put(ContentType.URL_ENCODED, queryParamComposer::composeToString);
     map.put(ContentType.MULTIPART_FORM, new MultipartFormComposerClosure(map));
     // default composer (when no content type was found)
-    map.setDefaultValue(new MethodClosure(Composers.class, "composeStringBody"));
+    map.setDefaultValue(Composers::composeStringBody);
     return map;
   }
 
@@ -71,7 +71,8 @@ public final class Composers {
     return String.valueOf(body);
   }
 
-  public static byte[] composeBytesBody(Object body) throws IOException {
+  @SneakyThrows
+  public static byte[] composeBytesBody(Object body) {
     byte[] bytes;
     if (body instanceof byte[]) {
       bytes = (byte[]) body;
@@ -89,16 +90,17 @@ public final class Composers {
     return bytes;
   }
 
-  private static class MultipartFormComposerClosure extends Closure<RequestBody> {
+  private static class MultipartFormComposerClosure implements Function {
     // keeping poet instance to have an up to date (and mostly non-null) composers
-    private final ContentTypeMap<Closure<?>> composers;
+    private final ContentTypeMap<Function> composers;
 
-    MultipartFormComposerClosure(ContentTypeMap<Closure<?>> composers) {
-      super(null);
+    MultipartFormComposerClosure(ContentTypeMap<Function> composers) {
       this.composers = composers;
     }
 
-    public RequestBody doCall(Object body) throws IOException {
+    @SneakyThrows
+    @Override
+    public RequestBody call(Object body) {
       Map<?, ?> map;
       if (body instanceof File) {
         map = Collections.singletonMap(((File) body).getName(), body);
@@ -151,7 +153,7 @@ public final class Composers {
       } else if (value instanceof Reader) {
         requestBody = RequestBody.create(IOGroovyMethods.getText((Reader) value), mediaType);
       } else {
-        Closure<?> composer = composers.get(formPart.getContentType());
+        Function composer = composers.get(formPart.getContentType());
         if (composer == null) {
           throw new IllegalArgumentException(String.format("Couldn't find a composer for FormPart '%s'", filename));
         }

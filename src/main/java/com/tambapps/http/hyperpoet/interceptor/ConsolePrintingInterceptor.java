@@ -6,6 +6,7 @@ import static com.tambapps.http.hyperpoet.util.Ansi.print;
 import static com.tambapps.http.hyperpoet.util.Ansi.println;
 
 import com.tambapps.http.hyperpoet.ContentType;
+import com.tambapps.http.hyperpoet.Function;
 import com.tambapps.http.hyperpoet.HttpPoet;
 import com.tambapps.http.hyperpoet.io.poeticprinter.PoeticPrinters;
 import com.tambapps.http.hyperpoet.util.CachedResponseBody;
@@ -48,7 +49,7 @@ public class ConsolePrintingInterceptor implements Interceptor {
   @Setter
   private boolean printResponseHeaders;
   @Getter
-  private final ContentTypeMap<Closure<?>> printers = PoeticPrinters.getMap();
+  private final ContentTypeMap<Function> printers = PoeticPrinters.getMap();
 
   private final AtomicBoolean shouldPrint = new AtomicBoolean(true);
   private final AtomicBoolean shouldPrintRequestBody = new AtomicBoolean(true);
@@ -155,7 +156,7 @@ public class ConsolePrintingInterceptor implements Interceptor {
     if (bytes.length == 0) {
       println("(No content)");
     } else {
-      Closure<?> printer = printers.get(contentType);
+      Function printer = printers.get(contentType);
       if (printer != null) {
         printer.call(bytes);
       } else {
