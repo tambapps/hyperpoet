@@ -29,7 +29,7 @@ import com.tambapps.http.hyperpoet.url.MultivaluedQueryParamComposingType;
 import com.tambapps.http.hyperpoet.url.QueryParamComposer;
 import com.tambapps.http.hyperpoet.url.UrlBuilder;
 import com.tambapps.http.hyperpoet.util.CachedResponseBody;
-import com.tambapps.http.hyperpoet.util.ContentTypeMap;
+import com.tambapps.http.hyperpoet.util.ContentTypeMapFunction;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import groovy.lang.GroovyObjectSupport;
@@ -50,7 +50,6 @@ import okhttp3.ResponseBody;
 import okio.BufferedSink;
 import okio.Okio;
 import org.codehaus.groovy.runtime.IOGroovyMethods;
-import org.codehaus.groovy.runtime.MethodClosure;
 import org.codehaus.groovy.runtime.ResourceGroovyMethods;
 
 import java.io.ByteArrayOutputStream;
@@ -84,8 +83,8 @@ public class HttpPoet extends GroovyObjectSupport {
   private final CustomJsonGenerator jsonGenerator = new CustomJsonGenerator();
   private final Map<Class<?>, Function> queryParamConverters = new HashMap<>();
   private final QueryParamComposer queryParamComposer = new QueryParamComposer(queryParamConverters, MultivaluedQueryParamComposingType.REPEAT);
-  private final ContentTypeMap<Function> composers = Composers.getMap(jsonGenerator, queryParamComposer);
-  private final ContentTypeMap<Function> parsers = Parsers.getMap();
+  private final ContentTypeMapFunction composers = Composers.getMap(jsonGenerator, queryParamComposer);
+  private final ContentTypeMapFunction parsers = Parsers.getMap();
   private Function errorResponseHandler = ErrorResponseHandlers.throwResponseHandler();
   protected Function onPreExecute;
   protected Function onPostExecute;

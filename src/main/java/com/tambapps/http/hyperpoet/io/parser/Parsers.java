@@ -2,7 +2,7 @@ package com.tambapps.http.hyperpoet.io.parser;
 
 import com.tambapps.http.hyperpoet.ContentType;
 import com.tambapps.http.hyperpoet.Function;
-import com.tambapps.http.hyperpoet.util.ContentTypeMap;
+import com.tambapps.http.hyperpoet.util.ContentTypeMapFunction;
 import groovy.xml.XmlSlurper;
 import lombok.SneakyThrows;
 import okhttp3.ResponseBody;
@@ -18,8 +18,8 @@ public class Parsers {
 
   private Parsers() {}
 
-  public static ContentTypeMap<Function> getMap() {
-    ContentTypeMap<Function> map = new ContentTypeMap<>();
+  public static ContentTypeMapFunction getMap() {
+    ContentTypeMapFunction map = new ContentTypeMapFunction();
     map.put(ContentType.JSON, new JsonParserClosure());
     map.put(ContentType.XML, (o) -> parseXmlResponseBody((ResponseBody) o));
     map.put(ContentType.TEXT, (o) -> parseStringResponseBody((ResponseBody) o));

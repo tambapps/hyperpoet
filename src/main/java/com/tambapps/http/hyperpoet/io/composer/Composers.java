@@ -4,7 +4,7 @@ import com.tambapps.http.hyperpoet.ContentType;
 import com.tambapps.http.hyperpoet.FormPart;
 import com.tambapps.http.hyperpoet.Function;
 import com.tambapps.http.hyperpoet.url.QueryParamComposer;
-import com.tambapps.http.hyperpoet.util.ContentTypeMap;
+import com.tambapps.http.hyperpoet.util.ContentTypeMapFunction;
 import groovy.json.JsonGenerator;
 import groovy.json.JsonOutput;
 import groovy.util.Node;
@@ -37,8 +37,8 @@ public final class Composers {
 
   private Composers() {}
 
-  public static ContentTypeMap<Function> getMap(JsonGenerator jsonGenerator, QueryParamComposer queryParamComposer) {
-    ContentTypeMap<Function> map = new ContentTypeMap<>();
+  public static ContentTypeMapFunction getMap(JsonGenerator jsonGenerator, QueryParamComposer queryParamComposer) {
+    ContentTypeMapFunction map = new ContentTypeMapFunction();
     map.put(ContentType.JSON, jsonGenerator::toJson);
     map.put(ContentType.XML, Composers::composeXmlBody);
     map.put(ContentType.TEXT, Composers::composeStringBody);
@@ -92,9 +92,9 @@ public final class Composers {
 
   private static class MultipartFormComposerClosure implements Function {
     // keeping poet instance to have an up to date (and mostly non-null) composers
-    private final ContentTypeMap<Function> composers;
+    private final ContentTypeMapFunction composers;
 
-    MultipartFormComposerClosure(ContentTypeMap<Function> composers) {
+    MultipartFormComposerClosure(ContentTypeMapFunction composers) {
       this.composers = composers;
     }
 

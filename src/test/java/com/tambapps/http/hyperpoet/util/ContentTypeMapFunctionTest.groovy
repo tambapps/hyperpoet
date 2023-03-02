@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertNull
 
-class ContentTypeMapTest {
+class ContentTypeMapFunctionTest {
 
   @Test
   void test1() {
-    ContentTypeMap<String> map = new ContentTypeMap<>([
+    ContentTypeMapFunction map = new ContentTypeMapFunction([
         (ContentType.JSON): "json",
         (new ContentType("something","*")): "something",
         (new ContentType("something","specific")): "specific",
@@ -26,7 +26,7 @@ class ContentTypeMapTest {
 
   @Test
   void test2() {
-    ContentTypeMap<String> map = new ContentTypeMap<>([
+    ContentTypeMapFunction map = new ContentTypeMapFunction([
         (ContentType.WILDCARD): "wildcard",
         (ContentType.JSON): "json",
         (new ContentType("something","*")): "something",
@@ -43,7 +43,7 @@ class ContentTypeMapTest {
 
   @Test
   void testDefaultValue() {
-    ContentTypeMap<String> map = new ContentTypeMap<>([
+    ContentTypeMapFunction map = new ContentTypeMapFunction([
         (ContentType.JSON): "json",
     ])
     map.setDefaultValue("default")

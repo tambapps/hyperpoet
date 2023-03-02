@@ -10,8 +10,7 @@ import com.tambapps.http.hyperpoet.Function;
 import com.tambapps.http.hyperpoet.HttpPoet;
 import com.tambapps.http.hyperpoet.io.poeticprinter.PoeticPrinters;
 import com.tambapps.http.hyperpoet.util.CachedResponseBody;
-import com.tambapps.http.hyperpoet.util.ContentTypeMap;
-import groovy.lang.Closure;
+import com.tambapps.http.hyperpoet.util.ContentTypeMapFunction;
 import lombok.Getter;
 import lombok.Setter;
 import okhttp3.Headers;
@@ -49,7 +48,7 @@ public class ConsolePrintingInterceptor implements Interceptor {
   @Setter
   private boolean printResponseHeaders;
   @Getter
-  private final ContentTypeMap<Function> printers = PoeticPrinters.getMap();
+  private final ContentTypeMapFunction printers = PoeticPrinters.getMap();
 
   private final AtomicBoolean shouldPrint = new AtomicBoolean(true);
   private final AtomicBoolean shouldPrintRequestBody = new AtomicBoolean(true);
