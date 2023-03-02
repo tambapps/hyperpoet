@@ -1,10 +1,8 @@
 package com.tambapps.http.hyperpoet;
 
 import com.tambapps.http.hyperpoet.io.parser.JsonParserClosure;
-import groovy.lang.Closure;
 import lombok.SneakyThrows;
 import okhttp3.Response;
-import org.codehaus.groovy.runtime.MethodClosure;
 
 import java.io.IOException;
 import java.util.Collections;

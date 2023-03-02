@@ -11,8 +11,6 @@ import com.tambapps.http.hyperpoet.url.QueryParamComposer;
 import com.tambapps.http.hyperpoet.url.UrlBuilder;
 import com.tambapps.http.hyperpoet.util.CachedResponseBody;
 import com.tambapps.http.hyperpoet.util.ContentTypeMapFunction;
-import groovy.transform.stc.ClosureParams;
-import groovy.transform.stc.SimpleType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -364,7 +362,7 @@ public class AbstractHttpPoet {
   }
 
 
-  public void configureOkHttpClient(@ClosureParams(value = SimpleType.class, options = "okhttp3.OkHttpClient.Builder") Function configurer) {
+  public void configureOkHttpClient(Function configurer) {
     OkHttpClient.Builder builder = okHttpClient.newBuilder();
     configurer.call(builder);
     this.okHttpClient = builder.build();

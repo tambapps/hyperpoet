@@ -1,7 +1,6 @@
 package com.tambapps.http.hyperpoet.url;
 
 import com.tambapps.http.hyperpoet.Function;
-import groovy.lang.Closure;
 import lombok.Getter;
 
 import java.io.UnsupportedEncodingException;

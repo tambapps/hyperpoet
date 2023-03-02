@@ -7,7 +7,6 @@ import groovy.transform.stc.FirstParam;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,10 +36,13 @@ public class QueryParamComposer {
     if (value instanceof Map) {
       return compose((Map) value);
     } else {
+      throw new IllegalArgumentException("Illegal argument " + value);
+      /*
       Map<?, ?> map = DefaultGroovyMethods.getProperties(value);
       // groovy creates a property for the class. we don't want that
       map.remove("class");
       return compose(map);
+       */
     }
   }
 

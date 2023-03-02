@@ -1,9 +1,6 @@
 package com.tambapps.http.hyperpoet;
 
 import com.tambapps.http.hyperpoet.util.CachedResponseBody;
-import groovy.lang.Closure;
-import groovy.transform.stc.ClosureParams;
-import groovy.transform.stc.SimpleType;
 import lombok.Getter;
 import okhttp3.Headers;
 import okhttp3.Response;
@@ -52,8 +49,7 @@ public class ErrorResponseException extends RuntimeException {
    * @param parser the parser closure
    * @return the parsed body
    */
-  public Object getBody(@ClosureParams(value = SimpleType.class, options = "okhttp3.ResponseBody")
-      Function parser) {
+  public Object getBody(Function parser) {
     return parser.call(body);
   }
 

@@ -2,7 +2,6 @@ package com.tambapps.http.hyperpoet.io.json;
 
 import com.tambapps.http.hyperpoet.Function;
 import groovy.json.DefaultJsonGenerator;
-import groovy.lang.Closure;
 import lombok.AllArgsConstructor;
 
 public class CustomJsonGenerator extends DefaultJsonGenerator {
