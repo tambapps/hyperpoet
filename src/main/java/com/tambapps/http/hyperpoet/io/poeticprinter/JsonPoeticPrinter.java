@@ -2,19 +2,23 @@ package com.tambapps.http.hyperpoet.io.poeticprinter;
 
 import static com.tambapps.http.hyperpoet.util.Ansi.println;
 
-import com.tambapps.http.hyperpoet.io.json.PrettyJsonGenerator;
-import groovy.json.JsonSlurper;
+import com.tambapps.http.hyperpoet.io.json.JsonGenerator;
 import groovy.json.StringEscapeUtils;
+import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 
+import java.util.Map;
+
+@AllArgsConstructor
 public class JsonPoeticPrinter extends AbstractPoeticPrinter {
 
-  private final JsonSlurper jsonSlurper = new JsonSlurper();
-  private final PrettyJsonGenerator prettyJsonGenerator = new PrettyJsonGenerator();
+  private final JsonGenerator jsonGenerator;
 
+  @SneakyThrows
   @Override
   public void printBytes(byte[] bytes) {
-    Object object = jsonSlurper.parseText(new String(bytes));
-    println(StringEscapeUtils.unescapeJavaScript(prettyJsonGenerator.toJson(object)));
+    Map object = jsonGenerator.getMapper().readValue(bytes, Map.class);
+    println(StringEscapeUtils.unescapeJavaScript(jsonGenerator.composeToPrettyColoredJson(object)));
   }
 
 }

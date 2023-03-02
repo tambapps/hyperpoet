@@ -1,10 +1,13 @@
 package com.tambapps.http.hyperpoet.io.json
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.tambapps.http.hyperpoet.io.poeticprinter.JsonPoeticPrinter
+import groovy.json.JsonOutput
 import org.junit.jupiter.api.Test
 
-class PrettyJsonGeneratorTest {
+class JsonPoeticPrinterTest {
 
-    final PrettyJsonGenerator generator = new PrettyJsonGenerator()
+    final JsonPoeticPrinter generator = new JsonPoeticPrinter(new JsonGenerator())
     @Test
     void test() {
         def map = [foo: [bar: 1, yes: true], zzz: 'yiiii', n:12345, nil: null, list: [
@@ -15,6 +18,6 @@ class PrettyJsonGeneratorTest {
                 [a: 1, b: "2", c: true]
         ]]
 
-        println(generator.toJson(map))
+        generator.printBytes(JsonOutput.toJson(map).bytes)
     }
 }

@@ -2,7 +2,6 @@ package com.tambapps.http.hyperpoet.interceptor;
 
 import com.tambapps.http.hyperpoet.Headers;
 import com.tambapps.http.hyperpoet.HttpPoet;
-import groovy.json.JsonSlurper;
 import groovy.lang.Closure;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

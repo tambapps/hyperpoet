@@ -3,10 +3,9 @@ package com.tambapps.http.hyperpoet.io.composer;
 import com.tambapps.http.hyperpoet.ContentType;
 import com.tambapps.http.hyperpoet.FormPart;
 import com.tambapps.http.hyperpoet.Function;
-import com.tambapps.http.hyperpoet.io.json.CustomJsonGenerator;
+import com.tambapps.http.hyperpoet.io.json.JsonGenerator;
 import com.tambapps.http.hyperpoet.url.QueryParamComposer;
 import com.tambapps.http.hyperpoet.util.ContentTypeMapFunction;
-import groovy.json.JsonGenerator;
 import groovy.json.JsonOutput;
 import groovy.util.Node;
 import groovy.xml.XmlUtil;
@@ -25,6 +24,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
 
+// TODO stop using groovy.json everywhere
 /**
  * Utility class holding several common composers.
  * An composer should return one of the following types
@@ -38,7 +38,7 @@ public final class Composers {
 
   private Composers() {}
 
-  public static ContentTypeMapFunction getMap(CustomJsonGenerator jsonGenerator, QueryParamComposer queryParamComposer) {
+  public static ContentTypeMapFunction getMap(JsonGenerator jsonGenerator, QueryParamComposer queryParamComposer) {
     ContentTypeMapFunction map = new ContentTypeMapFunction();
     map.put(ContentType.JSON, jsonGenerator::composeToJson);
     map.put(ContentType.XML, Composers::composeXmlBody);

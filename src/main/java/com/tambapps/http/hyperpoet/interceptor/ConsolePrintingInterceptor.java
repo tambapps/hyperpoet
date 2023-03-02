@@ -5,9 +5,13 @@ import static com.tambapps.http.hyperpoet.util.Ansi.RED;
 import static com.tambapps.http.hyperpoet.util.Ansi.print;
 import static com.tambapps.http.hyperpoet.util.Ansi.println;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.tambapps.http.hyperpoet.ContentType;
 import com.tambapps.http.hyperpoet.Function;
 import com.tambapps.http.hyperpoet.HttpPoet;
+import com.tambapps.http.hyperpoet.io.json.JsonGenerator;
 import com.tambapps.http.hyperpoet.io.poeticprinter.PoeticPrinters;
 import com.tambapps.http.hyperpoet.util.CachedResponseBody;
 import com.tambapps.http.hyperpoet.util.ContentTypeMapFunction;
@@ -48,7 +52,7 @@ public class ConsolePrintingInterceptor implements Interceptor {
   @Setter
   private boolean printResponseHeaders;
   @Getter
-  private final ContentTypeMapFunction printers = PoeticPrinters.getMap();
+  private final ContentTypeMapFunction printers = PoeticPrinters.getMap(new JsonGenerator());
 
   private final AtomicBoolean shouldPrint = new AtomicBoolean(true);
   private final AtomicBoolean shouldPrintRequestBody = new AtomicBoolean(true);

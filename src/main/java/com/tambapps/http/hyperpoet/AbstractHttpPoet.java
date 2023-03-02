@@ -1,13 +1,10 @@
 package com.tambapps.http.hyperpoet;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.tambapps.http.hyperpoet.interceptor.ConsolePrintingInterceptor;
 import com.tambapps.http.hyperpoet.invoke.PoeticInvoker;
 import com.tambapps.http.hyperpoet.io.IoUtils;
 import com.tambapps.http.hyperpoet.io.composer.Composers;
-import com.tambapps.http.hyperpoet.io.json.CustomJsonGenerator;
+import com.tambapps.http.hyperpoet.io.json.JsonGenerator;
 import com.tambapps.http.hyperpoet.io.parser.Parsers;
 import com.tambapps.http.hyperpoet.url.MultivaluedQueryParamComposingType;
 import com.tambapps.http.hyperpoet.url.QueryParamComposer;
@@ -54,7 +51,7 @@ public class AbstractHttpPoet {
   private OkHttpClient okHttpClient;
   private final Map<String, String> headers = new HashMap<>();
   private final Map<String, Object> params = new HashMap<>();
-  private final CustomJsonGenerator jsonGenerator = new CustomJsonGenerator();
+  private final JsonGenerator jsonGenerator = new JsonGenerator();
 
   private final Map<Class<?>, Function> queryParamConverters = new HashMap<>();
   private final QueryParamComposer queryParamComposer = new QueryParamComposer(queryParamConverters, MultivaluedQueryParamComposingType.REPEAT);
