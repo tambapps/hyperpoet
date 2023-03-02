@@ -1,7 +1,6 @@
 package com.tambapps.http.hyperpoet;
 
 import com.tambapps.http.hyperpoet.util.CachedResponseBody;
-import groovy.lang.Closure;
 import lombok.Getter;
 import okhttp3.Request;
 import okhttp3.RequestBody;

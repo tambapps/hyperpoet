@@ -1,6 +1,7 @@
 package com.tambapps.http.hyperpoet.util
 
 import com.tambapps.http.hyperpoet.ContentType
+import com.tambapps.http.hyperpoet.Function
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertEquals
@@ -8,48 +9,52 @@ import static org.junit.jupiter.api.Assertions.assertNull
 
 class ContentTypeMapFunctionTest {
 
+  Function f0 = {}
+  Function f1 = {}
+  Function f2 = {}
+  Function f3 = {}
   @Test
   void test1() {
     ContentTypeMapFunction map = new ContentTypeMapFunction([
-        (ContentType.JSON): "json",
-        (new ContentType("something","*")): "something",
-        (new ContentType("something","specific")): "specific",
+        (ContentType.JSON): f1,
+        (new ContentType("something","*")): f2,
+        (new ContentType("something","specific")): f3,
     ])
-    assertEquals("json", map[ContentType.JSON])
-    assertEquals("json", map[new ContentType("application","problem+json")])
+    assertEquals(f1, map[ContentType.JSON])
+    assertEquals(f1, map[new ContentType("application","problem+json")])
     assertNull(map[new ContentType("application","jackson")])
     assertNull(map[new ContentType("application","problem+jackson")])
 
-    assertEquals("something", map[new ContentType("something","special")])
-    assertEquals("specific", map[new ContentType("something","specific")])
+    assertEquals(f2, map[new ContentType("something","special")])
+    assertEquals(f3, map[new ContentType("something","specific")])
   }
 
   @Test
   void test2() {
     ContentTypeMapFunction map = new ContentTypeMapFunction([
-        (ContentType.WILDCARD): "wildcard",
-        (ContentType.JSON): "json",
-        (new ContentType("something","*")): "something",
-        (new ContentType("something","specific")): "specific",
+        (ContentType.WILDCARD): f0,
+        (ContentType.JSON): f1,
+        (new ContentType("something","*")): f2,
+        (new ContentType("something","specific")): f3,
     ])
-    assertEquals("json", map[ContentType.JSON])
-    assertEquals("json", map[new ContentType("application","problem+json")])
-    assertEquals("wildcard", map[new ContentType("application","jackson")])
-    assertEquals("wildcard", map[new ContentType("application","problem+jackson")])
+    assertEquals(f1, map[ContentType.JSON])
+    assertEquals(f1, map[new ContentType("application","problem+json")])
+    assertEquals(f0, map[new ContentType("application","jackson")])
+    assertEquals(f0, map[new ContentType("application","problem+jackson")])
 
-    assertEquals("something", map[new ContentType("something","special")])
-    assertEquals("specific", map[new ContentType("something","specific")])
+    assertEquals(f2, map[new ContentType("something","special")])
+    assertEquals(f3, map[new ContentType("something","specific")])
   }
 
   @Test
   void testDefaultValue() {
     ContentTypeMapFunction map = new ContentTypeMapFunction([
-        (ContentType.JSON): "json",
+        (ContentType.JSON): f1,
     ])
-    map.setDefaultValue("default")
-    assertEquals("default", map[ContentType.XML])
-    assertEquals("json", map[ContentType.JSON])
-    assertEquals("json", map[new ContentType("application","problem+json")])
+    map.setDefaultValue(f0)
+    assertEquals(f0, map[ContentType.XML])
+    assertEquals(f1, map[ContentType.JSON])
+    assertEquals(f1, map[new ContentType("application","problem+json")])
 
   }
 }

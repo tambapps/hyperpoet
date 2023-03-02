@@ -18,8 +18,8 @@ public class ParametersUtils {
     }
     if (!clazz.isAssignableFrom(object.getClass())) {
       throw new IllegalArgumentException(
-          String.format("Unexpected type for parameter '%s', expected type %s", key,
-              clazz.getSimpleName()));
+          String.format("Unexpected type for parameter '%s', expected type %s but got %s", key,
+              clazz.getSimpleName(), object.getClass().getSimpleName()));
     }
     return (T) object;
   }

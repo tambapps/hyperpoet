@@ -57,7 +57,7 @@ class UrlBuilderTest {
   @Test
   void testLocalDateParam() {
     UrlBuilder builder = new UrlBuilder(BASE_URL)
-    builder.queryParamComposer.converters[LocalDate] = LOCAL_DATE_FORMATTER.&format
+    builder.queryParamComposer[LocalDate] = LOCAL_DATE_FORMATTER.&format
     builder.addParam("date", LocalDate.of(2020, 01,01))
     assertEquals("$BASE_URL?date=2020-01-01".toString(), builder.build())
   }
@@ -65,7 +65,7 @@ class UrlBuilderTest {
   @Test
   void testLocalDateTimeParam() {
     UrlBuilder builder = new UrlBuilder(BASE_URL)
-    builder.queryParamComposer.converters[LocalDateTime] = LOCAL_DATETIME_FORMATTER.&format
+    builder.queryParamComposer[LocalDateTime] = LOCAL_DATETIME_FORMATTER.&format
     builder.addParam("date", LocalDateTime.of(2020, 01,01, 01, 01))
     assertEquals("$BASE_URL?date=2020-01-01T01%3A01%3A00Z".toString(), builder.build())
   }

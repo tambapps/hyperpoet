@@ -32,7 +32,9 @@ import com.tambapps.http.hyperpoet.util.CachedResponseBody;
 import com.tambapps.http.hyperpoet.util.ContentTypeMapFunction;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
+import groovy.lang.GroovyObject;
 import groovy.lang.GroovyObjectSupport;
+import groovy.lang.MetaClass;
 import groovy.lang.MissingMethodException;
 import groovy.transform.NamedParam;
 import groovy.transform.stc.ClosureParams;
@@ -50,8 +52,10 @@ import okhttp3.ResponseBody;
 import okio.BufferedSink;
 import okio.Okio;
 import org.codehaus.groovy.runtime.IOGroovyMethods;
+import org.codehaus.groovy.runtime.InvokerHelper;
 import org.codehaus.groovy.runtime.ResourceGroovyMethods;
 
+import java.beans.Transient;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -67,32 +71,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * The HTTP client
  */
 @Getter
 @Setter
-public class HttpPoet extends GroovyObjectSupport {
+public class HttpPoet extends AbstractHttpPoet implements GroovyObject {
 
   public static final int DEFAULT_HISTORY_LIMIT = 10;
 
-  private OkHttpClient okHttpClient;
-  private final Map<String, String> headers = new HashMap<>();
-  private final Map<String, Object> params = new HashMap<>();
-  private final CustomJsonGenerator jsonGenerator = new CustomJsonGenerator();
-  private final Map<Class<?>, Function> queryParamConverters = new HashMap<>();
-  private final QueryParamComposer queryParamComposer = new QueryParamComposer(queryParamConverters, MultivaluedQueryParamComposingType.REPEAT);
-  private final ContentTypeMapFunction composers = Composers.getMap(jsonGenerator, queryParamComposer);
-  private final ContentTypeMapFunction parsers = Parsers.getMap();
-  private Function errorResponseHandler = ErrorResponseHandlers.throwResponseHandler();
-  protected Function onPreExecute;
-  protected Function onPostExecute;
-  private String baseUrl;
-  private ContentType contentType;
-  private ContentType acceptContentType;
-  private PoeticInvoker poeticInvoker = null;
-  private History history;
+  private transient MetaClass metaClass = getDefaultMetaClass();
 
   public HttpPoet() {
     this("");
@@ -118,23 +108,11 @@ public class HttpPoet extends GroovyObjectSupport {
     for (Map.Entry<?, ?> entry : headers.entrySet()) {
       putHeader(entry.getKey(), entry.getValue());
     }
-    this.errorResponseHandler =
-        getOrDefault(properties, ERROR_RESPONSE_HANDLER_PARAM, Function.class, this.errorResponseHandler);
-    this.onPreExecute = getOrDefault(properties, ON_PRE_EXECUTE_PARAM, Function.class, null);
-    this.onPostExecute = getOrDefault(properties, ON_POST_EXECUTE_PARAM, Function.class, null);
-    acceptContentType =
-        getOrDefault(properties, ACCEPT_CONTENT_TYPE_PARAM, ContentType.class, null);
-    this.contentType = getOrDefault(properties, CONTENT_TYPE_PARAM, ContentType.class, null);
-
-    final DateTimeFormatter ldtf = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
-    Function localDateTimeFormatter = (o) -> ldtf.format((TemporalAccessor) o);
-
-    final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    Function dateTimeFormatter = (o) -> dtf.format((TemporalAccessor) o);
-    jsonGenerator.addConverter(LocalDateTime.class, localDateTimeFormatter);
-    jsonGenerator.addConverter(LocalDate.class, dateTimeFormatter);
-    queryParamConverters.put(LocalDateTime.class, localDateTimeFormatter);
-    queryParamConverters.put(LocalDate.class, dateTimeFormatter);
+    setErrorResponseHandler(getFunctionOrDefault(properties, ERROR_RESPONSE_HANDLER_PARAM, getErrorResponseHandler()));
+    this.onPreExecute = getFunctionOrDefault(properties, ON_PRE_EXECUTE_PARAM, null);
+    this.onPostExecute = getFunctionOrDefault(properties, ON_POST_EXECUTE_PARAM, null);
+    setAcceptContentType(getOrDefault(properties, ACCEPT_CONTENT_TYPE_PARAM, ContentType.class, null));
+    setContentType(getOrDefault(properties, CONTENT_TYPE_PARAM, ContentType.class, null));
   }
 
   public HttpPoet(String baseUrl) {
@@ -142,8 +120,7 @@ public class HttpPoet extends GroovyObjectSupport {
   }
 
   public HttpPoet(OkHttpClient okHttpClient, String baseUrl) {
-    this.okHttpClient = okHttpClient;
-    this.baseUrl = baseUrl != null ? baseUrl : "";
+    super(okHttpClient, baseUrl);
   }
 
   public Object method(String urlOrEndpoint, HttpMethod method) throws IOException {
@@ -618,38 +595,11 @@ public class HttpPoet extends GroovyObjectSupport {
     return doRequest(request, additionalParameters, responseHandler);
   }
 
-  /**
-   * Add/Replace the given header with the given value
-   *
-   * @param key   the header name
-   * @param value the header value
-   */
-  public void putHeader(Object key, Object value) {
-    headers.put(String.valueOf(key), String.valueOf(value));
-  }
-
-  public void putHeader(List<?> header) {
-    if (header.size() != 2) {
-      throw new IllegalArgumentException("Argument should have two elements");
-    }
-    putHeader(header.get(0), header.get(1));
-  }
-
-  /**
-   * Removes a header
-   *
-   * @param key the name of the header
-   * @return the removed header or null if there wern't any
-   */
-  public String removeHeader(String key) {
-    return headers.remove(key);
-  }
-
   private Object doRequest(Request request, Map<?, ?> additionalParameters, Function responseHandler) throws IOException {
     if (onPreExecute != null) {
       onPreExecute.call(request);
     }
-    try (Response response = okHttpClient.newCall(request).execute()) {
+    try (Response response = getOkHttpClient().newCall(request).execute()) {
       Response effectiveResponse = handleHistory(response, additionalParameters);
       if (onPostExecute != null) {
         onPostExecute.call(effectiveResponse);
@@ -660,24 +610,25 @@ public class HttpPoet extends GroovyObjectSupport {
 
   protected Object doRequest(Request request,
       Map<?, ?> additionalParameters) throws IOException {
-    getInterceptors().stream()
-        .filter(i -> i instanceof ConsolePrintingInterceptor)
-        .map(i -> (ConsolePrintingInterceptor) i)
-        .findFirst().ifPresent(printingInterceptor -> {
-      printingInterceptor.setShouldPrint(getOrDefault(additionalParameters, PRINT_PARAM, Boolean.class, true));
-      printingInterceptor.setShouldPrintRequestBody(getOrDefault(additionalParameters, PRINT_REQUEST_BODY_PARAM, Boolean.class, true));
-      printingInterceptor.setShouldPrintResponseBody(getOrDefault(additionalParameters, PRINT_RESPONSE_BODY_PARAM, Boolean.class, true));
-    });
-    if (onPreExecute != null) {
-      onPreExecute.call(request);
+    ContentType acceptContentType = getOrDefault(additionalParameters, ACCEPT_CONTENT_TYPE_PARAM, ContentType.class, this.getAcceptContentType());
+    return super.doRequest(request,
+        getOrDefault(additionalParameters, BODY_PARAM, Object.class, null),
+        getOrDefault(additionalParameters, SKIP_HISTORY_PARAM, Boolean.class, false),
+        getOrDefault(additionalParameters, PRINT_PARAM, Boolean.class, true),
+        getOrDefault(additionalParameters, PRINT_REQUEST_BODY_PARAM, Boolean.class, true),
+        getOrDefault(additionalParameters, PRINT_RESPONSE_BODY_PARAM, Boolean.class, true),
+        getOrDefault(additionalParameters, ACCEPT_CONTENT_TYPE_PARAM, ContentType.class, acceptContentType),
+        getFunctionOrDefault(additionalParameters, PARSER_PARAM, null)
+    );
+  }
+
+  private Function getFunctionOrDefault(Map<?, ?> additionalParameters, String key,
+                                        Function defaultValue) {
+    if (additionalParameters.get(key) instanceof Closure) {
+      Closure<?> closure = (Closure<?>) additionalParameters.get(key);
+      return closure::call;
     }
-    try (Response response = okHttpClient.newCall(request).execute()) {
-      Response effectiveResponse = handleHistory(response, additionalParameters);
-      if (onPostExecute != null) {
-        onPostExecute.call(effectiveResponse);
-      }
-      return handleResponse(effectiveResponse, additionalParameters);
-    }
+    return getOrDefault(additionalParameters, key, Function.class, defaultValue);
   }
 
   protected Object handleResponse(Response response, Map<?, ?> additionalParameters) {
@@ -689,137 +640,31 @@ public class HttpPoet extends GroovyObjectSupport {
   }
 
   protected Object parseResponse(Response response, Map<?, ?> additionalParameters) {
-    ResponseBody body = response.body();
-    if (body == null) {
-      return null;
-    }
-    Function parser = extractResponseBodyParser(response, additionalParameters);
-    return parser.call(body);
+    ContentType responseContentType = extractResponseContentType(response, additionalParameters);
+    return super.parseResponse(response, responseContentType,
+        getFunctionOrDefault(additionalParameters, PARSER_PARAM, null));
   }
 
   private ContentType extractResponseContentType(Response response, Map<?, ?> additionalParameters) {
     return getOrDefaultSupply(additionalParameters, ACCEPT_CONTENT_TYPE_PARAM, ContentType.class, () -> getResponseContentType(response));
   }
-
-  private Function extractResponseBodyParser(Response response, Map<?, ?> additionalParameters) {
-    ContentType responseContentType = extractResponseContentType(response, additionalParameters);
-    Function parser = getOrDefault(additionalParameters, PARSER_PARAM, Function.class,
-        parsers.get(responseContentType));
-    if (parser != null) {
-      return parser;
-    } else {
-      return (o) -> Parsers.parseStringResponseBody((ResponseBody) o);
-    }
-  }
-
-  protected ContentType getResponseContentType(Response response) {
-    String contentTypeHeader = response.header(ContentType.HEADER);
-    return contentTypeHeader != null ? ContentType.valueOf(contentTypeHeader) : acceptContentType;
-  }
-
-  private RequestBody requestBody(Map<?, ?> additionalParameters, ContentType contentType, String method) throws IOException {
-    Object body = getOrDefault(additionalParameters, BODY_PARAM, Object.class, null);
-
-    if (body == null) {
-      // request body must not be null for some methods, so we return an empty body instead
-      return okhttp3.internal.http.HttpMethod.requiresRequestBody(method) ? RequestBody.create(new byte[0]) : null;
-    }
-    if (body instanceof Closure) {
-      body = ((Closure) body).call();
-    }
-    // some "smart" conversions
-    Object composedBody;
-    if (body instanceof File) {
-      composedBody = ResourceGroovyMethods.getBytes((File) body);
-    } else if (body instanceof Path) {
-      composedBody = ResourceGroovyMethods.getBytes(((Path) body).toFile());
-    } else if (body instanceof Reader) {
-      composedBody = IOGroovyMethods.getText((Reader) body);
-    } else {
-      Function composer = getOrDefault(additionalParameters, COMPOSER_PARAM, Function.class,
-          composers.get(contentType));
-      if (composer == null && (!(body instanceof RequestBody)
-          && !(body instanceof String)
-          && !(body instanceof InputStream)
-          && !(body instanceof byte[]))) {
-        throw new IllegalStateException("No composer was found for content type " + contentType);
-      }
-      composedBody = composer != null ? composer.call(body) : body;
-    }
-    MediaType mediaType = contentType != null ? contentType.toMediaType() : null;
-    return toRequestBody(composedBody, mediaType);
-  }
-
-  public static byte[] extractRequestBody(RequestBody requestBody) throws IOException {
-    if (requestBody == null || requestBody.isOneShot()) {
-      return null;
-    }
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    try (BufferedSink bufferedSink = Okio.buffer(Okio.sink(outputStream))) {
-      requestBody.writeTo(bufferedSink);
-      bufferedSink.flush();
-      return outputStream.toByteArray();
-    }
-  }
-
-  private RequestBody toRequestBody(Object object, MediaType mediaType) throws IOException {
-    if (object instanceof RequestBody) {
-      return (RequestBody) object;
-    } else if (object instanceof String) {
-      return RequestBody.create(object.toString().getBytes(StandardCharsets.UTF_8), mediaType);
-    } else if (object instanceof InputStream) {
-      return RequestBody.create(IOGroovyMethods.getBytes((InputStream) object), mediaType);
-    } else if (object instanceof byte[]) {
-      return RequestBody.create((byte[]) object, mediaType);
-    } else {
-      throw new IllegalStateException(
-          String.format("Couldn't transform composed data of type %s to a RequestBody."
-                  + "The result must either be a String, an InputStream, a byte array or a okhttp3.RequestBody",
-              object.getClass().getSimpleName()));
-    }
-  }
-
   public Request request(HttpMethod method, String urlOrEndpoint, Map<?, ?> additionalParameters) throws IOException {
     return request(method.name(), urlOrEndpoint, additionalParameters);
   }
 
   public Request request(String method, String urlOrEndpoint, Map<?, ?> additionalParameters) throws IOException {
-    // url stuff
-    String url =
-        new UrlBuilder(baseUrl, queryParamComposer).append(
-                urlOrEndpoint)
-            .addParams(params)
-            .addParams(
-                getOrDefault(additionalParameters, QUERY_PARAMS_PARAM, Map.class, Collections.emptyMap()))
-            .build();
-    ContentType contentType = getOrDefault(additionalParameters, CONTENT_TYPE_PARAM, ContentType.class,
-        this.contentType);
-    RequestBody requestBody = requestBody(additionalParameters, contentType, method);
-    Request.Builder builder = new Request.Builder().url(url).method(method, requestBody);
-    // headers stuff
-    for (Map.Entry<String, String> entry : headers.entrySet()) {
-      builder.header(entry.getKey(), entry.getValue());
-    }
-    Map<?, ?> headers =
-        getOrDefault(additionalParameters, HEADER_PARAM, Map.class, Collections.emptyMap());
-    for (Map.Entry<?, ?> entry : headers.entrySet()) {
-      builder.header(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
-    }
-    ContentType acceptContentType =
-        getOrDefault(additionalParameters, ACCEPT_CONTENT_TYPE_PARAM, ContentType.class, this.acceptContentType);
-    if (acceptContentType != null) {
-      builder.header("Accept", acceptContentType.toString());
-    }
-    if (contentType != null && additionalParameters.containsKey(BODY_PARAM)) {
-      // only specify Content-Type header if there is a body
-      builder.header(ContentType.HEADER, contentType.toString());
-    }
-    return builder.build();
+    return super.request(method, urlOrEndpoint, getOrDefault(additionalParameters, CONTENT_TYPE_PARAM, ContentType.class,
+        this.getContentType()),
+        getOrDefault(additionalParameters, BODY_PARAM, Object.class, null),
+        getFunctionOrDefault(additionalParameters, COMPOSER_PARAM, null),
+        getOrDefault(additionalParameters, HEADER_PARAM, Map.class, Collections.emptyMap()),
+        getOrDefault(additionalParameters, ACCEPT_CONTENT_TYPE_PARAM, ContentType.class, this.getAcceptContentType())
+        );
   }
 
   protected Object handleErrorResponse(Response response, Map<?, ?> additionalParameters) {
-    if (errorResponseHandler != null) {
-      return errorResponseHandler.call(response);
+    if (getErrorResponseHandler() != null) {
+      return getErrorResponseHandler().call(response);
     } else {
       return defaultHandleErrorResponse(response, additionalParameters);
     }
@@ -837,87 +682,21 @@ public class HttpPoet extends GroovyObjectSupport {
   @SneakyThrows
   public Object invokeMethod(String name, Object args) {
     try {
-      return super.invokeMethod(name, args);
+      return this.getMetaClass().invokeMethod(this, name, args);
     } catch (MissingMethodException e) {
-      if (poeticInvoker == null) {
+      if (getPoeticInvoker() == null) {
         throw e;
       }
-      return poeticInvoker.invokeOrThrow(this, name, (args instanceof Object[]) ? (Object[]) args : new Object[] {args}, e);
+      return getPoeticInvoker().invokeOrThrow(this, name, (args instanceof Object[]) ? (Object[]) args : new Object[] {args}, e);
     }
-  }
-
-  public MultivaluedQueryParamComposingType getMultivaluedQueryParamComposingType() {
-    return queryParamComposer.getMultivaluedQueryParamComposingType();
-  }
-
-  public void setMultivaluedQueryParamComposingType(
-      MultivaluedQueryParamComposingType multivaluedQueryParamComposingType) {
-    queryParamComposer.setMultivaluedQueryParamComposingType(multivaluedQueryParamComposingType);
   }
 
   public void addInterceptor(@ClosureParams(value = SimpleType.class, options = "okhttp3.Interceptor.Chain") Closure<Response> interceptor) {
     addInterceptor(interceptor::call);
   }
 
-  public void addInterceptor(Interceptor interceptor) {
-    this.okHttpClient = okHttpClient.newBuilder()
-        .addInterceptor(interceptor)
-        .build();
-  }
-
   public void addNetworkInterceptor(@ClosureParams(value = SimpleType.class, options = "okhttp3.Interceptor.Chain") Closure<Response> interceptor) {
     addNetworkInterceptor(interceptor::call);
-  }
-
-  public void addNetworkInterceptor(Interceptor interceptor) {
-    this.okHttpClient = okHttpClient.newBuilder()
-        .addNetworkInterceptor(interceptor)
-        .build();
-  }
-
-  public List<Interceptor> getInterceptors() {
-    return okHttpClient.interceptors();
-  }
-
-  public Interceptor getInterceptor() {
-    List<Interceptor> interceptors = getInterceptors();
-    return !interceptors.isEmpty() ? interceptors.get(0) : null;
-  }
-
-  public List<Interceptor> getNetworkInterceptors() {
-    return okHttpClient.networkInterceptors();
-  }
-
-  public Interceptor getNetworkInterceptor() {
-    List<Interceptor> interceptors = getNetworkInterceptors();
-    return !interceptors.isEmpty() ? interceptors.get(0) : null;
-  }
-
-  public void setDefaultParser(@ClosureParams(value = SimpleType.class, options = "okhttp3.ResponseBody") Function parser) {
-    parsers.setDefaultValue(parser);
-  }
-
-  public void configureOkHttpClient(@ClosureParams(value = SimpleType.class, options = "okhttp3.OkHttpClient.Builder") Function configurer) {
-    OkHttpClient.Builder builder = okHttpClient.newBuilder();
-    configurer.call(builder);
-    this.okHttpClient = builder.build();
-  }
-
-  public HttpPoet enableHistory() {
-    return enableHistory(DEFAULT_HISTORY_LIMIT);
-  }
-
-  public HttpPoet enableHistory(int limit) {
-    if (history == null) {
-      history = new History(limit);
-    } else {
-      history.setLimit(limit);
-    }
-    return this;
-  }
-
-  public void disableHistory() {
-    history = null;
   }
 
   public HttpPoem poem() {
@@ -937,13 +716,32 @@ public class HttpPoet extends GroovyObjectSupport {
    * @return the response, cached if needed
    */
   private Response handleHistory(Response response, Map<?, ?> additionalParameters) throws IOException {
-    if (history == null || getOrDefault(additionalParameters, SKIP_HISTORY_PARAM, Boolean.class, false)) {
-      return response;
-    }
-    Response cachedResponse = CachedResponseBody.newResponseWitchCachedBody(response);
+    boolean skipHistory = getOrDefault(additionalParameters, SKIP_HISTORY_PARAM, Boolean.class, false);
     Object requestBody = getOrDefault(additionalParameters, BODY_PARAM, Object.class, null);
-    Function responseParser = extractResponseBodyParser(response, additionalParameters);
-    history.add(new HttpExchange(cachedResponse, requestBody, responseParser));
-    return cachedResponse;
+    ContentType acceptContentType = extractResponseContentType(response, additionalParameters);
+    Function parser = getFunctionOrDefault(additionalParameters, PARSER_PARAM, null);
+    return super.handleHistory(response, skipHistory, requestBody, acceptContentType, parser);
   }
+
+
+  @Override
+  protected RequestBody requestBody(Object body, Function composerOverride, ContentType contentType, String method) throws IOException {
+    if (body instanceof Closure) {
+      body = ((Closure) body).call();
+    }
+    return super.requestBody(body, composerOverride, contentType, method);
+  }
+
+  @Transient
+  public MetaClass getMetaClass() {
+    return this.metaClass;
+  }
+
+  public void setMetaClass(MetaClass metaClass) {
+    this.metaClass = (MetaClass) Optional.ofNullable(metaClass).orElseGet(this::getDefaultMetaClass);
+  }
+  private MetaClass getDefaultMetaClass() {
+    return InvokerHelper.getMetaClass(this.getClass());
+  }
+
 }
