@@ -1,5 +1,8 @@
 package com.tambapps.http.hyperpoet;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.tambapps.http.hyperpoet.interceptor.ConsolePrintingInterceptor;
 import com.tambapps.http.hyperpoet.invoke.PoeticInvoker;
 import com.tambapps.http.hyperpoet.io.IoUtils;
@@ -52,6 +55,7 @@ public class AbstractHttpPoet {
   private final Map<String, String> headers = new HashMap<>();
   private final Map<String, Object> params = new HashMap<>();
   private final CustomJsonGenerator jsonGenerator = new CustomJsonGenerator();
+
   private final Map<Class<?>, Function> queryParamConverters = new HashMap<>();
   private final QueryParamComposer queryParamComposer = new QueryParamComposer(queryParamConverters, MultivaluedQueryParamComposingType.REPEAT);
   private final ContentTypeMapFunction composers = Composers.getMap(jsonGenerator, queryParamComposer);
@@ -74,13 +78,17 @@ public class AbstractHttpPoet {
   }
   public AbstractHttpPoet(String baseUrl) {
     this(new OkHttpClient(), baseUrl);
+
     final DateTimeFormatter ldtf = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
     Function localDateTimeFormatter = (o) -> ldtf.format((TemporalAccessor) o);
 
     final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     Function dateTimeFormatter = (o) -> dtf.format((TemporalAccessor) o);
+    /*
     jsonGenerator.addConverter(LocalDateTime.class, localDateTimeFormatter);
     jsonGenerator.addConverter(LocalDate.class, dateTimeFormatter);
+     */
+
     queryParamConverters.put(LocalDateTime.class, localDateTimeFormatter);
     queryParamConverters.put(LocalDate.class, dateTimeFormatter);
   }

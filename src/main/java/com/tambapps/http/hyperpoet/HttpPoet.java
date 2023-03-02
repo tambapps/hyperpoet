@@ -20,16 +20,6 @@ import static com.tambapps.http.hyperpoet.util.ParametersUtils.getOrDefault;
 import static com.tambapps.http.hyperpoet.util.ParametersUtils.getOrDefaultSupply;
 import static com.tambapps.http.hyperpoet.util.ParametersUtils.getStringOrDefault;
 
-import com.tambapps.http.hyperpoet.interceptor.ConsolePrintingInterceptor;
-import com.tambapps.http.hyperpoet.invoke.PoeticInvoker;
-import com.tambapps.http.hyperpoet.io.composer.Composers;
-import com.tambapps.http.hyperpoet.io.parser.Parsers;
-import com.tambapps.http.hyperpoet.io.json.CustomJsonGenerator;
-import com.tambapps.http.hyperpoet.url.MultivaluedQueryParamComposingType;
-import com.tambapps.http.hyperpoet.url.QueryParamComposer;
-import com.tambapps.http.hyperpoet.url.UrlBuilder;
-import com.tambapps.http.hyperpoet.util.CachedResponseBody;
-import com.tambapps.http.hyperpoet.util.ContentTypeMapFunction;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
 import groovy.lang.GroovyObject;

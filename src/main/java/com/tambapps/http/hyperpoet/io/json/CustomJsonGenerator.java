@@ -1,50 +1,20 @@
 package com.tambapps.http.hyperpoet.io.json;
 
-import com.tambapps.http.hyperpoet.Function;
-import groovy.json.DefaultJsonGenerator;
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.SneakyThrows;
 
-public class CustomJsonGenerator extends DefaultJsonGenerator {
+public class CustomJsonGenerator {
+  private final ObjectMapper mapper = new ObjectMapper();
 
   public CustomJsonGenerator() {
-    super(new Options());
+    mapper.registerModule(new JavaTimeModule());
+    mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
   }
 
-  public void addConverter(Class<?> clazz, Function closure) {
-    converters.add(new TypeConverter(clazz, closure));
-  }
-
-  public Function getAt(Class<?> clazz) {
-    for (Converter converter : converters) {
-      if (!(converter instanceof TypeConverter)) {
-        continue;
-      }
-      TypeConverter typeConverter = (TypeConverter) converter;
-      if (typeConverter.handles(clazz)) {
-        return typeConverter.closure;
-      }
-    }
-    return null;
-  }
-
-  public void putAt(Class<?> clazz, Function closure) {
-    addConverter(clazz, closure);
-  }
-
-  @AllArgsConstructor
-  private static class TypeConverter implements Converter {
-
-    private final Class<?> clazz;
-    private final Function closure;
-
-    @Override
-    public boolean handles(Class<?> type) {
-      return this.clazz.isAssignableFrom(type);
-    }
-
-    @Override
-    public Object convert(Object value, String key) {
-      return closure.call(value);
-    }
+  @SneakyThrows
+  public String composeToJson(Object o) {
+    return mapper.writeValueAsString(o);
   }
 }

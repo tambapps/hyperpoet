@@ -3,6 +3,7 @@ package com.tambapps.http.hyperpoet.io.composer;
 import com.tambapps.http.hyperpoet.ContentType;
 import com.tambapps.http.hyperpoet.FormPart;
 import com.tambapps.http.hyperpoet.Function;
+import com.tambapps.http.hyperpoet.io.json.CustomJsonGenerator;
 import com.tambapps.http.hyperpoet.url.QueryParamComposer;
 import com.tambapps.http.hyperpoet.util.ContentTypeMapFunction;
 import groovy.json.JsonGenerator;
@@ -37,9 +38,9 @@ public final class Composers {
 
   private Composers() {}
 
-  public static ContentTypeMapFunction getMap(JsonGenerator jsonGenerator, QueryParamComposer queryParamComposer) {
+  public static ContentTypeMapFunction getMap(CustomJsonGenerator jsonGenerator, QueryParamComposer queryParamComposer) {
     ContentTypeMapFunction map = new ContentTypeMapFunction();
-    map.put(ContentType.JSON, jsonGenerator::toJson);
+    map.put(ContentType.JSON, jsonGenerator::composeToJson);
     map.put(ContentType.XML, Composers::composeXmlBody);
     map.put(ContentType.TEXT, Composers::composeStringBody);
     map.put(ContentType.HTML, Composers::composeStringBody);
