@@ -6,7 +6,6 @@ import com.tambapps.http.hyperpoet.Function;
 import com.tambapps.http.hyperpoet.io.json.JsonGenerator;
 import com.tambapps.http.hyperpoet.url.QueryParamComposer;
 import com.tambapps.http.hyperpoet.util.ContentTypeMapFunction;
-import groovy.json.JsonOutput;
 import groovy.util.Node;
 import groovy.xml.XmlUtil;
 import lombok.SneakyThrows;
@@ -24,7 +23,6 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
 
-// TODO stop using groovy.json everywhere
 /**
  * Utility class holding several common composers.
  * An composer should return one of the following types
@@ -50,10 +48,6 @@ public final class Composers {
     // default composer (when no content type was found)
     map.setDefaultValue(Composers::composeStringBody);
     return map;
-  }
-
-  public static String composeJsonBody(Object body) {
-    return JsonOutput.toJson(body);
   }
 
   public static String composeXmlBody(Object body) {

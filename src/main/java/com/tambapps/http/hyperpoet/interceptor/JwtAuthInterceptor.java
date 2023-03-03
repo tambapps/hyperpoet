@@ -1,16 +1,15 @@
 package com.tambapps.http.hyperpoet.interceptor;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tambapps.http.hyperpoet.Function;
 import com.tambapps.http.hyperpoet.Headers;
 import com.tambapps.http.hyperpoet.HttpPoet;
-import groovy.json.JsonSlurper;
-import groovy.lang.Closure;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.codehaus.groovy.runtime.InvokerHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -18,6 +17,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Base64;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -29,11 +29,11 @@ public class JwtAuthInterceptor implements Interceptor {
 
   @Getter
   private final HttpPoet poet;
-  private final Closure<String> tokenRefresher;
+  private final Function tokenRefresher;
   private final AtomicReference<ExpirableToken> tokenReference = new AtomicReference<>();
-  private final JsonSlurper slurper = new JsonSlurper();
+  private final ObjectMapper mapper = new ObjectMapper();
 
-  public JwtAuthInterceptor(Closure<String> tokenRefresher) {
+  public JwtAuthInterceptor(Function tokenRefresher) {
     this(new HttpPoet(), tokenRefresher);
   }
 
@@ -55,8 +55,7 @@ public class JwtAuthInterceptor implements Interceptor {
   }
 
   public ExpirableToken refreshToken() throws IOException {
-    tokenRefresher.setDelegate(this);
-    String tokenString = tokenRefresher.call(poet);
+    String tokenString = (String) tokenRefresher.call(poet);
     ExpirableToken token = fromString(tokenString);
     tokenReference.set(token);
     return token;
@@ -89,8 +88,8 @@ public class JwtAuthInterceptor implements Interceptor {
     } catch (IllegalArgumentException e) {
       throw new IOException("Invalid JWT: not valid Base64");
     }
-    Object payload = slurper.parseText(payloadString);
-    Object expObject = InvokerHelper.getProperty(payload, "exp");
+    Map<?, ?> payload = mapper.readValue(payloadString, Map.class);
+    Object expObject = payload.get("exp");
     if (!(expObject instanceof Number)) {
       throw new IOException("Invalid JWT: exp is not a number");
     }

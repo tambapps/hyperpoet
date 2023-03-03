@@ -1,6 +1,5 @@
 package com.tambapps.http.hyperpoet.io.json
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.tambapps.http.hyperpoet.io.poeticprinter.JsonPoeticPrinter
 import groovy.json.JsonOutput
 import org.junit.jupiter.api.Test
