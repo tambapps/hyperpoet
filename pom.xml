@@ -13,6 +13,7 @@
   <modules>
     <module>hyperpoet-core</module>
     <module>hyperpoet-groovy</module>
+    <module>hyperpoet-marcel</module>
   </modules>
 
   <name>HyperPoet - Marcel/Groovy-friendly HTTP client</name>
