@@ -159,6 +159,11 @@
           <artifactId>gmavenplus-plugin</artifactId>
           <version>1.6.1</version>
         </plugin>
+        <plugin>
+          <groupId>com.tambapps.marcel.maven</groupId>
+          <artifactId>marcel-maven-plugin</artifactId>
+          <version>0.0.1-SNAPSHOT</version>
+        </plugin>
         <!-- mvn javadoc:javadoc -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>

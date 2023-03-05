@@ -1,5 +1,6 @@
 package com.tambapps.http.hyperpoet
 
+import okhttp3.Request;
 
 
 public class HttpPoet extends AbstractHttpPoet {
