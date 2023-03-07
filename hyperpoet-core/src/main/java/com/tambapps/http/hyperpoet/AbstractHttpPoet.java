@@ -143,7 +143,7 @@ public class AbstractHttpPoet {
   }
 
   protected Object doRequest(Request request,
-      Object requestBody, boolean shouldSkipHistory, Boolean shouldPrint, Boolean shouldPrintRequestBody, Boolean shouldPrintResponseBody,
+      Object requestBody, Boolean shouldSkipHistory, Boolean shouldPrint, Boolean shouldPrintRequestBody, Boolean shouldPrintResponseBody,
                              ContentType acceptContentTypeOverride, Function<Object, ?> parserOverride) throws IOException {
     getInterceptors().stream()
         .filter(i -> i instanceof ConsolePrintingInterceptor)
@@ -378,9 +378,9 @@ public class AbstractHttpPoet {
     this.okHttpClient = builder.build();
   }
 
-  protected Response handleHistory(Response response, boolean skipHistory, Object requestBody,
+  protected Response handleHistory(Response response, Boolean skipHistory, Object requestBody,
                                  ContentType acceptContentTypeOverride, Function<Object, ?> parserOverride) throws IOException {
-    if (history == null || skipHistory) {
+    if (history == null || skipHistory == null || skipHistory) {
       return response;
     }
     Response cachedResponse = CachedResponseBody.newResponseWitchCachedBody(response);
