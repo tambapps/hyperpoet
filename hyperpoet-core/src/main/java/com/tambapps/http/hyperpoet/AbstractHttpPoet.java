@@ -126,7 +126,7 @@ public class AbstractHttpPoet {
     return headers.remove(key);
   }
 
-  private Object doRequest(Request request,
+  protected Object doRequest(Request request,
                            Object requestBody, boolean shouldSkipHistory,
                            ContentType acceptContentTypeOverride, Function<Object, ?> parserOverride,
                            Function<Object, ?> responseHandler) throws IOException {

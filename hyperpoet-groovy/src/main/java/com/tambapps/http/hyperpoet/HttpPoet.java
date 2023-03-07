@@ -562,23 +562,21 @@ public class HttpPoet extends AbstractHttpPoet implements GroovyObject {
       @NamedParam(value = ACCEPT_CONTENT_TYPE_PARAM, type = ContentType.class)
       @NamedParam(value = SKIP_HISTORY_PARAM, type = Boolean.class)
       Map<?, ?> additionalParameters, String urlOrEndpoint,
-      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Function responseHandler)
+      @ClosureParams(value = SimpleType.class, options = "okhttp3.Response") Function<Object, ?> responseHandler)
       throws IOException {
     Request request = request(HttpMethod.GET, urlOrEndpoint, additionalParameters);
     return doRequest(request, additionalParameters, responseHandler);
   }
 
-  private Object doRequest(Request request, Map<?, ?> additionalParameters, Function responseHandler) throws IOException {
-    if (onPreExecute != null) {
-      onPreExecute.apply(request);
-    }
-    try (Response response = getOkHttpClient().newCall(request).execute()) {
-      Response effectiveResponse = handleHistory(response, additionalParameters);
-      if (onPostExecute != null) {
-        onPostExecute.apply(effectiveResponse);
-      }
-      return responseHandler.apply(effectiveResponse);
-    }
+  private Object doRequest(Request request, Map<?, ?> additionalParameters, Function<Object, ?> responseHandler) throws IOException {
+    ContentType acceptContentType = getOrDefault(additionalParameters, ACCEPT_CONTENT_TYPE_PARAM, ContentType.class, this.getAcceptContentType());
+    return super.doRequest(request,
+        getOrDefault(additionalParameters, BODY_PARAM, Object.class, null),
+        getOrDefault(additionalParameters, SKIP_HISTORY_PARAM, Boolean.class, false),
+        getOrDefault(additionalParameters, ACCEPT_CONTENT_TYPE_PARAM, ContentType.class, acceptContentType),
+        getFunctionOrDefault(additionalParameters, PARSER_PARAM, null),
+        responseHandler
+        );
   }
 
   protected Object doRequest(Request request,
@@ -680,23 +678,6 @@ public class HttpPoet extends AbstractHttpPoet implements GroovyObject {
   public Object poem(@DelegatesTo(HttpPoem.class) Closure closure) {
     return new HttpPoem(this).run(closure);
   }
-
-  /**
-   * Handle the history if it is enabled (== not null), in which case the response will be cached.
-   * If it isn't enabled, the response given in parameters will be returned
-   * @param response the response
-   * @param additionalParameters additional parameters
-   * @throws IOException in case of I/O error
-   * @return the response, cached if needed
-   */
-  private Response handleHistory(Response response, Map<?, ?> additionalParameters) throws IOException {
-    boolean skipHistory = getOrDefault(additionalParameters, SKIP_HISTORY_PARAM, Boolean.class, false);
-    Object requestBody = getOrDefault(additionalParameters, BODY_PARAM, Object.class, null);
-    ContentType acceptContentType = extractResponseContentType(response, additionalParameters);
-    Function parser = getFunctionOrDefault(additionalParameters, PARSER_PARAM, null);
-    return super.handleHistory(response, skipHistory, requestBody, acceptContentType, parser);
-  }
-
 
   @Override
   protected RequestBody requestBody(Object body, Function composerOverride, ContentType contentType, String method) throws IOException {
