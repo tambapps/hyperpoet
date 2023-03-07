@@ -257,7 +257,8 @@ public class AbstractHttpPoet {
     }
   }
 
-  public Request request(String method, String urlOrEndpoint, ContentType contentTypeOverride,
+  public Request request(String method, String urlOrEndpoint, Map<?, ?> params,
+                         ContentType contentTypeOverride,
                          Object body, Function composerOverride, Map<?, ?> headers,
                          ContentType acceptContentTypeOverride) throws IOException {
 

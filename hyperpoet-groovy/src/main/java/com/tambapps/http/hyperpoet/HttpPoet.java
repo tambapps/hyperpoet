@@ -625,8 +625,9 @@ public class HttpPoet extends AbstractHttpPoet implements GroovyObject {
   }
 
   public Request request(String method, String urlOrEndpoint, Map<?, ?> additionalParameters) throws IOException {
-    return super.request(method, urlOrEndpoint, getOrDefault(additionalParameters, CONTENT_TYPE_PARAM, ContentType.class,
-        this.getContentType()),
+    return super.request(method, urlOrEndpoint,
+        getOrDefault(additionalParameters, QUERY_PARAMS_PARAM, Map.class, null),
+        getOrDefault(additionalParameters, CONTENT_TYPE_PARAM, ContentType.class, this.getContentType()),
         getOrDefault(additionalParameters, BODY_PARAM, Object.class, null),
         getFunctionOrDefault(additionalParameters, COMPOSER_PARAM, null),
         getOrDefault(additionalParameters, HEADER_PARAM, Map.class, Collections.emptyMap()),
