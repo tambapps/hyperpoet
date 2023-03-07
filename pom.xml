@@ -50,6 +50,11 @@
         <version>2.14.2</version>
       </dependency>
       <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-jsr310</artifactId>
+        <version>2.14.2</version>
+      </dependency>
+      <dependency>
         <groupId>com.github.skjolber.jackson</groupId>
         <artifactId>jackson-syntax-highlight</artifactId>
         <version>1.0.7</version>
