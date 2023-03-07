@@ -1,6 +1,5 @@
 package com.tambapps.http.hyperpoet.url;
 
-import com.tambapps.http.hyperpoet.Function;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -17,14 +17,14 @@ import java.util.stream.Collectors;
 @Setter
 public class QueryParamComposer {
 
-  private final Map<Class<?>, Function> converters;
+  private final Map<Class<?>, Function<Object, ?>> converters;
   private MultivaluedQueryParamComposingType multivaluedQueryParamComposingType;
 
-  public Function getAt(Class<?> clazz) {
+  public Function<Object, ?> getAt(Class<?> clazz) {
     return converters.get(clazz);
   }
 
-  public <T> void putAt(Class<T> clazz, Function closure) {
+  public <T> void putAt(Class<T> clazz, Function<Object, ?> closure) {
     converters.put(clazz, closure);
   }
 
@@ -93,7 +93,7 @@ public class QueryParamComposer {
       return "null";
     }
     Function converter = findConverter(value.getClass());
-    return converter != null ? String.valueOf(converter.call(value)) : String.valueOf(value);
+    return converter != null ? String.valueOf(converter.apply(value)) : String.valueOf(value);
   }
 
   private Function findConverter(Class<?> clazz) {

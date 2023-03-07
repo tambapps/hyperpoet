@@ -1,8 +1,6 @@
 package com.tambapps.http.hyperpoet.io.poeticprinter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tambapps.http.hyperpoet.ContentType;
-import com.tambapps.http.hyperpoet.Function;
 import com.tambapps.http.hyperpoet.io.json.JsonGenerator;
 import com.tambapps.http.hyperpoet.util.ContentTypeMapFunction;
 

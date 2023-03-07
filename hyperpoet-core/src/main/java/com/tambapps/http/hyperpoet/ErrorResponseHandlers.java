@@ -5,34 +5,34 @@ import lombok.SneakyThrows;
 import okhttp3.Response;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.function.Function;
 
 public class ErrorResponseHandlers {
 
-  public static Function throwResponseHandler() {
+  public static Function<Object, ?> throwResponseHandler() {
     return new ThrowResponseHandlerClosure();
   }
 
-  public static Function throwProblemResponseHandler() {
+  public static Function<Object, ?> throwProblemResponseHandler() {
     return throwProblemResponseHandler(new JsonParserClosure());
   }
 
-  public static Function throwProblemResponseHandler(Function parser) {
+  public static Function<Object, ?> throwProblemResponseHandler(Function parser) {
     return new ThrowProblemResponseHandlerClosure(parser);
   }
 
-  public static Function parseResponseHandler(AbstractHttpPoet poet) {
+  public static Function<Object, ?> parseResponseHandler(AbstractHttpPoet poet) {
     return (o) -> poet.parseResponse((Response) o, null, null);
   }
 
-  private static class ThrowResponseHandlerClosure implements Function {
+  private static class ThrowResponseHandlerClosure implements Function<Object, Object> {
 
     public ThrowResponseHandlerClosure() {
     }
 
     @SneakyThrows
     @Override
-    public Object call(Object arg) {
+    public Object apply(Object arg) {
       doCall((Response) arg);
       return null;
     }
@@ -43,17 +43,17 @@ public class ErrorResponseHandlers {
     }
   }
 
-  private static class ThrowProblemResponseHandlerClosure implements Function {
+  private static class ThrowProblemResponseHandlerClosure implements Function<Object, Object> {
 
-    private final Function jsonParser;
+    private final Function<Object, ?> jsonParser;
 
-    public ThrowProblemResponseHandlerClosure(Function jsonParser) {
+    public ThrowProblemResponseHandlerClosure(Function<Object, ?> jsonParser) {
       this.jsonParser = jsonParser;
     }
 
     @SneakyThrows
     @Override
-    public Object call(Object arg) {
+    public Object apply(Object arg) {
       doCall((Response) arg);
       return null;
     }

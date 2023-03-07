@@ -34,9 +34,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * The HTTP client
@@ -56,13 +58,13 @@ public class AbstractHttpPoet {
   private final Map<String, Object> params = new HashMap<>();
   private final JsonGenerator jsonGenerator = new JsonGenerator();
 
-  private final Map<Class<?>, Function> queryParamConverters = new HashMap<>();
+  private final Map<Class<?>, Function<Object, ?>> queryParamConverters = new HashMap<>();
   private final QueryParamComposer queryParamComposer = new QueryParamComposer(queryParamConverters, MultivaluedQueryParamComposingType.REPEAT);
   private final ContentTypeMapFunction composers = Composers.getMap(jsonGenerator, queryParamComposer);
   private final ContentTypeMapFunction parsers = Parsers.getMap();
-  private Function errorResponseHandler = ErrorResponseHandlers.throwResponseHandler();
-  protected Function onPreExecute;
-  protected Function onPostExecute;
+  private Function<Object, ?> errorResponseHandler = ErrorResponseHandlers.throwResponseHandler();
+  protected Function<Object, ?> onPreExecute;
+  protected Function<Object, ?> onPostExecute;
   private String baseUrl;
   private ContentType contentType;
   private ContentType acceptContentType;
@@ -126,23 +128,23 @@ public class AbstractHttpPoet {
 
   private Object doRequest(Request request,
                            Object requestBody, boolean shouldSkipHistory,
-                           ContentType acceptContentTypeOverride, Function parserOverride,
-                           Function responseHandler) throws IOException {
+                           ContentType acceptContentTypeOverride, Function<Object, ?> parserOverride,
+                           Function<Object, ?> responseHandler) throws IOException {
     if (onPreExecute != null) {
-      onPreExecute.call(request);
+      onPreExecute.apply(request);
     }
     try (Response response = okHttpClient.newCall(request).execute()) {
       Response effectiveResponse = handleHistory(response, shouldSkipHistory, requestBody, acceptContentTypeOverride, parserOverride);
       if (onPostExecute != null) {
-        onPostExecute.call(effectiveResponse);
+        onPostExecute.apply(effectiveResponse);
       }
-      return responseHandler.call(effectiveResponse);
+      return responseHandler.apply(effectiveResponse);
     }
   }
 
   protected Object doRequest(Request request,
       Object requestBody, boolean shouldSkipHistory, Boolean shouldPrint, Boolean shouldPrintRequestBody, Boolean shouldPrintResponseBody,
-                             ContentType acceptContentTypeOverride, Function parserOverride) throws IOException {
+                             ContentType acceptContentTypeOverride, Function<Object, ?> parserOverride) throws IOException {
     getInterceptors().stream()
         .filter(i -> i instanceof ConsolePrintingInterceptor)
         .map(i -> (ConsolePrintingInterceptor) i)
@@ -152,12 +154,12 @@ public class AbstractHttpPoet {
       printingInterceptor.setShouldPrintResponseBody(shouldPrintResponseBody != null ? shouldPrintResponseBody : true);
     });
     if (onPreExecute != null) {
-      onPreExecute.call(request);
+      onPreExecute.apply(request);
     }
     try (Response response = okHttpClient.newCall(request).execute()) {
       Response effectiveResponse = handleHistory(response, shouldSkipHistory, requestBody, acceptContentTypeOverride, parserOverride);
       if (onPostExecute != null) {
-        onPostExecute.call(effectiveResponse);
+        onPostExecute.apply(effectiveResponse);
       }
       return handleResponse(effectiveResponse, acceptContentTypeOverride, parserOverride);
     }
@@ -177,7 +179,7 @@ public class AbstractHttpPoet {
       return null;
     }
     Function parser = extractResponseBodyParser(response, acceptContentTypeOverride, parserOverride);
-    return parser.call(body);
+    return parser.apply(body);
   }
 
   private ContentType extractResponseContentType(Response response, ContentType acceptContentTypeOverride) {
@@ -222,7 +224,7 @@ public class AbstractHttpPoet {
           && !(body instanceof byte[]))) {
         throw new IllegalStateException("No composer was found for content type " + contentType);
       }
-      composedBody = composer != null ? composer.call(body) : body;
+      composedBody = composer != null ? composer.apply(body) : body;
     }
     MediaType mediaType = contentType != null ? contentType.toMediaType() : null;
     return toRequestBody(composedBody, mediaType);
@@ -268,7 +270,7 @@ public class AbstractHttpPoet {
         new UrlBuilder(baseUrl, queryParamComposer).append(
                 urlOrEndpoint)
             .addParams(this.params)
-            .addParams(params)
+            .addParams(params != null ? params : Collections.emptyMap())
             .build();
     RequestBody requestBody = requestBody(body, composerOverride, contentType, method);
     Request.Builder builder = new Request.Builder().url(url).method(method, requestBody);
@@ -293,7 +295,7 @@ public class AbstractHttpPoet {
 
   protected Object handleErrorResponse(Response response) {
     if (errorResponseHandler != null) {
-      return errorResponseHandler.call(response);
+      return errorResponseHandler.apply(response);
     } else {
       return defaultHandleErrorResponse(response);
     }
@@ -365,19 +367,19 @@ public class AbstractHttpPoet {
   }
 
 
-  public void setDefaultParser(Function parser) {
+  public void setDefaultParser(Function<Object, ?> parser) {
     getParsers().setDefaultValue(parser);
   }
 
 
-  public void configureOkHttpClient(Function configurer) {
+  public void configureOkHttpClient(Function<Object, ?> configurer) {
     OkHttpClient.Builder builder = okHttpClient.newBuilder();
-    configurer.call(builder);
+    configurer.apply(builder);
     this.okHttpClient = builder.build();
   }
 
   protected Response handleHistory(Response response, boolean skipHistory, Object requestBody,
-                                 ContentType acceptContentTypeOverride, Function parserOverride) throws IOException {
+                                 ContentType acceptContentTypeOverride, Function<Object, ?> parserOverride) throws IOException {
     if (history == null || skipHistory) {
       return response;
     }

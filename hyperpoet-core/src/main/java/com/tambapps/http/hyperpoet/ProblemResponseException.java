@@ -9,6 +9,7 @@ import okhttp3.ResponseBody;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Error response exception containing data for JSON RFC 7807 Problem details
@@ -53,14 +54,14 @@ public class ProblemResponseException extends ErrorResponseException {
     return getMember(propertyName);
   }
 
-  public static ProblemResponseException from(Response response, Function parser) throws IOException {
+  public static ProblemResponseException from(Response response, Function<Object, ?> parser) throws IOException {
     CachedResponseBody responseBody = CachedResponseBody.from(response.body());
     Map<String, Object> members = new HashMap<>();
     Request request = response.request();
     String errorMessage = String.format("endpoint %s %s responded %d", request.method(), request.url().encodedPath(), response.code());
     if (!responseBody.isEmpty()) {
       try {
-        Map<?, ?> json = (Map<?, ?>) parser.call(responseBody);
+        Map<?, ?> json = (Map<?, ?>) parser.apply(responseBody);
         json.forEach((key, value) -> members.put(String.valueOf(key), value));
         errorMessage = String.format("endpoint %s %s responded %d with problem type %s: %s", request.method(), request.url().encodedPath(), response.code(), members.get("type"), members.get("detail"));
       } catch (Exception ignored) {

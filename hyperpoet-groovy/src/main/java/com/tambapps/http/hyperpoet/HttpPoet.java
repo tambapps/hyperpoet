@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * The HTTP client
@@ -569,14 +570,14 @@ public class HttpPoet extends AbstractHttpPoet implements GroovyObject {
 
   private Object doRequest(Request request, Map<?, ?> additionalParameters, Function responseHandler) throws IOException {
     if (onPreExecute != null) {
-      onPreExecute.call(request);
+      onPreExecute.apply(request);
     }
     try (Response response = getOkHttpClient().newCall(request).execute()) {
       Response effectiveResponse = handleHistory(response, additionalParameters);
       if (onPostExecute != null) {
-        onPostExecute.call(effectiveResponse);
+        onPostExecute.apply(effectiveResponse);
       }
-      return responseHandler.call(effectiveResponse);
+      return responseHandler.apply(effectiveResponse);
     }
   }
 
@@ -594,8 +595,8 @@ public class HttpPoet extends AbstractHttpPoet implements GroovyObject {
     );
   }
 
-  private Function getFunctionOrDefault(Map<?, ?> additionalParameters, String key,
-                                        Function defaultValue) {
+  private Function<Object, ?> getFunctionOrDefault(Map<?, ?> additionalParameters, String key,
+                                        Function<Object, ?> defaultValue) {
     if (additionalParameters.get(key) instanceof Closure) {
       Closure<?> closure = (Closure<?>) additionalParameters.get(key);
       return closure::call;
@@ -637,7 +638,7 @@ public class HttpPoet extends AbstractHttpPoet implements GroovyObject {
 
   protected Object handleErrorResponse(Response response, Map<?, ?> additionalParameters) {
     if (getErrorResponseHandler() != null) {
-      return getErrorResponseHandler().call(response);
+      return getErrorResponseHandler().apply(response);
     } else {
       return defaultHandleErrorResponse(response, additionalParameters);
     }

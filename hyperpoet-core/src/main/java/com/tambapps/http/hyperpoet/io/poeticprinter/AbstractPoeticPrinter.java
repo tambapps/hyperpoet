@@ -1,14 +1,14 @@
 package com.tambapps.http.hyperpoet.io.poeticprinter;
 
-import com.tambapps.http.hyperpoet.Function;
+import java.util.function.Function;
 
-public abstract class AbstractPoeticPrinter implements Function, PoeticPrinter {
+public abstract class AbstractPoeticPrinter implements Function<Object, Object>, PoeticPrinter {
 
   protected AbstractPoeticPrinter() {
   }
 
   @Override
-  public Object call(Object arg) {
+  public Object apply(Object arg) {
     doCall((byte[]) arg);
     return null;
   }

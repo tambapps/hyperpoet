@@ -24,6 +24,7 @@ class HttpHaikuTest extends JsonPlaceholderTest {
     def interceptor = new ConsolePrintingInterceptor(printRequestHeaders: true)
     HttpHaiku.poet.addInterceptor(interceptor)
     try {
+
       def todo = HttpHaiku.get("$PLACEHOLDER_API_URL/todos/1",
           headers: [("X-Some-Custom-Header"): "Value"])
 

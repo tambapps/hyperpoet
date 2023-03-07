@@ -9,6 +9,7 @@ import okhttp3.ResponseBody;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public class HttpExchange {
 
@@ -16,9 +17,9 @@ public class HttpExchange {
   private final Response response;
   @Getter
   private final Object requestBody;
-  private final Function parser;
+  private final Function<Object, ?> parser;
 
-  public HttpExchange(Response response, Object requestBody, Function parser) {
+  public HttpExchange(Response response, Object requestBody, Function<Object, ?> parser) {
     if (response != null && response.body() != null && !(response.body() instanceof CachedResponseBody)) {
       throw new IllegalArgumentException("Response body should have been cached");
     }
@@ -59,7 +60,7 @@ public class HttpExchange {
     if (getRawResponseBody() == null || parser == null) {
       return null;
     } else {
-      return parser.call(getRawResponseBody());
+      return parser.apply(getRawResponseBody());
     }
   }
 

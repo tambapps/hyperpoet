@@ -2,7 +2,6 @@ package com.tambapps.http.hyperpoet.io.composer;
 
 import com.tambapps.http.hyperpoet.ContentType;
 import com.tambapps.http.hyperpoet.FormPart;
-import com.tambapps.http.hyperpoet.Function;
 import com.tambapps.http.hyperpoet.io.IoUtils;
 import com.tambapps.http.hyperpoet.io.json.JsonGenerator;
 import com.tambapps.http.hyperpoet.url.QueryParamComposer;
@@ -19,6 +18,7 @@ import java.io.Reader;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Utility class holding several common composers.
@@ -69,7 +69,7 @@ public final class Composers {
     return bytes;
   }
 
-  private static class MultipartFormComposerClosure implements Function {
+  private static class MultipartFormComposerClosure implements Function<Object, RequestBody> {
     // keeping poet instance to have an up to date (and mostly non-null) composers
     private final ContentTypeMapFunction composers;
 
@@ -79,7 +79,7 @@ public final class Composers {
 
     @SneakyThrows
     @Override
-    public RequestBody call(Object body) {
+    public RequestBody apply(Object body) {
       Map<?, ?> map;
       if (body instanceof File) {
         map = Collections.singletonMap(((File) body).getName(), body);
@@ -136,7 +136,7 @@ public final class Composers {
         if (composer == null) {
           throw new IllegalArgumentException(String.format("Couldn't find a composer for FormPart '%s'", filename));
         }
-        requestBody = (RequestBody) composer.call(value);
+        requestBody = (RequestBody) composer.apply(value);
       }
       builder.addFormDataPart(key, filename, requestBody);
     }

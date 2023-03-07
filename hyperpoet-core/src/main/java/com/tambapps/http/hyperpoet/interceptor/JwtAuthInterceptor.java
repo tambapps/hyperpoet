@@ -2,7 +2,6 @@ package com.tambapps.http.hyperpoet.interceptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tambapps.http.hyperpoet.AbstractHttpPoet;
-import com.tambapps.http.hyperpoet.Function;
 import com.tambapps.http.hyperpoet.Headers;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +18,7 @@ import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
 /**
  * Interceptor that authenticate the request with an access_token.
@@ -29,11 +29,11 @@ public class JwtAuthInterceptor implements Interceptor {
 
   @Getter
   private final AbstractHttpPoet poet;
-  private final Function tokenRefresher;
+  private final Function<Object, ?> tokenRefresher;
   private final AtomicReference<ExpirableToken> tokenReference = new AtomicReference<>();
   private final ObjectMapper mapper = new ObjectMapper();
 
-  public JwtAuthInterceptor(Function tokenRefresher) {
+  public JwtAuthInterceptor(Function<Object, ?> tokenRefresher) {
     this(AbstractHttpPoet.newPoet(), tokenRefresher);
   }
 
@@ -55,7 +55,7 @@ public class JwtAuthInterceptor implements Interceptor {
   }
 
   public ExpirableToken refreshToken() throws IOException {
-    String tokenString = (String) tokenRefresher.call(poet);
+    String tokenString = (String) tokenRefresher.apply(poet);
     ExpirableToken token = fromString(tokenString);
     tokenReference.set(token);
     return token;

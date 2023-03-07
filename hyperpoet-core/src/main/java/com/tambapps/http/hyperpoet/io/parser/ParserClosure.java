@@ -1,19 +1,19 @@
 package com.tambapps.http.hyperpoet.io.parser;
 
-import com.tambapps.http.hyperpoet.Function;
 import lombok.SneakyThrows;
 import okhttp3.ResponseBody;
 
 import java.io.IOException;
+import java.util.function.Function;
 
-public abstract class ParserClosure implements Function {
+public abstract class ParserClosure implements Function<Object, Object> {
 
   protected ParserClosure() {
   }
 
   @SneakyThrows
   @Override
-  public Object call(Object arg) {
+  public Object apply(Object arg) {
     return doCall((ResponseBody) arg);
   }
 

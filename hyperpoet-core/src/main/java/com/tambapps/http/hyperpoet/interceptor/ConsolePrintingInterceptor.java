@@ -7,7 +7,6 @@ import static com.tambapps.http.hyperpoet.util.Ansi.println;
 
 import com.tambapps.http.hyperpoet.AbstractHttpPoet;
 import com.tambapps.http.hyperpoet.ContentType;
-import com.tambapps.http.hyperpoet.Function;
 import com.tambapps.http.hyperpoet.io.json.JsonGenerator;
 import com.tambapps.http.hyperpoet.io.poeticprinter.PoeticPrinters;
 import com.tambapps.http.hyperpoet.util.CachedResponseBody;
@@ -27,6 +26,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 /**
  * Interceptor allowing you to print colored request and response data. It is compatible and was only
@@ -156,9 +156,9 @@ public class ConsolePrintingInterceptor implements Interceptor {
     if (bytes.length == 0) {
       println("(No content)");
     } else {
-      Function printer = printers.get(contentType);
+      Function<Object, ?> printer = printers.get(contentType);
       if (printer != null) {
-        printer.call(bytes);
+        printer.apply(bytes);
       } else {
         println(new String(bytes));
       }

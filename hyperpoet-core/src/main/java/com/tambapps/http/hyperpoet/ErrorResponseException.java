@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Exception thrown when an error response is received
@@ -49,8 +50,8 @@ public class ErrorResponseException extends RuntimeException {
    * @param parser the parser closure
    * @return the parsed body
    */
-  public Object getBody(Function parser) {
-    return parser.call(body);
+  public Object getBody(Function<Object, ?> parser) {
+    return parser.apply(body);
   }
 
   public static ErrorResponseException from(Response response) throws IOException {

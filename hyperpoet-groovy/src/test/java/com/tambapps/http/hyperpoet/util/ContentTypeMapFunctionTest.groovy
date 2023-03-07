@@ -1,8 +1,10 @@
 package com.tambapps.http.hyperpoet.util
 
 import com.tambapps.http.hyperpoet.ContentType
-import com.tambapps.http.hyperpoet.Function
+
 import org.junit.jupiter.api.Test
+
+import java.util.function.Function
 
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertNull

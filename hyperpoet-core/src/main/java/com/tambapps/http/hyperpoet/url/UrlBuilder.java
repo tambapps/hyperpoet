@@ -1,6 +1,5 @@
 package com.tambapps.http.hyperpoet.url;
 
-import com.tambapps.http.hyperpoet.Function;
 import lombok.Getter;
 
 import java.io.UnsupportedEncodingException;
@@ -11,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -35,7 +35,7 @@ public class UrlBuilder {
     this(url, new QueryParamComposer(new HashMap<>(), multivaluedQueryParamComposingType));
   }
 
-  public UrlBuilder(String url, Map<Class<?>, Function> queryParamConverters) {
+  public UrlBuilder(String url, Map<Class<?>, Function<Object, ?>> queryParamConverters) {
     this(url, new QueryParamComposer(queryParamConverters, MultivaluedQueryParamComposingType.REPEAT));
   }
 
