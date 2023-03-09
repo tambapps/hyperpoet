@@ -278,8 +278,10 @@ public class AbstractHttpPoet {
     for (Map.Entry<String, String> entry : this.headers.entrySet()) {
       builder.header(entry.getKey(), entry.getValue());
     }
-    for (Map.Entry<?, ?> entry : headers.entrySet()) {
-      builder.header(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
+    if (headers != null) {
+      for (Map.Entry<?, ?> entry : headers.entrySet()) {
+        builder.header(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
+      }
     }
     ContentType acceptContentType = acceptContentTypeOverride != null ? acceptContentTypeOverride : this.acceptContentType;
 
