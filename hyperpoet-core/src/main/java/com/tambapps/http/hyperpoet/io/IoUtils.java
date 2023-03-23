@@ -1,5 +1,7 @@
 package com.tambapps.http.hyperpoet.io;
 
+import lombok.SneakyThrows;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -14,6 +16,29 @@ import java.nio.file.Path;
 
 public class IoUtils {
 
+  @SneakyThrows
+  public static byte[] rawToBytes(Object rawData) {
+    byte[] bytes;
+    if (rawData instanceof byte[]) {
+      bytes = (byte[]) rawData;
+    } else if (rawData instanceof Byte[]) {
+      Byte[] bytes1 = (Byte[]) rawData;
+      bytes = new byte[bytes1.length];
+      for (int i = 0; i < bytes.length; i++) {
+        bytes[i] = bytes1[i];
+      }
+    } else if (rawData instanceof InputStream) {
+      bytes = IoUtils.getBytes((InputStream) rawData);
+    } else {
+      throw new IllegalArgumentException("Body must be a byte array or an InputStream to be serialized to bytes");
+    }
+    return bytes;
+  }
+
+  public static String rawToString(Object data) {
+    if (data instanceof String) return (String) data;
+    return new String(rawToBytes(data));
+  }
   public static byte[] getBytes(Path path) throws IOException {
     return getBytes(path.toFile());
   }

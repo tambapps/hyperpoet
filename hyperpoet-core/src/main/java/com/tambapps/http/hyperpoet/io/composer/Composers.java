@@ -52,21 +52,7 @@ public final class Composers {
 
   @SneakyThrows
   public static byte[] composeBytesBody(Object body) {
-    byte[] bytes;
-    if (body instanceof byte[]) {
-      bytes = (byte[]) body;
-    } else if (body instanceof Byte[]) {
-      Byte[] bytes1 = (Byte[]) body;
-      bytes = new byte[bytes1.length];
-      for (int i = 0; i < bytes.length; i++) {
-        bytes[i] = bytes1[i];
-      }
-    } else if (body instanceof InputStream) {
-      bytes = IoUtils.getBytes((InputStream) body);
-    } else {
-      throw new IllegalArgumentException("Body must be a byte array or an InputStream to be serialized to bytes");
-    }
-    return bytes;
+    return IoUtils.rawToBytes(body);
   }
 
   private static class MultipartFormComposerClosure implements Function<Object, RequestBody> {

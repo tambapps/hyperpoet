@@ -32,7 +32,7 @@ public class JsonParserClosure extends ParserClosure {
     return toObject(node);
   }
 
-  private Object toObject(JsonNode node) {
+  public static Object toObject(JsonNode node) {
     if (node.isDouble()) return node.asDouble();
     else if (node.isFloat()) return node.floatValue();
     else if (node.isLong()) return node.asLong();

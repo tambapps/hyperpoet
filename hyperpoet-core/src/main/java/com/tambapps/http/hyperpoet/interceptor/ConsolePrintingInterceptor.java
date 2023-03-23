@@ -158,7 +158,7 @@ public class ConsolePrintingInterceptor implements Interceptor {
     } else {
       Function<Object, ?> printer = printers.get(contentType);
       if (printer != null) {
-        printer.apply(bytes);
+        println(printer.apply(bytes));
       } else {
         println(new String(bytes));
       }
