@@ -1,7 +1,7 @@
 package com.tambapps.http.hyperpoet
 
+import com.tambapps.http.contenttype.ContentType
 import com.tambapps.http.hyperpoet.interceptor.ConsolePrintingInterceptor
-import com.tambapps.http.hyperpoet.invoke.OperationPoeticInvoker
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertNotNull

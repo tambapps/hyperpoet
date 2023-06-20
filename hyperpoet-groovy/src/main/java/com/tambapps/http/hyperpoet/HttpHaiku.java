@@ -9,6 +9,7 @@ import static com.tambapps.http.hyperpoet.util.Constants.PARSER_PARAM;
 import static com.tambapps.http.hyperpoet.util.Constants.QUERY_PARAMS_PARAM;
 import static com.tambapps.http.hyperpoet.util.Constants.SKIP_HISTORY_PARAM;
 
+import com.tambapps.http.contenttype.ContentType;
 import groovy.lang.Closure;
 import groovy.transform.NamedParam;
 

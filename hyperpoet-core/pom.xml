@@ -37,6 +37,11 @@
       <artifactId>jackson-syntax-highlight</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.tambapps.http</groupId>
+      <artifactId>http-content-type</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <scope>provided</scope>

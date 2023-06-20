@@ -1,5 +1,6 @@
 package com.tambapps.http.hyperpoet;
 
+import com.tambapps.http.contenttype.ContentType;
 import com.tambapps.http.hyperpoet.interceptor.ConsolePrintingInterceptor;
 import com.tambapps.http.hyperpoet.io.IoUtils;
 import com.tambapps.http.hyperpoet.io.composer.Composers;
@@ -226,7 +227,7 @@ public class AbstractHttpPoet {
       }
       composedBody = composer != null ? composer.apply(body) : body;
     }
-    MediaType mediaType = contentType != null ? contentType.toMediaType() : null;
+    MediaType mediaType = contentType != null ? MediaType.get(contentType.toString()) : null;
     return toRequestBody(composedBody, mediaType);
   }
 

@@ -1,8 +1,9 @@
 package com.tambapps.http.hyperpoet
 
-import java.util.function.Function;
-import okhttp3.Request;
+import com.tambapps.http.contenttype.ContentType
 
+import java.util.function.Function
+import okhttp3.Request
 
 public class HttpPoet extends AbstractHttpPoet {
 

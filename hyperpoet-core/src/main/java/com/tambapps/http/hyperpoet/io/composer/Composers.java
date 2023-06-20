@@ -1,6 +1,6 @@
 package com.tambapps.http.hyperpoet.io.composer;
 
-import com.tambapps.http.hyperpoet.ContentType;
+import com.tambapps.http.contenttype.ContentType;
 import com.tambapps.http.hyperpoet.FormPart;
 import com.tambapps.http.hyperpoet.io.IoUtils;
 import com.tambapps.http.hyperpoet.io.json.JsonGenerator;
@@ -98,16 +98,16 @@ public final class Composers {
     }
 
     private void addFormDataPart(MultipartBody.Builder builder, String key, File file) throws IOException {
-      builder.addFormDataPart(key, file.getName(), RequestBody.create(IoUtils.getBytes(file), ContentType.BINARY.toMediaType()));
+      builder.addFormDataPart(key, file.getName(), RequestBody.create(IoUtils.getBytes(file), MediaType.get(ContentType.BINARY.toString())));
     }
 
     private void addFormDataPart(MultipartBody.Builder builder, String key, InputStream inputStream) throws IOException {
-      builder.addFormDataPart(key, key, RequestBody.create(IoUtils.getBytes(inputStream), ContentType.BINARY.toMediaType()));
+      builder.addFormDataPart(key, key, RequestBody.create(IoUtils.getBytes(inputStream), MediaType.get(ContentType.BINARY.toString())));
     }
 
     private void addFormDataPart(MultipartBody.Builder builder, String key, FormPart formPart) throws IOException {
       final Object value = formPart.getValue();
-      MediaType mediaType = formPart.getContentType().toMediaType();
+      MediaType mediaType = MediaType.get(formPart.getContentType().toString());
       String filename = formPart.getFilename() != null ? formPart.getFilename() : key;
       RequestBody requestBody;
       // smart conversions
