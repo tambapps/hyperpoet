@@ -1,6 +1,5 @@
 package com.tambapps.http.hyperpoet;
 
-import com.tambapps.http.contenttype.ContentType;
 import com.tambapps.http.hyperpoet.url.UrlBuilder;
 import com.tambapps.http.hyperpoet.util.Constants;
 import groovy.lang.Closure;

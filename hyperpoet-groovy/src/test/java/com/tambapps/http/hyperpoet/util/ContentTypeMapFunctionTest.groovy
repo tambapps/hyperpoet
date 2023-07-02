@@ -1,6 +1,7 @@
 package com.tambapps.http.hyperpoet.util
 
-import com.tambapps.http.contenttype.ContentType
+import com.tambapps.http.hyperpoet.ContentType
+
 import org.junit.jupiter.api.Test
 
 import java.util.function.Function
@@ -17,8 +18,8 @@ class ContentTypeMapFunctionTest {
   @Test
   void test1() {
     ContentTypeMapFunction map = new ContentTypeMapFunction([
-        (ContentType.JSON)                       : f1,
-        (new ContentType("something","*"))       : f2,
+        (ContentType.JSON): f1,
+        (new ContentType("something","*")): f2,
         (new ContentType("something","specific")): f3,
     ])
     assertEquals(f1, map[ContentType.JSON])

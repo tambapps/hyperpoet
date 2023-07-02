@@ -1,9 +1,10 @@
 package com.tambapps.http.hyperpoet.interceptor
 
-import com.tambapps.http.contenttype.ContentType
+import com.tambapps.http.hyperpoet.ContentType
 import com.tambapps.http.hyperpoet.ErrorResponseHandlers
 import com.tambapps.http.hyperpoet.HttpPoet
 import com.tambapps.http.hyperpoet.JsonPlaceholderTest
+import com.tambapps.http.hyperpoet.interceptor.ConsolePrintingInterceptor
 import org.junit.jupiter.api.Test
 
 class ConsolePrintingInterceptorTest extends JsonPlaceholderTest {

@@ -1,6 +1,6 @@
 package com.tambapps.http.hyperpoet.io.parser;
 
-import com.tambapps.http.contenttype.ContentType;
+import com.tambapps.http.hyperpoet.ContentType;
 import com.tambapps.http.hyperpoet.util.ContentTypeMapFunction;
 import lombok.SneakyThrows;
 import okhttp3.ResponseBody;

@@ -1,6 +1,5 @@
 package com.tambapps.http.hyperpoet
 
-import com.tambapps.http.contenttype.ContentType
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document

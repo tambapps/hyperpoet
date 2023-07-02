@@ -1,9 +1,7 @@
 package com.tambapps.http.hyperpoet
 
-import com.tambapps.http.contenttype.ContentType
 import com.tambapps.http.hyperpoet.interceptor.ConsolePrintingInterceptor
 import groovy.json.JsonOutput
-import okhttp3.MediaType
 import okhttp3.Protocol
 import okhttp3.Response
 import okhttp3.ResponseBody
@@ -31,7 +29,7 @@ class ErrorResponseHandlersTest extends JsonPlaceholderTest {
               .request(it.request())
               .protocol(Protocol.HTTP_1_0)
               .message("Bad Request")
-              .body(ResponseBody.create(JsonOutput.toJson(PROBLEM).bytes, MediaType.get(ContentType.JSON.toString())))
+              .body(ResponseBody.create(JsonOutput.toJson(PROBLEM).bytes, ContentType.JSON.toMediaType()))
               .build()
     }
   }

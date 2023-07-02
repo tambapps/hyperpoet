@@ -1,6 +1,6 @@
 package com.tambapps.http.hyperpoet.util;
 
-import com.tambapps.http.contenttype.ContentType;
+import com.tambapps.http.hyperpoet.ContentType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

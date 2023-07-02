@@ -20,7 +20,6 @@ import static com.tambapps.http.hyperpoet.util.ParametersUtils.getOrDefault;
 import static com.tambapps.http.hyperpoet.util.ParametersUtils.getOrDefaultSupply;
 import static com.tambapps.http.hyperpoet.util.ParametersUtils.getStringOrDefault;
 
-import com.tambapps.http.contenttype.ContentType;
 import com.tambapps.http.hyperpoet.invoke.PoeticInvoker;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;

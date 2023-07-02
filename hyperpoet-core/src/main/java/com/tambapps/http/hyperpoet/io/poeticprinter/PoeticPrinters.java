@@ -1,6 +1,6 @@
 package com.tambapps.http.hyperpoet.io.poeticprinter;
 
-import com.tambapps.http.contenttype.ContentType;
+import com.tambapps.http.hyperpoet.ContentType;
 import com.tambapps.http.hyperpoet.io.json.JsonGenerator;
 import com.tambapps.http.hyperpoet.util.ContentTypeMapFunction;
 
