@@ -24,6 +24,7 @@
   <properties>
     <groovy.version>3.0.9</groovy.version>
     <okhttp.version>4.10.0</okhttp.version>
+    <marcel.version>0.1-SNAPSHOT</marcel.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -167,7 +168,7 @@
         <plugin>
           <groupId>com.tambapps.marcel.maven</groupId>
           <artifactId>marcel-maven-plugin</artifactId>
-          <version>0.0.1-SNAPSHOT</version>
+          <version>${marcel.version}</version>
         </plugin>
         <!-- mvn javadoc:javadoc -->
         <plugin>
