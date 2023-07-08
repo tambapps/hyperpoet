@@ -52,7 +52,7 @@ public class ContentTypeMapFunction extends TreeMap<ContentType, Function<Object
 
   public Function getAt(ContentType contentType) {
     if (contentType == null) {
-      return super.get(null);
+      return defaultValue;
     }
     if (containsKey(contentType)) {
       return super.get(contentType);
