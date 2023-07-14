@@ -382,7 +382,7 @@ public class AbstractHttpPoet {
 
   protected Response handleHistory(Response response, Boolean skipHistory, Object requestBody,
                                  ContentType acceptContentTypeOverride, Function<Object, ?> parserOverride) throws IOException {
-    if (history == null || skipHistory == null || skipHistory) {
+    if (history == null || skipHistory != null && skipHistory) {
       return response;
     }
     Response cachedResponse = CachedResponseBody.newResponseWitchCachedBody(response);
