@@ -1,0 +1,76 @@
+package com.tambapps.http.hyperpoet
+
+import com.tambapps.http.garcon.*
+import com.tambapps.http.garcon.annotation.*
+import com.tambapps.http.garcon.exception.*
+import java.net.InetAddress
+import java.util.concurrent.atomic.AtomicInteger
+
+class MockServer {
+  /**
+   * Data
+   **/
+  static final AtomicInteger ID_INCREMENT  = new AtomicInteger()
+  static final List TODOS = [
+    new Todo(id: ID_INCREMENT.incrementAndGet(), userId: 1, title: "Go to the grocery store", completed: false),
+    new Todo(id: ID_INCREMENT.incrementAndGet(), userId: 1, title: "Finish homeworks", completed: false),
+    new Todo(id: ID_INCREMENT.incrementAndGet(), userId: 2, title: "Do the dishes", completed: false),
+    new Todo(id: ID_INCREMENT.incrementAndGet(), userId: 3, title: "Charge computer", completed: true)
+  ]
+
+  class Todo {
+    Integer id
+    Integer userId
+    String title
+    Boolean completed
+
+    constructor(this.id, this.userId, this.title, this.completed)
+  }
+
+  /**
+   * API
+   **/
+  @Get('/todos')
+  fun Collection getTodos() {
+    return TODOS
+  }
+
+  @Get('/todos/{id}')
+  fun Object getTodo(@PathVariable("id") Integer id) {
+    Todo todo = TODOS.find { Todo it -> it.id == id }
+    if (todo) return todo
+    throw new NotFoundException("Todo with id $id not found")
+  }
+
+  @ResponseStatus(CREATED)
+  @Post('/todos')
+  fun Object postTodo(@ParsedRequestBody dynobj post) {
+    if (!post.userId || !post.title) {
+      throw new BadRequestException("Some fields are missing/malformed")
+    }
+    Todo todo = new Todo(id: ID_INCREMENT.incrementAndGet(), userId: post.userId.asInt(), title: post.title.asString(), completed: post.completed as bool)
+    TODOS.add(todo)
+    return todo
+  }
+
+  @Patch('/todos/{id}')
+  fun Object patchTodo(@PathVariable("id") Integer id, @ParsedRequestBody dynobj patch) {
+    Todo todo = getTodo(id)
+    if (patch.userId != null) todo.userId = patch.userId.asInt()
+    if (patch.title != null) todo.title = patch.title.asString()
+    if (patch.completed != null) todo.completed = patch.completed.asBool()
+    return todo
+  }
+
+  @Delete('/todos/{id}')
+  fun Object deleteTodo(@PathVariable("id") Integer id) {
+    Todo todo = TODOS.find { Todo it -> it.id == id }
+    TODOS.remove(todo)
+    return todo
+  }
+
+
+  fun void onStart(InetAddress address, int port) {
+    println("Started on ${address.hostName}:$port")
+  }
+}

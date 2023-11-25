@@ -24,7 +24,8 @@
   <properties>
     <groovy.version>3.0.9</groovy.version>
     <okhttp.version>4.10.0</okhttp.version>
-    <marcel.version>0.0.1-SNAPSHOT</marcel.version>
+    <marcel.version>0.1.0-SNAPSHOT</marcel.version>
+    <garcon.version>2.0-SNAPSHOT</garcon.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -88,8 +89,14 @@
       </dependency>
       <dependency>
         <groupId>com.tambapps.http</groupId>
-        <artifactId>garcon</artifactId>
-        <version>1.0</version>
+        <artifactId>garcon-groovy</artifactId>
+        <version>${garcon.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.tambapps.http</groupId>
+        <artifactId>garcon-marcel</artifactId>
+        <version>${garcon.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>

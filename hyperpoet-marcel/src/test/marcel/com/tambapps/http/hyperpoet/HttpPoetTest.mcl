@@ -1,0 +1,77 @@
+package com.tambapps.http.hyperpoet
+
+import com.tambapps.http.garcon.Garcon
+
+import com.tambapps.http.garcon.ContentType as GarconContentType
+
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
+
+import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertFalse
+import static org.junit.jupiter.api.Assertions.assertNotNull
+import static org.junit.jupiter.api.Assertions.assertThrows
+import static org.junit.jupiter.api.Assertions.assertTrue
+
+public class HttpPoetTest {
+
+  private static final String HOST = "localhost"
+  private static final int PORT = 8082
+  private static final Garcon GARCON = Garcon.fromInstance(new MockServer(),
+    contentType: GarconContentType.JSON, accept: GarconContentType.JSON)
+
+  private HttpPoet client = new HttpPoet(baseUrl: "http://$HOST:$PORT", contentType: ContentType.JSON, acceptContentType: ContentType.JSON)
+
+
+  @Test
+  fun void testGet() {
+    dynobj todo = client.get("/todos/1")
+
+    assertEquals(1, todo.id.value)
+    assertEquals(1, todo.userId.value)
+    assertEquals('Go to the grocery store', todo.title.value)
+    assertFalse(todo.completed.asBool())
+  }
+
+  @Test
+  fun void testPatch() {
+    dynobj todo = client.patch("/todos/1", body: [title: 'new title'])
+
+    assertEquals(1, todo.id.value)
+    assertEquals(1, todo.userId.value)
+    assertEquals('new title', todo.title.value)
+    assertFalse(todo.completed.asBool())
+  }
+
+  @Test
+  fun void testPost() {
+    dynobj todo = client.post("/todos", body: [title: 'foo', completed: true, userId: 5])
+
+    assertEquals('foo', todo.title.value)
+    assertTrue(todo.completed.asBool())
+    assertEquals(5, todo.userId.value)
+    assertNotNull(todo.id)
+  }
+
+  /* TODO the matching doesn't work
+  @Test
+  fun void testGet_notFound() {
+    dynobj responseException = assertThrows(ErrorResponseException.class) {
+      client.get("/todos/123456789")
+    }
+    assertEquals(404, responseException.code)
+  }
+  */
+
+  @BeforeAll
+  static fun void initServer() {
+    GARCON.start(HOST, PORT)
+    Thread.sleep(500L)
+  }
+
+  @AfterAll
+  static fun void disposeServer() {
+    GARCON.stop()
+  }
+}

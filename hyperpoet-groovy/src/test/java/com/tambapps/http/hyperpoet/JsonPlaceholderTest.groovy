@@ -222,6 +222,7 @@ abstract class JsonPlaceholderTest {
   @BeforeAll
   static void initServer() {
     GARCON.start()
+    Thread.sleep(500L)
   }
 
 

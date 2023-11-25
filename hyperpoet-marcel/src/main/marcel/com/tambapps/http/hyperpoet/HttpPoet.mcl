@@ -6,7 +6,11 @@ import okhttp3.Request;
 
 public class HttpPoet extends AbstractHttpPoet {
 
-  constructor(String baseUrl): super(baseUrl)
+  constructor(String baseUrl, ContentType contentType = null, ContentType acceptContentType = null): super(baseUrl) {
+    this.contentType = contentType
+    this.acceptContentType = acceptContentType
+  }
+
   constructor(): super("")
 
   fun DynamicObject request(String method, String path, Map params = null, Object body = null, ContentType contentType = null,

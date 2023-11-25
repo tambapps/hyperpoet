@@ -47,7 +47,7 @@
     </dependency>
     <dependency>
       <groupId>com.tambapps.http</groupId>
-      <artifactId>garcon</artifactId>
+      <artifactId>garcon-marcel</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

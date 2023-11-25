@@ -53,16 +53,6 @@
       <artifactId>junit-jupiter-engine</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.jsoup</groupId>
-      <artifactId>jsoup</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.tambapps.http</groupId>
-      <artifactId>garcon</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
 
