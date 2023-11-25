@@ -54,15 +54,14 @@ public class HttpPoetTest {
     assertNotNull(todo.id)
   }
 
-  /* TODO the matching doesn't work
   @Test
   fun void testGet_notFound() {
-    dynobj responseException = assertThrows(ErrorResponseException.class) {
-      client.get("/todos/123456789")
+    HttpPoet c = this.client // TODO hack because inner classes don't support yet retrieving fields from outer class
+    ErrorResponseException responseException = assertThrows(ErrorResponseException.class) { ->
+      c.get("/todos/123456789")
     }
     assertEquals(404, responseException.code)
   }
-  */
 
   @BeforeAll
   static fun void initServer() {
