@@ -18,7 +18,7 @@ class MockServer {
     new Todo(id: ID_INCREMENT.incrementAndGet(), userId: 3, title: "Charge computer", completed: true)
   ]
 
-  class Todo {
+  static class Todo {
     Integer id
     Integer userId
     String title

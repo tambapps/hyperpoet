@@ -21,8 +21,7 @@ public class HttpPoetTest {
   private static final Garcon GARCON = Garcon.fromInstance(new MockServer(),
     contentType: GarconContentType.JSON, accept: GarconContentType.JSON)
 
-  private HttpPoet client = new HttpPoet(baseUrl: "http://$HOST:$PORT", contentType: ContentType.JSON, acceptContentType: ContentType.JSON)
-
+  internal HttpPoet client = new HttpPoet(baseUrl: "http://$HOST:$PORT", contentType: ContentType.JSON, acceptContentType: ContentType.JSON)
 
   @Test
   fun void testGet() {
@@ -56,9 +55,8 @@ public class HttpPoetTest {
 
   @Test
   fun void testGet_notFound() {
-    HttpPoet c = this.client // TODO hack because inner classes don't support yet retrieving fields from outer class
     ErrorResponseException responseException = assertThrows(ErrorResponseException.class) { ->
-      c.get("/todos/123456789")
+      client.get("/todos/123456789")
     }
     assertEquals(404, responseException.code)
   }
