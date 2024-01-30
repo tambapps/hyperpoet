@@ -24,7 +24,7 @@
   <properties>
     <revision>1.4.0-SNAPSHOT</revision>
     <groovy.version>3.0.9</groovy.version>
-    <okhttp.version>4.10.0</okhttp.version>
+    <okhttp.version>4.12.0</okhttp.version>
     <marcel.version>0.1.1-SNAPSHOT</marcel.version>
     <garcon.version>2.0</garcon.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
