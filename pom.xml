@@ -7,7 +7,7 @@
 
   <groupId>com.tambapps.http</groupId>
   <artifactId>hyperpoet</artifactId>
-  <version>1.4.0-SNAPSHOT</version>
+  <version>${revision}</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -22,9 +22,10 @@
   <inceptionYear>2021</inceptionYear>
 
   <properties>
+    <revision>1.4.0-SNAPSHOT</revision>
     <groovy.version>3.0.9</groovy.version>
     <okhttp.version>4.10.0</okhttp.version>
-    <marcel.version>0.1.0-SNAPSHOT</marcel.version>
+    <marcel.version>0.1.1-SNAPSHOT</marcel.version>
     <garcon.version>2.0</garcon.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -35,16 +36,6 @@
         <groupId>com.squareup.okhttp3</groupId>
         <artifactId>okhttp</artifactId>
         <version>${okhttp.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.groovy</groupId>
-        <artifactId>groovy</artifactId>
-        <optional>true</optional>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.groovy</groupId>
-        <artifactId>groovy-xml</artifactId>
-        <optional>true</optional>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
@@ -127,6 +118,32 @@
           <source>8</source>
           <target>8</target>
         </configuration>
+      </plugin>
+      <!-- required in order to properly resolve ${revision} in child pom properly, when using these modules as dependencies from external projects -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <version>1.5.0</version>
+        <configuration>
+          <updatePomFile>true</updatePomFile>
+          <flattenMode>resolveCiFriendliesOnly</flattenMode>
+        </configuration>
+        <executions>
+          <execution>
+            <id>flatten</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>flatten</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>flatten.clean</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
 
