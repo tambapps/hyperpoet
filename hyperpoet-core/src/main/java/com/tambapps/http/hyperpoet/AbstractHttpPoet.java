@@ -390,4 +390,21 @@ public class AbstractHttpPoet {
     history.add(new HttpExchange(cachedResponse, requestBody, responseParser));
     return cachedResponse;
   }
+
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder()
+        .append(getClass().getSimpleName())
+        .append("(baseUrl=")
+        .append(baseUrl);
+    if (contentType != null) {
+      builder.append(", contentType=")
+          .append(contentType);
+    }
+    if (acceptContentType != null) {
+      builder.append(", acceptContentType=")
+          .append(acceptContentType);
+    }
+    return builder.append(')').toString();
+  }
 }
