@@ -57,6 +57,7 @@ class ContentTypeMapFunctionTest {
     assertEquals(f0, map[ContentType.XML])
     assertEquals(f1, map[ContentType.JSON])
     assertEquals(f1, map[new ContentType("application","problem+json")])
+    assertEquals(f1, map.getOrDefault(new ContentType("application","problem+json"), null))
 
   }
 }

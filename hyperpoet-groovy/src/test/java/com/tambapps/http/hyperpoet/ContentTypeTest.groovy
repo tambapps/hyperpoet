@@ -15,8 +15,13 @@ import org.junit.jupiter.api.Test
 class ContentTypeTest {
 
   @Test
+  void testSubtypes() {
+    assertEquals(new ContentType("application","json-patch+json"), ContentType.valueOf('application/json-patch+json'))
+  }
+  @Test
   void testIncludes() {
     assertTrue(JSON.includes(new ContentType("application","problem+json")))
+    assertTrue(JSON.includes(ContentType.valueOf('application/json-patch+json')))
     assertTrue(JSON.includes(JSON))
     assertTrue(new ContentType("application","*").includes(JSON))
   }

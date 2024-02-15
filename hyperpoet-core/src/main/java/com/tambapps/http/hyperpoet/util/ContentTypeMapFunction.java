@@ -29,15 +29,6 @@ public class ContentTypeMapFunction extends TreeMap<ContentType, Function<Object
   }
 
   @Override
-  public Function<Object, ?> getOrDefault(Object key, Function defaultValue) {
-    if (key == null) return defaultValue;
-    Function<Object, ?> v;
-    return (((v = super.get(key)) != defaultValue) || containsKey(key))
-        ? v
-        : defaultValue;
-  }
-
-  @Override
   public Function<Object, ?> get(Object key) {
     if (key instanceof ContentType) {
       return getAt((ContentType) key);
