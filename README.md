@@ -35,8 +35,8 @@ You can import it to your project with Maven
 ```xml
   <dependency>
     <groupId>com.tambapps.http</groupId>
-    <artifactId>hyperpoet</artifactId>
-    <version>1.3.0</version>
+    <artifactId>hyperpoet-groovy</artifactId>
+    <version>1.4.0</version>
   </dependency>
 ```
 
@@ -44,11 +44,11 @@ You can import it to your project with Maven
 Or Gradle
 
 ```groovy
-implementation 'com.tambapps.http:hyperpoet:1.3.0'
+implementation 'com.tambapps.http:hyperpoet-groovy:1.4.0'
 ```
 
 
-Or see [this link](https://search.maven.org/artifact/com.tambapps.http/hyperpoet/1.3.0/jar)
+Or see [this link](https://central.sonatype.com/artifact/com.tambapps.http/hyperpoet-groovy/1.4.0)
 for other dependency management tools.
 
 ## Examples
