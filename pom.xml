@@ -22,7 +22,7 @@
   <inceptionYear>2021</inceptionYear>
 
   <properties>
-    <revision>1.4.0</revision>
+    <revision>1.4.1-SNAPSHOT</revision>
     <groovy.version>3.0.9</groovy.version>
     <okhttp.version>4.12.0</okhttp.version>
     <marcel.version>0.1.1</marcel.version>
