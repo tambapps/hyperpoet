@@ -7,7 +7,7 @@
 
   <parent>
     <groupId>com.tambapps.http</groupId>
-    <artifactId>hyperpoet</artifactId>
+    <artifactId>hyperpoet-parent</artifactId>
     <version>${revision}</version>
   </parent>
   <artifactId>hyperpoet-core</artifactId>
@@ -26,6 +26,10 @@
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
     </dependency>
     <dependency>
@@ -35,6 +39,13 @@
     <dependency>
       <groupId>com.github.skjolber.jackson</groupId>
       <artifactId>jackson-syntax-highlight</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-core</artifactId>
+        </exclusion>
+      </exclusions>
+
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>

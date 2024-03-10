@@ -7,7 +7,7 @@
 
   <parent>
     <groupId>com.tambapps.http</groupId>
-    <artifactId>hyperpoet</artifactId>
+    <artifactId>hyperpoet-parent</artifactId>
     <version>${revision}</version>
   </parent>
   <artifactId>hyperpoet-groovy</artifactId>
