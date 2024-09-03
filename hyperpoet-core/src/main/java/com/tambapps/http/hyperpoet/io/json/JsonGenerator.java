@@ -1,8 +1,11 @@
 package com.tambapps.http.hyperpoet.io.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.github.skjolber.jackson.jsh.AnsiSyntaxHighlight;
 import com.github.skjolber.jackson.jsh.DefaultSyntaxHighlighter;
@@ -27,9 +30,16 @@ public class JsonGenerator {
       .withBoolean(AnsiSyntaxHighlight.RED)
       .withNull(AnsiSyntaxHighlight.RED)
       .build();
+
   public JsonGenerator() {
     mapper.registerModule(new JavaTimeModule());
     mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+  }
+
+  public <T> void addSerializer(Class<T> tClass, JsonSerializer<T> serializer) {
+    SimpleModule module = new SimpleModule();
+    module.addSerializer(tClass, serializer);
+    mapper.registerModule(module);
   }
 
   @SneakyThrows

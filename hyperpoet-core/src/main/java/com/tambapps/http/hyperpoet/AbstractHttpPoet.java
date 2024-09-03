@@ -56,7 +56,7 @@ public class AbstractHttpPoet {
   private OkHttpClient okHttpClient;
   private final Map<String, String> headers = new HashMap<>();
   private final Map<String, Object> params = new HashMap<>();
-  private final JsonGenerator jsonGenerator = new JsonGenerator();
+  protected final JsonGenerator jsonGenerator = new JsonGenerator();
 
   private final Map<Class<?>, Function<Object, ?>> queryParamConverters = new HashMap<>();
   private final QueryParamComposer queryParamComposer = new QueryParamComposer(queryParamConverters, MultivaluedQueryParamComposingType.REPEAT);

@@ -3,15 +3,19 @@ package com.tambapps.http.hyperpoet
 import java.util.function.Function;
 import okhttp3.Request;
 
+import marcel.json.DynamicObjectSerializer
 
 public class HttpPoet extends AbstractHttpPoet {
 
   constructor(String baseUrl, ContentType contentType = null, ContentType acceptContentType = null): super(baseUrl) {
     this.contentType = contentType
     this.acceptContentType = acceptContentType
+    jsonGenerator.addSerializer(dynobj.class, new DynamicObjectSerializer())
   }
 
-  constructor(): super("")
+  constructor(): super("") {
+    jsonGenerator.addSerializer(dynobj.class, new DynamicObjectSerializer())
+  }
 
   fun DynamicObject request(String method, String path, Map params = null, Object body = null, ContentType contentType = null,
               Map headers = null, ContentType acceptContentType = null, Boolean skipHistory = null,

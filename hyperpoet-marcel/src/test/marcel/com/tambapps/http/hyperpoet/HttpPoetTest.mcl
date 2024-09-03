@@ -35,7 +35,8 @@ public class HttpPoetTest {
 
   @Test
   fun void testPatch() {
-    dynobj todo = client.patch("/todos/1", body: [title: 'new title'])
+    // should also work with dynamic object
+    dynobj todo = client.patch("/todos/1", body: [title: DynamicObject.of('new title')])
 
     assertEquals(1, todo.id.value)
     assertEquals(1, todo.userId.value)
