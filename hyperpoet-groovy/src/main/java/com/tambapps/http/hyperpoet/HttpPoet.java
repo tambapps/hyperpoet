@@ -81,7 +81,15 @@ public class HttpPoet extends AbstractHttpPoet implements GroovyObject {
     for (Map.Entry<?, ?> entry : headers.entrySet()) {
       putHeader(entry.getKey(), entry.getValue());
     }
-    setErrorResponseHandler(getFunctionOrDefault(properties, ERROR_RESPONSE_HANDLER_PARAM, getErrorResponseHandler()));
+    if (properties.get(ERROR_RESPONSE_HANDLER_PARAM) != null) {
+      Object errorResponseHandler = properties.get(ERROR_RESPONSE_HANDLER_PARAM);
+      if (errorResponseHandler instanceof ErrorResponseHandler) {
+        setErrorResponseHandler((ErrorResponseHandler) errorResponseHandler);
+      } else if (errorResponseHandler instanceof Closure) {
+        Closure<?> closure = (Closure<?>) errorResponseHandler;
+        setErrorResponseHandler(closure::call);
+      }
+    }
     this.onPreExecute = getFunctionOrDefault(properties, ON_PRE_EXECUTE_PARAM, null);
     this.onPostExecute = getFunctionOrDefault(properties, ON_POST_EXECUTE_PARAM, null);
     setAcceptContentType(getOrDefault(properties, ACCEPT_CONTENT_TYPE_PARAM, ContentType.class, null));
@@ -636,7 +644,7 @@ public class HttpPoet extends AbstractHttpPoet implements GroovyObject {
 
   protected Object handleErrorResponse(Response response, Map<?, ?> additionalParameters) {
     if (getErrorResponseHandler() != null) {
-      return getErrorResponseHandler().apply(response);
+      return getErrorResponseHandler().handle(response);
     } else {
       return defaultHandleErrorResponse(response, additionalParameters);
     }

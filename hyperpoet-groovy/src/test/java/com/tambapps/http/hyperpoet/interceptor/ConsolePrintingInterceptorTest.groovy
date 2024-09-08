@@ -12,7 +12,7 @@ class ConsolePrintingInterceptorTest extends JsonPlaceholderTest {
   private HttpPoet client = new HttpPoet(url: PLACEHOLDER_API_URL,
       contentType: ContentType.JSON, acceptContentType: ContentType.JSON).tap {
     addInterceptor(new ConsolePrintingInterceptor())
-    errorResponseHandler = ErrorResponseHandlers.parseResponseHandler(it)
+    errorResponseHandler = ErrorResponseHandlers.parseResponseHandler()
   }
 
   @Test

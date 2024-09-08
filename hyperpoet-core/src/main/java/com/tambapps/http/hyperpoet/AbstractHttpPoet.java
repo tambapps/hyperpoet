@@ -62,7 +62,7 @@ public class AbstractHttpPoet {
   private final QueryParamComposer queryParamComposer = new QueryParamComposer(queryParamConverters, MultivaluedQueryParamComposingType.REPEAT);
   private final ContentTypeMapFunction composers = Composers.getMap(jsonGenerator, queryParamComposer);
   private final ContentTypeMapFunction parsers = Parsers.getMap();
-  private Function<Object, ?> errorResponseHandler = ErrorResponseHandlers.throwResponseHandler();
+  private ErrorResponseHandler errorResponseHandler = ErrorResponseHandlers.throwResponseHandler();
   protected Function<Object, ?> onPreExecute;
   protected Function<Object, ?> onPostExecute;
   private String baseUrl;
@@ -114,6 +114,13 @@ public class AbstractHttpPoet {
       throw new IllegalArgumentException("Argument should have two elements");
     }
     putHeader(header.get(0), header.get(1));
+  }
+
+  public void setErrorResponseHandler(ErrorResponseHandler errorResponseHandler) {
+    this.errorResponseHandler = errorResponseHandler;
+    if (errorResponseHandler != null) {
+      errorResponseHandler.init(this);
+    }
   }
 
   /**
@@ -297,7 +304,7 @@ public class AbstractHttpPoet {
 
   protected Object handleErrorResponse(Response response) {
     if (errorResponseHandler != null) {
-      return errorResponseHandler.apply(response);
+      return errorResponseHandler.handle(response);
     } else {
       return defaultHandleErrorResponse(response);
     }

@@ -52,7 +52,7 @@ class ErrorResponseHandlersTest extends JsonPlaceholderTest {
 
   @Test
   void testParseResponse() {
-    POET.errorResponseHandler = ErrorResponseHandlers.parseResponseHandler(POET)
+    POET.errorResponseHandler = ErrorResponseHandlers.parseResponseHandler()
 
     def response = POET.post("/something", body: [a: "b"])
 
