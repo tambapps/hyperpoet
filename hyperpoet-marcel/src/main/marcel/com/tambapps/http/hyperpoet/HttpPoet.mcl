@@ -1,7 +1,9 @@
 package com.tambapps.http.hyperpoet
 
 import java.util.function.Function;
+import okhttp3.Headers;
 import okhttp3.Request;
+import okhttp3.Response;
 
 import marcel.json.DynamicObjectSerializer
 
@@ -69,5 +71,18 @@ public class HttpPoet extends AbstractHttpPoet {
     Object o = request("POST", path, params, body, contentType, headers, acceptContentType, skipHistory, print, printRequestBody,
       printResponseBody, parser, composer)
     return DynamicObject.of(o)
+  }
+
+  protected fun Object handleResponse(Response response, ContentType acceptContentTypeOverride, Function parserOverride) {
+    dynobj o = super.handleResponse(response, acceptContentTypeOverride, parserOverride)
+    if (o != null) {
+      bool isSuccessful = response.isSuccessful()
+      int code = response.code()
+      Headers headers = response.headers()
+      o.registerMethod("successful") { isSuccessful }
+      o.registerMethod("code") { code }
+      o.registerMethod("headers") { headers }
+    }
+    return o
   }
 }

@@ -31,6 +31,9 @@ public class HttpPoetTest {
     assertEquals(1, todo.userId.value)
     assertEquals('Go to the grocery store', todo.title.value)
     assertFalse(todo.completed.asBool())
+    assertTrue(todo.successful().asBool())
+    assertEquals(200, todo.code().value)
+    assertNotNull(todo.headers())
   }
 
   @Test
@@ -60,6 +63,20 @@ public class HttpPoetTest {
       client.get("/todos/123456789")
     }
     assertEquals(404, responseException.code)
+  }
+
+  @Test
+  fun void testGet_notFound_parseResponse() {
+    client.errorResponseHandler = ErrorResponseHandlers.parseResponseHandler()
+    try {
+      dynobj response = client.get("/todos/123456789")
+      assertEquals(404, response.status.value)
+      assertFalse(response.successful().asBool())
+      assertEquals(404, response.code().value)
+      assertNotNull(response.headers())
+    } finally { // dispose
+      client.errorResponseHandler = null
+    }
   }
 
   @BeforeAll
