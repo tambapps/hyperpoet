@@ -49,7 +49,7 @@ public class HttpPoetTest {
 
   @Test
   fun void testPost() {
-    dynobj todo = client.post("/todos", body: [title: 'foo', completed: true, userId: 5])
+    dynobj todo = client.post "/todos", [title: 'foo', completed: true, userId: 5]
 
     assertEquals('foo', todo.title.value)
     assertTrue(todo.completed.asBool())

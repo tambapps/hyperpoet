@@ -15,9 +15,7 @@ public class HttpPoet extends AbstractHttpPoet {
     jsonGenerator.addSerializer(dynobj.class, new DynamicObjectSerializer())
   }
 
-  constructor(): super("") {
-    jsonGenerator.addSerializer(dynobj.class, new DynamicObjectSerializer())
-  }
+  constructor(): this("")
 
   fun DynamicObject request(String method, String path, Map params = null, Object body = null, ContentType contentType = null,
               Map headers = null, ContentType acceptContentType = null, Boolean skipHistory = null,
@@ -46,7 +44,7 @@ public class HttpPoet extends AbstractHttpPoet {
     return DynamicObject.of(o)
   }
 
-  fun DynamicObject patch(String path, Map params = null, Object body = null, ContentType contentType = null,
+  fun DynamicObject patch(String path, Object body = null, Map params = null, ContentType contentType = null,
             Map headers = null, ContentType acceptContentType = null, Boolean skipHistory = null,
             Boolean print = null, Boolean printRequestBody = null, Boolean printResponseBody = null,
             Function parser = null, Function composer = null) {
@@ -55,7 +53,7 @@ public class HttpPoet extends AbstractHttpPoet {
     return DynamicObject.of(o)
   }
 
-  fun DynamicObject put(String path, Map params = null, Object body = null, ContentType contentType = null,
+  fun DynamicObject put(String path, Object body = null, Map params = null, ContentType contentType = null,
             Map headers = null, ContentType acceptContentType = null, Boolean skipHistory = null,
             Boolean print = null, Boolean printRequestBody = null, Boolean printResponseBody = null,
             Function parser = null, Function composer = null) {
@@ -64,7 +62,7 @@ public class HttpPoet extends AbstractHttpPoet {
     return DynamicObject.of(o)
   }
 
-  fun DynamicObject post(String path, Map params = null, Object body = null, ContentType contentType = null,
+  fun DynamicObject post(String path, Object body = null, Map params = null, ContentType contentType = null,
             Map headers = null, ContentType acceptContentType = null, Boolean skipHistory = null,
             Boolean print = null, Boolean printRequestBody = null, Boolean printResponseBody = null,
             Function parser = null, Function composer = null) {
