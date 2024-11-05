@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
-public class OpenApiSpecPoeticInvoker implements PoeticInvoker<HttpPoet> {
+public class OpenApiSpecPoeticInvoker implements PoeticInvoker {
 
   private static final Pattern PATH_VARIABLE_PATTERN = Pattern.compile("\\{\\w+}");
 
@@ -91,7 +91,7 @@ public class OpenApiSpecPoeticInvoker implements PoeticInvoker<HttpPoet> {
 
   @Override
   public Object invokeOrThrow(HttpPoet poet, String methodName, Object[] args,
-      MissingMethodException e) throws IOException {
+                              MissingMethodException e) throws Exception {
     EndpointOperation op = endpointOperationMap.get(methodName);
     if (op == null) {
       throw e;

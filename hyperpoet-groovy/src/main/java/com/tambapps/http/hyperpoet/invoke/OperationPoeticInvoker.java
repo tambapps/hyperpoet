@@ -5,7 +5,6 @@ import com.tambapps.http.hyperpoet.HttpPoet;
 import groovy.lang.MissingMethodException;
 import lombok.AllArgsConstructor;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -16,7 +15,7 @@ import java.util.stream.Collectors;
  * Poetic invoker transforming operation name to endpoint
  */
 @AllArgsConstructor
-public class OperationPoeticInvoker implements PoeticInvoker<HttpPoet> {
+public class OperationPoeticInvoker implements PoeticInvoker {
 
   private final boolean useSForPosts;
 
@@ -26,7 +25,7 @@ public class OperationPoeticInvoker implements PoeticInvoker<HttpPoet> {
 
   @Override
   public Object invokeOrThrow(HttpPoet poet, String methodName, Object[] args,
-      MissingMethodException e) throws IOException {
+                              MissingMethodException e) throws Exception {
     // split words by upper case, including separators in words
     List<String> fields = Arrays.stream(methodName.split("(?=\\p{Upper})", -1))
         .map(s -> s.toLowerCase(Locale.ENGLISH))
