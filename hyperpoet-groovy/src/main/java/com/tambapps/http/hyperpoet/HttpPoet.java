@@ -52,8 +52,6 @@ import java.util.function.Function;
 @Setter
 public class HttpPoet extends AbstractHttpPoet implements GroovyObject {
 
-  public static final int DEFAULT_HISTORY_LIMIT = 10;
-
   private transient MetaClass metaClass = getDefaultMetaClass();
   private PoeticInvoker poeticInvoker = null;
 
