@@ -1,0 +1,11 @@
+package com.tambapps.http.hyperpoet.invoke
+
+import com.tambapps.http.hyperpoet.HttpPoet
+import marcel.lang.dynamic.MissingMethodException
+
+// TODO transform this into an interface when interface are implemented in Marcel
+class PoeticInvoker {
+
+  fun dynobj invoke(HttpPoet poet, String methodName, Map namedArgs, Object... args) -> null
+
+}
