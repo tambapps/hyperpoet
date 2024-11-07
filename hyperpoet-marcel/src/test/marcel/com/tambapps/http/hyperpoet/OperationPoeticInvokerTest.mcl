@@ -1,0 +1,50 @@
+package com.tambapps.http.hyperpoet
+
+import com.tambapps.http.hyperpoet.invoke.OperationPoeticInvoker
+
+import com.tambapps.http.garcon.Garcon
+import com.tambapps.http.garcon.ContentType as GarconContentType
+
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
+
+import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertFalse
+import static org.junit.jupiter.api.Assertions.assertNotNull
+import static org.junit.jupiter.api.Assertions.assertThrows
+import static org.junit.jupiter.api.Assertions.assertTrue
+
+public class OperationPoeticInvokerTest {
+
+  private static final String HOST = "localhost"
+  private static final int PORT = 8082
+  private static final Garcon GARCON = Garcon.fromInstance(new MockServer(),
+    contentType: GarconContentType.JSON, accept: GarconContentType.JSON)
+
+  internal HttpPoet client = newPoet()
+
+  @Test
+  fun void testList() {
+    dynobj todos = client.getTodos()
+    assertTrue(todos.asList().size() > 0)
+  }
+
+
+  @BeforeAll
+  static fun void initServer() {
+    GARCON.start(HOST, PORT)
+    Thread.sleep(500L)
+  }
+
+  @AfterAll
+  static fun void disposeServer() {
+    GARCON.stop()
+  }
+
+  private fun HttpPoet newPoet() {
+    HttpPoet p = new HttpPoet(baseUrl: "http://$HOST:$PORT", contentType: ContentType.JSON, acceptContentType: ContentType.JSON)
+    p.poeticInvoker = new OperationPoeticInvoker()
+    return p
+  }
+}
