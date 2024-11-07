@@ -18,7 +18,7 @@ public class HttpPoetTest {
 
   private static final String HOST = "localhost"
   private static final int PORT = 8082
-  private static final Garcon GARCON = Garcon.fromInstance(new MockServer(),
+  private static final Garcon GARCON = Garcon.fromInstance(new TodoApi(),
     contentType: GarconContentType.JSON, accept: GarconContentType.JSON)
 
   internal HttpPoet client = new HttpPoet(baseUrl: "http://$HOST:$PORT", contentType: ContentType.JSON, acceptContentType: ContentType.JSON)

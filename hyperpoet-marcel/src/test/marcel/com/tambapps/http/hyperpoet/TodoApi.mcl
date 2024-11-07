@@ -6,12 +6,12 @@ import com.tambapps.http.garcon.exception.*
 import java.net.InetAddress
 import java.util.concurrent.atomic.AtomicInteger
 
-class MockServer {
+class TodoApi {
   /**
    * Data
    **/
-  static final AtomicInteger ID_INCREMENT  = new AtomicInteger()
-  static final List TODOS = [
+  final AtomicInteger ID_INCREMENT  = new AtomicInteger()
+  final List TODOS = [
     new Todo(id: ID_INCREMENT.incrementAndGet(), userId: 1, title: "Go to the grocery store", completed: false),
     new Todo(id: ID_INCREMENT.incrementAndGet(), userId: 1, title: "Finish homeworks", completed: false),
     new Todo(id: ID_INCREMENT.incrementAndGet(), userId: 2, title: "Do the dishes", completed: false),

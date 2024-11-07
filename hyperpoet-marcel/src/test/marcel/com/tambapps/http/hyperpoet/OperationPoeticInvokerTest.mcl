@@ -19,7 +19,7 @@ public class OperationPoeticInvokerTest {
 
   private static final String HOST = "localhost"
   private static final int PORT = 8082
-  private static final Garcon GARCON = Garcon.fromInstance(new MockServer(),
+  private static final Garcon GARCON = Garcon.fromInstance(new TodoApi(),
     contentType: GarconContentType.JSON, accept: GarconContentType.JSON)
 
   internal HttpPoet client = newPoet()
@@ -30,6 +30,48 @@ public class OperationPoeticInvokerTest {
     assertTrue(todos.asList().size() > 0)
   }
 
+  @Test
+  fun void testGet() {
+    dynobj todo = client.getTodo(1)
+
+    assertEquals(1, todo.id.value)
+    assertEquals(1, todo.userId.value)
+    assertEquals('Go to the grocery store', todo.title.value)
+    assertFalse(todo.completed.asBool())
+    assertTrue(todo.successful().asBool())
+    assertEquals(200, todo.code().value)
+    assertNotNull(todo.headers())
+  }
+
+  @Test
+  fun void testPatch() {
+    dynobj todo = client.patchTodo(1, body: [title: 'new title'])
+
+    assertEquals(1, todo.id.value)
+    assertEquals(1, todo.userId.value)
+    assertEquals('new title', todo.title.value)
+    assertFalse(todo.completed.asBool())
+  }
+
+  @Test
+  fun void testPatch2() {
+    dynobj todo = client.patchTodo 1, [title: 'newer title']
+
+    assertEquals(1, todo.id.value)
+    assertEquals(1, todo.userId.value)
+    assertEquals('newer title', todo.title.value)
+    assertFalse(todo.completed.asBool())
+  }
+
+  @Test
+  fun void testPost() {
+    dynobj todo = client.postTodo([title: 'foo', completed: true, userId: 5])
+
+    assertEquals('foo', todo.title.value)
+    assertTrue(todo.completed.asBool())
+    assertEquals(5, todo.userId.value)
+    assertNotNull(todo.id)
+  }
 
   @BeforeAll
   static fun void initServer() {
