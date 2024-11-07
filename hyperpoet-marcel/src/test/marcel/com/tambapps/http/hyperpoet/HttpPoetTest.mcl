@@ -1,11 +1,5 @@
 package com.tambapps.http.hyperpoet
 
-import com.tambapps.http.garcon.Garcon
-
-import com.tambapps.http.garcon.ContentType as GarconContentType
-
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertEquals
@@ -14,14 +8,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull
 import static org.junit.jupiter.api.Assertions.assertThrows
 import static org.junit.jupiter.api.Assertions.assertTrue
 
-public class HttpPoetTest {
+public class HttpPoetTest extends TodoApiRunner {
 
-  private static final String HOST = "localhost"
-  private static final int PORT = 8082
-  private static final Garcon GARCON = Garcon.fromInstance(new TodoApi(),
-    contentType: GarconContentType.JSON, accept: GarconContentType.JSON)
-
-  internal HttpPoet client = new HttpPoet(baseUrl: "http://$HOST:$PORT", contentType: ContentType.JSON, acceptContentType: ContentType.JSON)
+  internal HttpPoet client = new HttpPoet(baseUrl: "http://${TodoApiRunner.HOST}:${TodoApiRunner.PORT}", contentType: ContentType.JSON, acceptContentType: ContentType.JSON)
 
   @Test
   fun void testGet() {
@@ -77,16 +66,5 @@ public class HttpPoetTest {
     } finally { // dispose
       client.errorResponseHandler = null
     }
-  }
-
-  @BeforeAll
-  static fun void initServer() {
-    GARCON.start(HOST, PORT)
-    Thread.sleep(500L)
-  }
-
-  @AfterAll
-  static fun void disposeServer() {
-    GARCON.stop()
   }
 }

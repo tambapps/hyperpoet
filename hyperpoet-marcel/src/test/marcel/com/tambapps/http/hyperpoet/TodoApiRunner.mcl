@@ -1,0 +1,25 @@
+package com.tambapps.http.hyperpoet
+
+import com.tambapps.http.garcon.Garcon
+import com.tambapps.http.garcon.ContentType as GarconContentType
+
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+
+class TodoApiRunner {
+  static final String HOST = "localhost"
+  static final int PORT = 8082
+  private static Garcon GARCON
+
+  @BeforeAll
+  static fun void initServer() {
+    GARCON = Garcon.fromInstance(new TodoApi(), contentType: GarconContentType.JSON, accept: GarconContentType.JSON)
+    GARCON.start(HOST, PORT)
+    Thread.sleep(500L)
+  }
+
+  @AfterAll
+  static fun void disposeServer() {
+    GARCON.stop()
+  }
+}
