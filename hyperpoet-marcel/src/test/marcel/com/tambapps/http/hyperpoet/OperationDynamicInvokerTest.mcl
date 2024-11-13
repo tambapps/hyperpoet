@@ -1,6 +1,6 @@
 package com.tambapps.http.hyperpoet
 
-import com.tambapps.http.hyperpoet.invoke.OperationPoeticInvoker
+import com.tambapps.http.hyperpoet.invoke.OperationDynamicInvoker
 
 import org.junit.jupiter.api.Test
 
@@ -10,9 +10,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull
 import static org.junit.jupiter.api.Assertions.assertThrows
 import static org.junit.jupiter.api.Assertions.assertTrue
 
-public class OperationPoeticInvokerTest extends TodoApiRunner {
+public class OperationDynamicInvokerTest extends TodoApiRunner {
 
-  internal HttpPoet client = newPoet()
+  internal DynamicHttpPoet client = newPoet()
 
   @Test
   fun void testList() {
@@ -63,9 +63,9 @@ public class OperationPoeticInvokerTest extends TodoApiRunner {
     assertNotNull(todo.id)
   }
 
-  private fun HttpPoet newPoet() {
-    HttpPoet p = new HttpPoet(baseUrl: "http://${TodoApiRunner.HOST}:${TodoApiRunner.PORT}", contentType: ContentType.JSON, acceptContentType: ContentType.JSON)
-    p.poeticInvoker = new OperationPoeticInvoker()
+  private fun DynamicHttpPoet newPoet() {
+    DynamicHttpPoet p = new DynamicHttpPoet(baseUrl: "http://${TodoApiRunner.HOST}:${TodoApiRunner.PORT}", contentType: ContentType.JSON, acceptContentType: ContentType.JSON)
+    p.dynamicInvoker = new OperationDynamicInvoker()
     return p
   }
 }

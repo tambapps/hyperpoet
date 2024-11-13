@@ -1,0 +1,20 @@
+package com.tambapps.http.hyperpoet
+
+import com.tambapps.http.hyperpoet.invoke.DynamicInvoker
+
+import marcel.lang.dynamic.MissingMethodException
+
+class DynamicHttpPoet extends HttpPoet implements DynamicObject {
+
+  DynamicInvoker dynamicInvoker = null;
+
+  constructor(String baseUrl, ContentType contentType = null, ContentType acceptContentType = null): super(baseUrl, contentType, acceptContentType)
+
+  constructor(): this("")
+
+  override fun Object getValue() -> return this
+
+  override fun dynobj invokeMethod(String name, Map namedArgs, Object... args) {
+    return dynamicInvoker?.invoke(this, name, namedArgs, args)
+  }
+}

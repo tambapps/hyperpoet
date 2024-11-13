@@ -1,18 +1,13 @@
 package com.tambapps.http.hyperpoet
 
-import com.tambapps.http.hyperpoet.invoke.PoeticInvoker
+import java.util.function.Function
+import okhttp3.Headers
+import okhttp3.Request
+import okhttp3.Response
 
-import java.util.function.Function;
-import okhttp3.Headers;
-import okhttp3.Request;
-import okhttp3.Response;
-
-import marcel.lang.dynamic.MissingMethodException
 import marcel.json.DynamicObjectSerializer
 
-public class HttpPoet extends AbstractHttpPoet implements DynamicObject {
-
-  PoeticInvoker poeticInvoker = null;
+class HttpPoet extends AbstractHttpPoet {
 
   constructor(String baseUrl, ContentType contentType = null, ContentType acceptContentType = null): super(baseUrl) {
     this.contentType = contentType
@@ -87,11 +82,5 @@ public class HttpPoet extends AbstractHttpPoet implements DynamicObject {
       o.registerMethod("headers") { headers }
     }
     return o
-  }
-
-  override fun Object getValue() -> return this
-
-  override fun dynobj invokeMethod(String name, Map namedArgs, Object... args) {
-    return poeticInvoker?.invoke(this, name, namedArgs, args)
   }
 }

@@ -5,7 +5,7 @@ import com.tambapps.http.hyperpoet.*
 import marcel.lang.dynamic.MissingMethodException
 import java.util.stream.Collectors
 
-class OperationPoeticInvoker extends PoeticInvoker {
+class OperationDynamicInvoker extends DynamicInvoker {
 
   override fun dynobj invoke(HttpPoet poet, String methodName, Map namedArgs, Object... args) {
     List fields = methodName.split("(?=\\p{Upper})", -1).map { String it -> it.toLowerCase() }
