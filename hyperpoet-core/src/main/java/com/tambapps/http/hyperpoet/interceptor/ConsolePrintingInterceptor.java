@@ -75,28 +75,31 @@ public class ConsolePrintingInterceptor implements Interceptor {
 
   private void printRequest(Request request) throws IOException {
     print(request.method().toUpperCase(Locale.ENGLISH) + " ");
-    StringBuilder pathBuilder = new StringBuilder();
+    StringBuilder endpointBuilder = new StringBuilder();
     HttpUrl url = request.url();
     if (printFullUrl) {
-      pathBuilder.append(url.scheme())
+      endpointBuilder.append(url.scheme())
           .append("://")
           .append(url.host());
+      if (url.port() != 80 && url.port() != 443) { // HTTP and HTTPS ports
+        endpointBuilder.append(":").append(url.port());
+      }
     }
 
-    pathBuilder.append('/').append(String.join("/", url.pathSegments()));
+    endpointBuilder.append('/').append(String.join("/", url.pathSegments()));
     int querySize = url.querySize();
     if (querySize > 0) {
-      pathBuilder.append("?");
+      endpointBuilder.append("?");
       for (int i = 0; i < querySize; i++) {
-        pathBuilder.append(URLDecoder.decode(url.queryParameterName(i), "UTF-8"))
+        endpointBuilder.append(URLDecoder.decode(url.queryParameterName(i), "UTF-8"))
             .append("=")
             .append(URLDecoder.decode(String.valueOf(url.queryParameterValue(i)), "UTF-8"));
         if (i < querySize - 1) {
-          pathBuilder.append("&");
+          endpointBuilder.append("&");
         }
       }
     }
-    print(BLUE_SKY, pathBuilder);
+    print(BLUE_SKY, endpointBuilder);
     println();
     if (printRequestHeaders) {
       printHeaders(request.headers());
