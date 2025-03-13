@@ -37,6 +37,27 @@ public class HttpPoetTest extends TodoApiRunner {
   }
 
   @Test
+  fun void testJsonPatch() {
+    // should also work with dynamic object
+    dynobj todo = client.jsonPatch("/todos/1/json-patch", patch: [
+      JsonPatch.replace(path: '/title', value: 'new title 2'),
+      JsonPatch.replace(path: '/userId', value: 46)
+    ])
+    assertEquals(1, todo.id.value)
+    assertEquals(46, todo.userId.value)
+    assertEquals('new title 2', todo.title.value)
+    assertFalse(todo.completed.asBool())
+  }
+
+  @Test
+  fun void testJsonPatch_singlePatch() {
+    // should also work with dynamic object
+    dynobj todo = client.jsonPatch("/todos/1/json-patch", patch: JsonPatch.replace(path: '/title', value: 'some title'))
+    assertEquals(1, todo.id.value)
+    assertEquals('some title', todo.title.value)
+  }
+
+  @Test
   fun void testPost() {
     dynobj todo = client.post "/todos", [title: 'foo', completed: true, userId: 5]
 

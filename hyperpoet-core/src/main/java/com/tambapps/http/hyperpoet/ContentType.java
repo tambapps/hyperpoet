@@ -25,6 +25,7 @@ public class ContentType implements Comparable<ContentType> {
 
   public static final ContentType WILDCARD = new ContentType("*", "*");
   public static final ContentType JSON = new ContentType("application", "json");
+  public static final ContentType JSON_PATCH = new ContentType("application", "json-patch+json");
   public static final ContentType XML = new ContentType("application", "xml");
   public static final ContentType TEXT = new ContentType("text", "plain");
   public static final ContentType HTML = new ContentType("text", "html");

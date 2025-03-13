@@ -62,6 +62,24 @@ class TodoApi {
     return todo
   }
 
+  @Patch('/todos/{id}/json-patch')
+  fun Object jsonPatchTodo(@PathVariable("id") Integer id, @ParsedRequestBody dynobj patches) {
+    Todo todo = getTodo(id)
+    for (dynobj patch in patches) {
+      Object value = patch['value'].value
+      switch(patch.op.asString()) {
+        'replace' -> switch(patch.path.asString()) {
+          '/title' -> todo.title = value
+          '/userId' -> todo.userId = value
+          '/title' -> todo.title = value
+          '/completed' -> todo.completed = value
+        }
+        // doesn't handle other operations
+      }
+    }
+    return todo
+  }
+
   @Delete('/todos/{id}')
   fun Object deleteTodo(@PathVariable("id") Integer id) {
     Todo todo = TODOS.find { Todo it -> it.id == id }
